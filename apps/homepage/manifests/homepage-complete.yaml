@@ -320,7 +320,7 @@ spec:
                 - ALL
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: "localhost:3000,10.10.21.200:30090,10.10.21.211:30090,10.10.21.212:30090"
+              value: "*"
             - name: PUID
               value: "1000"
             - name: PGID
@@ -350,30 +350,6 @@ spec:
               subPath: widgets.yaml
             - mountPath: /app/config/logs
               name: logs
-          livenessProbe:
-            httpGet:
-              path: /api/healthz
-              port: http
-            initialDelaySeconds: 30
-            failureThreshold: 3
-            timeoutSeconds: 10
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /api/healthz
-              port: http
-            initialDelaySeconds: 5
-            failureThreshold: 3
-            timeoutSeconds: 5
-            periodSeconds: 10
-          startupProbe:
-            httpGet:
-              path: /api/healthz
-              port: http
-            initialDelaySeconds: 10
-            failureThreshold: 30
-            timeoutSeconds: 5
-            periodSeconds: 5
           resources:
             limits:
               cpu: 500m
