@@ -1,0 +1,43 @@
+# Homepage Settings Configuration
+# Edit this file to customize the appearance and behavior of your dashboard
+
+title: "Lab Dashboard"
+background: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
+cardBlur: md
+theme: dark
+color: slate
+headerStyle: boxed
+hideVersion: true
+
+# Layout configuration
+layout:
+  - Infrastructure:
+      style: row
+      columns: 3
+  - Media Services:
+      style: row  
+      columns: 2
+  - Network & Security:
+      style: row
+      columns: 2
+  - Kubernetes Management:
+      style: row
+      columns: 4
+
+# Language and localization
+language: en
+
+# Other settings
+startUrl: /
+
+# Favicon (optional)
+# favicon: https://yourdomain.com/favicon.ico
+
+# Custom CSS and JS files
+useEqualHeights: true
+
+# Quick search settings
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+  hideVisitURL: false

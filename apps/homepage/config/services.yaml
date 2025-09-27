@@ -1,0 +1,60 @@
+# Homepage Services Configuration
+# Edit this file to add/modify services shown in your dashboard
+
+- Infrastructure:
+    - Proxmox Node 1:
+        href: https://10.10.21.100:8006
+        description: Primary hypervisor
+        icon: proxmox.png
+        # Uncomment and configure widget when ready:
+        # widget:
+        #   type: proxmox
+        #   url: https://10.10.21.100:8006
+        #   username: homepage@pam
+        #   password: your-password-or-token
+
+    - Proxmox Node 2:
+        href: https://10.10.21.101:8006
+        description: Secondary hypervisor
+        icon: proxmox.png
+
+- Media Services:
+    - Jellyfin:
+        href: https://jellyfin.yourdomain.com
+        description: Media streaming server
+        icon: jellyfin.png
+        # Uncomment and configure widget when ready:
+        # widget:
+        #   type: jellyfin
+        #   url: https://jellyfin.yourdomain.com
+        #   key: your-jellyfin-api-key
+        #   enableBlocks: true
+        #   enableNowPlaying: true
+
+- Network & Security:
+    - Pi-hole:
+        href: http://10.10.21.50/admin
+        description: Network-wide ad blocker
+        icon: pihole.png
+        # Uncomment and configure widget when ready:
+        # widget:
+        #   type: pihole
+        #   url: http://10.10.21.50
+        #   key: your-pihole-api-key
+
+- Kubernetes Management:
+    - Homepage Dashboard:
+        href: http://10.10.21.200:30090
+        description: This dashboard
+        icon: homepage.png
+        
+    - Cluster Overview:
+        href: "#"
+        description: Kubernetes cluster status
+        icon: kubernetes.png
+
+# To add a new service:
+# 1. Copy an existing service block
+# 2. Update the href, description, and icon
+# 3. Configure the widget if supported
+# 4. Commit and push to deploy automatically

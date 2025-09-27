@@ -1,0 +1,109 @@
+name: Deploy Homepage to Lab
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'config/**'
+      - 'manifests/**'
+      - '.github/workflows/deploy.yml'
+  
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+
+    - name: Verify cluster connection
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Update ConfigMap with new configuration
+      run: |
+        # Create updated ConfigMap from config files
+        kubectl create configmap homepage-new \
+          --from-file=settings.yaml=config/settings.yaml \
+          --from-file=services.yaml=config/services.yaml \
+          --from-file=widgets.yaml=config/widgets.yaml \
+          --from-file=bookmarks.yaml=config/bookmarks.yaml \
+          --from-file=kubernetes.yaml=config/kubernetes.yaml \
+          --from-file=docker.yaml=config/docker.yaml \
+          --from-file=custom.css=config/custom.css \
+          --from-file=custom.js=config/custom.js \
+          --dry-run=client -o yaml > /tmp/new-configmap.yaml
+        
+        # Apply the new ConfigMap
+        kubectl apply -f /tmp/new-configmap.yaml
+        
+        # Replace the old ConfigMap
+        kubectl delete configmap homepage --ignore-not-found=true
+        kubectl create configmap homepage \
+          --from-file=settings.yaml=config/settings.yaml \
+          --from-file=services.yaml=config/services.yaml \
+          --from-file=widgets.yaml=config/widgets.yaml \
+          --from-file=bookmarks.yaml=config/bookmarks.yaml \
+          --from-file=kubernetes.yaml=config/kubernetes.yaml \
+          --from-file=docker.yaml=config/docker.yaml \
+          --from-file=custom.css=config/custom.css \
+          --from-file=custom.js=config/custom.js
+
+    - name: Apply manifests if changed
+      run: |
+        if git diff --name-only HEAD~1 HEAD | grep -q "manifests/"; then
+          echo "Manifest changes detected, applying..."
+          kubectl apply -f manifests/homepage-complete.yaml
+        else
+          echo "No manifest changes, skipping..."
+        fi
+
+    - name: Restart Homepage deployment
+      run: |
+        kubectl rollout restart deployment/homepage
+        kubectl rollout status deployment/homepage --timeout=300s
+
+    - name: Get access information
+      run: |
+        echo "## Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+        echo "**Access Homepage:** http://$NODE_IP:30090" >> $GITHUB_STEP_SUMMARY
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Deployment Status:**" >> $GITHUB_STEP_SUMMARY
+        kubectl get pods -l app.kubernetes.io/name=homepage >> $GITHUB_STEP_SUMMARY
+
+    - name: Check for errors
+      run: |
+        # Wait a moment for pod to start
+        sleep 30
+        
+        # Check for common errors
+        LOGS=$(kubectl logs -l app.kubernetes.io/name=homepage --tail=50 || echo "No logs available")
+        
+        if echo "$LOGS" | grep -q "Error getting metrics"; then
+          echo "⚠️ Metrics server errors detected. Consider running: make fix-metrics-talos" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if echo "$LOGS" | grep -qE "ERROR|error:"; then
+          echo "⚠️ Application errors detected. Check logs with: kubectl logs -l app.kubernetes.io/name=homepage" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ No errors detected in application logs" >> $GITHUB_STEP_SUMMARY
+        fi

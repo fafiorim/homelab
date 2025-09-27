@@ -36,7 +36,7 @@ data:
   kubernetes.yaml: |
     mode: cluster
   settings.yaml: |
-    title: "My Dashboard"
+    title: "Lab Dashboard"
     background: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
     cardBlur: md
     theme: dark
@@ -44,22 +44,31 @@ data:
     headerStyle: boxed
     hideVersion: true
     layout:
-      - Management:
+      - Infrastructure:
           style: row
           columns: 3
-      - Media:
+      - Media Services:
           style: row  
           columns: 2
-      - Development:
+      - Network & Security:
+          style: row
+          columns: 2
+      - Kubernetes Management:
           style: row
           columns: 4
+    language: en
+    startUrl: /
+    useEqualHeights: true
+    quicklaunch:
+      searchDescriptions: true
+      hideInternetSearch: false
+      hideVisitURL: false
   custom.css: ""
-  custom.js: ""
   bookmarks.yaml: |
     - Development:
         - GitHub:
             - abbr: GH
-              href: https://github.com/
+              href: https://github.com/fafiorim
               icon: github.png
         - GitLab:
             - abbr: GL
@@ -70,19 +79,15 @@ data:
               href: https://hub.docker.com/
               icon: docker.png
     
-    - Cloud:
-        - AWS Console:
-            - abbr: AWS
-              href: https://console.aws.amazon.com/
-              icon: aws.png
-        - Google Cloud:
-            - abbr: GCP
-              href: https://console.cloud.google.com/
-              icon: google-cloud.png
-        - DigitalOcean:
-            - abbr: DO
-              href: https://cloud.digitalocean.com/
-              icon: digitalocean.png
+    - Cloud & Infrastructure:
+        - Proxmox:
+            - abbr: PVE
+              href: https://10.10.21.100:8006
+              icon: proxmox.png
+        - Talos Dashboard:
+            - abbr: TAL
+              href: https://www.talos.dev/
+              icon: talos.png
     
     - Documentation:
         - Kubernetes Docs:
@@ -93,60 +98,45 @@ data:
             - abbr: HP
               href: https://gethomepage.dev/
               icon: homepage.png
-        - Docker Docs:
+        - Talos Documentation:
             - abbr: DOC
-              href: https://docs.docker.com/
-              icon: docker.png
+              href: https://www.talos.dev/docs/
+              icon: talos.png
   
   services.yaml: |
-    - Management:
-        - Kubernetes Dashboard:
-            href: http://localhost/
-            description: Cluster management interface
-            icon: kubernetes.png
-            siteMonitor: http://localhost/
-            
-        - Portainer:
-            href: http://localhost/
-            description: Container management
-            icon: portainer.png
-            
-        - Grafana:
-            href: http://localhost/
-            description: Monitoring and observability
-            icon: grafana.png
+    - Infrastructure:
+        - Proxmox Node 1:
+            href: https://10.10.21.100:8006
+            description: Primary hypervisor
+            icon: proxmox.png
+        
+        - Proxmox Node 2:
+            href: https://10.10.21.101:8006
+            description: Secondary hypervisor
+            icon: proxmox.png
     
-    - Media:
-        - Plex:
-            href: http://localhost/
-            description: Media streaming server
-            icon: plex.png
-            
+    - Media Services:
         - Jellyfin:
-            href: http://localhost/
-            description: Open source media server
+            href: https://jellyfin.yourdomain.com
+            description: Media streaming server
             icon: jellyfin.png
     
-    - Development:
-        - GitLab:
-            href: http://localhost/
-            description: Self-hosted Git repository
-            icon: gitlab.png
+    - Network & Security:
+        - Pi-hole:
+            href: http://10.10.21.50/admin
+            description: Network-wide ad blocker
+            icon: pihole.png
+    
+    - Kubernetes Management:
+        - Homepage Dashboard:
+            href: http://10.10.21.200:30090
+            description: This dashboard
+            icon: homepage.png
             
-        - Jenkins:
-            href: http://localhost/
-            description: CI/CD automation
-            icon: jenkins.png
-            
-        - SonarQube:
-            href: http://localhost/
-            description: Code quality analysis
-            icon: sonarqube.png
-            
-        - Nexus:
-            href: http://localhost/
-            description: Artifact repository
-            icon: nexus.png
+        - Cluster Overview:
+            href: "#"
+            description: Kubernetes cluster status
+            icon: kubernetes.png
   
   widgets.yaml: |
     - kubernetes:
@@ -155,7 +145,7 @@ data:
           cpu: true
           memory: true
           showLabel: true
-          label: "cluster"
+          label: "Production Cluster"
         nodes:
           show: true
           cpu: true
@@ -179,8 +169,6 @@ data:
           timeStyle: short
           dateStyle: short
           hourCycle: h23
-  
-  docker.yaml: ""
 
 ---
 # ClusterRole for Kubernetes API access
@@ -249,7 +237,7 @@ subjects:
     namespace: default
 
 ---
-# Service - ClusterIP (default)
+# Service - ClusterIP
 apiVersion: v1
 kind: Service
 metadata:
@@ -332,7 +320,7 @@ spec:
                 - ALL
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: "localhost:3000"  # Update this with your actual hosts
+              value: "localhost:3000,10.10.21.200:30090,10.10.21.211:30090,10.10.21.212:30090"
             - name: PUID
               value: "1000"
             - name: PGID
@@ -342,18 +330,12 @@ spec:
               containerPort: 3000
               protocol: TCP
           volumeMounts:
-            - mountPath: /app/config/custom.js
-              name: homepage-config
-              subPath: custom.js
             - mountPath: /app/config/custom.css
               name: homepage-config
               subPath: custom.css
             - mountPath: /app/config/bookmarks.yaml
               name: homepage-config
               subPath: bookmarks.yaml
-            - mountPath: /app/config/docker.yaml
-              name: homepage-config
-              subPath: docker.yaml
             - mountPath: /app/config/kubernetes.yaml
               name: homepage-config
               subPath: kubernetes.yaml
@@ -405,40 +387,3 @@ spec:
             name: homepage
         - name: logs
           emptyDir: {}
-
----
-# Ingress (optional)
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: homepage
-  namespace: default
-  labels:
-    app.kubernetes.io/name: homepage
-  annotations:
-    # Uncomment and configure based on your ingress controller
-    # nginx.ingress.kubernetes.io/rewrite-target: /
-    # traefik.ingress.kubernetes.io/router.entrypoints: web
-    # cert-manager.io/cluster-issuer: letsencrypt-prod
-    gethomepage.dev/description: "Dynamically Detected Homepage"
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/group: "Cluster Management"
-    gethomepage.dev/icon: homepage.png
-    gethomepage.dev/name: "Homepage"
-spec:
-  rules:
-    - host: homepage.example.com  # Update with your domain
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: homepage
-                port:
-                  number: 3000
-  # Uncomment if you have TLS/SSL
-  # tls:
-  #   - hosts:
-  #       - homepage.example.com
-  #     secretName: homepage-tls

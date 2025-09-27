@@ -6,9 +6,11 @@ A comprehensive guide to deploy [Homepage](https://github.com/gethomepage/homepa
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Repository Structure](#repository-structure)
 - [Deployment Methods](#deployment-methods)
 - [Configuration](#configuration)
 - [Access Methods](#access-methods)
+- [Metrics Server Setup](#metrics-server-setup)
 - [Customization](#customization)
 - [Troubleshooting](#troubleshooting)
 - [Security Considerations](#security-considerations)
@@ -19,33 +21,70 @@ A comprehensive guide to deploy [Homepage](https://github.com/gethomepage/homepa
 - Kubernetes cluster (tested on v1.34.0)
 - `kubectl` configured to access your cluster
 - Basic understanding of Kubernetes resources
+- Optional: `make` for simplified commands
 
-## Quick Start
+## GitOps Workflow
 
-1. **Clone this repository:**
-   ```bash
-   git clone <your-repo-url>
-   cd homepage-k8s
-   ```
+This repository is designed for GitOps - any changes pushed to GitHub will automatically deploy to your lab environment.
 
-2. **Deploy using manifests:**
-   ```bash
-   kubectl apply -f manifests/
-   ```
+### How It Works
 
-3. **Get your node IP:**
-   ```bash
-   kubectl get nodes -o wide
-   ```
+1. **Edit configuration files** in the repository
+2. **Commit and push** to GitHub
+3. **GitHub Actions** automatically deploys changes to your cluster
+4. **Homepage updates** with new configuration
 
-4. **Update allowed hosts:**
-   ```bash
-   # Replace with your actual node IP
-   kubectl set env deployment/homepage HOMEPAGE_ALLOWED_HOSTS="YOUR_NODE_IP:30090,localhost:3000"
-   ```
+### Making Changes
 
-5. **Access Homepage:**
-   Open `http://YOUR_NODE_IP:30090` in your browser
+#### Adding Services
+Edit `config/services.yaml`:
+```bash
+git clone https://github.com/fafiorim/homepage-k8s.git
+cd homepage-k8s
+vim config/services.yaml  # Add your services
+git add config/services.yaml
+git commit -m "Add Jellyfin and Pi-hole services"
+git push origin main
+# Deployment happens automatically
+```
+
+#### Updating Settings
+```bash
+vim config/settings.yaml  # Change theme, layout, etc.
+git commit -am "Update theme to light mode"
+git push origin main
+```
+
+#### Modifying Widgets
+```bash
+vim config/widgets.yaml  # Add/remove widgets
+git commit -am "Add weather widget"
+git push origin main
+```
+
+## Repository Structure
+
+```
+homepage-k8s/
+├── README.md                          # Main documentation
+├── CHANGELOG.md                       # Version history  
+├── .gitignore                         # Git ignore rules
+├── Makefile                          # Common operations
+├── kustomization.yaml                # Kustomize configuration
+├── deploy.sh                         # Main deployment script
+├── quickstart.sh                     # Quick deployment script
+├── manifests/
+│   ├── homepage-complete.yaml        # Complete deployment manifest
+│   ├── service-loadbalancer.yaml     # LoadBalancer service option
+│   └── metrics-server-talos.yaml     # Metrics server for Talos Linux
+├── examples/
+│   ├── services-example.yaml         # Example service configurations
+│   └── widgets-example.yaml          # Example widget configurations
+├── patches/
+│   └── security-context.yaml         # Security hardening patches
+└── scripts/
+    └── troubleshoot.sh               # Troubleshooting script
+```
 
 ## Deployment Methods
 
@@ -57,22 +96,12 @@ Deploy all resources with proper RBAC permissions:
 kubectl apply -f manifests/homepage-complete.yaml
 ```
 
-### Method 2: Helm Chart
+### Method 2: Separate Resource Files
+
+Deploy individual components for more granular control:
 
 ```bash
-# Add repository
-helm repo add jameswynn https://jameswynn.github.io/helm-charts
-helm repo update
-
-# Install
-helm install homepage jameswynn/homepage
-```
-
-### Method 3: Separate Resource Files
-
-Deploy individual components:
-
-```bash
+# Deploy in order
 kubectl apply -f manifests/serviceaccount.yaml
 kubectl apply -f manifests/configmap.yaml
 kubectl apply -f manifests/rbac.yaml
@@ -80,6 +109,8 @@ kubectl apply -f manifests/deployment.yaml
 kubectl apply -f manifests/service.yaml
 kubectl apply -f manifests/ingress.yaml  # Optional
 ```
+
+Note: For Method 2, you'll need to split the complete manifest into separate files.
 
 ## Configuration
 
@@ -179,6 +210,81 @@ kubectl port-forward svc/homepage 3000:3000
 # Access: http://localhost:3000
 ```
 
+## Metrics Server Setup
+
+Homepage's resource and Kubernetes widgets require metrics-server to display CPU and memory usage. Without it, you'll see errors like:
+
+```
+error: <widget> Error getting metrics, ensure you have metrics-server installed
+```
+
+### Quick Fix: Disable Metrics Widgets
+
+If you want to stop the errors immediately:
+
+```bash
+make disable-metrics-widgets
+```
+
+### Install Metrics Server
+
+#### Standard Installation
+
+For most Kubernetes distributions:
+```bash
+make metrics-server
+```
+
+#### Talos Linux Installation
+
+For Talos Linux clusters, use the specialized configuration:
+```bash
+make metrics-server-talos
+```
+
+#### Fix Existing Installation
+
+If you already have metrics-server but it's not working with Talos:
+```bash
+make fix-metrics-talos
+```
+
+#### Manual Installation
+
+For standard clusters:
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+For Talos Linux:
+```bash
+kubectl apply -f manifests/metrics-server-talos.yaml
+```
+
+#### Verify Installation
+
+```bash
+make check-metrics
+# Or manually:
+kubectl top nodes
+kubectl top pods
+```
+
+### Troubleshooting Metrics
+
+If metrics are still not working:
+
+```bash
+# Run the troubleshooting script
+./scripts/troubleshoot.sh
+
+# Check metrics-server logs
+kubectl logs -n kube-system deployment/metrics-server
+
+# Test metrics API directly
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/nodes
+```
+
 ## Customization
 
 ### Adding Services
@@ -248,6 +354,23 @@ hideVersion: true
 
 ## Troubleshooting
 
+### Automated Troubleshooting
+
+Run the comprehensive troubleshooting script:
+
+```bash
+./scripts/troubleshoot.sh
+```
+
+This script will check:
+- Deployment status
+- Service configuration  
+- ConfigMap settings
+- Metrics server availability
+- Application logs
+- RBAC permissions
+- Common issues and solutions
+
 ### Common Issues
 
 1. **Pod not starting:**
@@ -274,6 +397,128 @@ hideVersion: true
    - Ensure metrics-server is installed
    - Verify RBAC permissions for metrics.k8s.io
 
+### Metrics Server Issues
+
+Homepage's resource and Kubernetes widgets require metrics-server to display CPU and memory usage. If you see errors like:
+
+```
+error: <widget> Error getting metrics, ensure you have metrics-server installed
+```
+
+#### Quick Fix: Disable Metrics Widgets
+
+Edit the ConfigMap to remove metrics-dependent widgets:
+
+```bash
+kubectl edit configmap homepage
+```
+
+Replace widgets.yaml with:
+```yaml
+widgets.yaml: |
+  - search:
+      provider: duckduckgo
+      target: _blank
+  
+  - datetime:
+      text_size: xl
+      format:
+        timeStyle: short
+        dateStyle: short
+        hourCycle: h23
+  
+  - kubernetes:
+      cluster:
+        show: true
+        cpu: false
+        memory: false
+        showLabel: true
+        label: "cluster"
+      nodes:
+        show: false
+```
+
+#### Install Metrics Server
+
+For most Kubernetes distributions:
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+For local development clusters (kind, minikube, etc.):
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+```
+
+#### Talos Linux Specific Configuration
+
+For Talos Linux clusters, metrics-server requires additional configuration:
+
+```bash
+# Patch metrics-server for Talos compatibility
+kubectl patch deployment metrics-server -n kube-system --type='json' -p='[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/containers/0/args/-",
+    "value": "--kubelet-insecure-tls"
+  },
+  {
+    "op": "add", 
+    "path": "/spec/template/spec/containers/0/args/-",
+    "value": "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname"
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/containers/0/args/-", 
+    "value": "--kubelet-use-node-status-port"
+  }
+]'
+```
+
+Or apply a complete Talos-compatible configuration:
+```bash
+kubectl apply -f manifests/metrics-server-talos.yaml
+```
+
+#### Verify Metrics Server
+
+```bash
+# Check if metrics-server is running
+kubectl get pods -n kube-system | grep metrics-server
+
+# Test metrics availability
+kubectl top nodes
+kubectl top pods
+
+# Check metrics-server logs if issues persist
+kubectl logs -n kube-system deployment/metrics-server
+```
+
+### Using Make Commands
+
+The repository includes helpful Make commands:
+
+```bash
+# Check current status
+make status
+
+# Install metrics-server
+make metrics-server              # Standard installation
+make metrics-server-talos        # Talos-specific installation
+make fix-metrics-talos          # Fix existing installation for Talos
+make check-metrics              # Verify metrics availability
+
+# Disable widgets if needed
+make disable-metrics-widgets
+
+# Other useful commands
+make logs                       # View application logs
+make config                     # Edit configuration
+make restart                    # Restart deployment
+make get-access                 # Show access information
+```
+
 ### Debugging Commands
 
 ```bash
@@ -288,6 +533,10 @@ kubectl auth can-i get pods --as=system:serviceaccount:default:homepage
 
 # Test service connectivity
 kubectl port-forward svc/homepage 3000:3000
+
+# Check metrics availability
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/nodes
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/pods
 ```
 
 ## Security Considerations
