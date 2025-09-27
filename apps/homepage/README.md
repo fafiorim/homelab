@@ -64,26 +64,29 @@ git push origin main
 
 ## Repository Structure
 
+## Repository Structure
+
 ```
-homepage-k8s/
-├── README.md                          # Main documentation
-├── CHANGELOG.md                       # Version history  
-├── .gitignore                         # Git ignore rules
-├── Makefile                          # Common operations
-├── kustomization.yaml                # Kustomize configuration
-├── deploy.sh                         # Main deployment script
-├── quickstart.sh                     # Quick deployment script
-├── manifests/
-│   ├── homepage-complete.yaml        # Complete deployment manifest
-│   ├── service-loadbalancer.yaml     # LoadBalancer service option
-│   └── metrics-server-talos.yaml     # Metrics server for Talos Linux
-├── examples/
-│   ├── services-example.yaml         # Example service configurations
-│   └── widgets-example.yaml          # Example widget configurations
-├── patches/
-│   └── security-context.yaml         # Security hardening patches
-└── scripts/
-    └── troubleshoot.sh               # Troubleshooting script
+├── apps/
+│   └── homepage/
+│       ├── config/
+│       │   ├── bookmarks.yaml
+│       │   ├── custom.css
+│       │   ├── kubernetes.yaml
+│       │   ├── services.yaml
+│       │   ├── settings.yaml
+│       │   └── widgets.yaml
+│       ├── docs/
+│       │   ├── CONFIGURATION.md
+│       │   └── STABILITY-FIX.md
+│       ├── manifests/
+│       │   ├── homepage-complete.yaml
+│       │   ├── metrics-server-talos.yaml
+│       │   └── service-loadbalancer.yaml
+│       └── scripts/
+│           ├── deploy-fixes.sh
+│           └── troubleshoot.sh
+└── README.md
 ```
 
 ## Deployment Methods

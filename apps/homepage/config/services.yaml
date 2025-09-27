@@ -2,9 +2,9 @@
 # Edit this file to add/modify services shown in your dashboard
 
 - Infrastructure:
-    - Proxmox Node 1:
+    - Proxmox Firefly:
         href: https://10.10.21.100:8006
-        description: Primary hypervisor
+        description: Primary hypervisor node
         icon: proxmox.png
         # Uncomment and configure widget when ready:
         # widget:
@@ -13,20 +13,36 @@
         #   username: homepage@pam
         #   password: your-password-or-token
 
-    - Proxmox Node 2:
+    - Proxmox DragonFly:
         href: https://10.10.21.101:8006
-        description: Secondary hypervisor
+        description: Secondary hypervisor node
         icon: proxmox.png
+
+    - TrueNAS:
+        href: https://10.10.21.102
+        description: Network attached storage
+        icon: truenas.png
+        # Uncomment and configure widget when ready:
+        # widget:
+        #   type: truenas
+        #   url: https://10.10.21.102
+        #   username: homepage
+        #   password: your-truenas-password
+
+    - Ugreen NAS:
+        href: https://10.10.21.103
+        description: Secondary NAS storage
+        icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd7otD4AEZ_Z-Ec3bQimBfnL0mok5yorbGdlDRrRVQaEFkZET_qJInRE4LiCu5qvkoIrA&usqp=CAU
 
 - Media Services:
     - Jellyfin:
-        href: https://jellyfin.yourdomain.com
+        href: https://10.10.21.104:8096
         description: Media streaming server
         icon: jellyfin.png
         # Uncomment and configure widget when ready:
         # widget:
         #   type: jellyfin
-        #   url: https://jellyfin.yourdomain.com
+        #   url: https://10.10.21.104:8096
         #   key: your-jellyfin-api-key
         #   enableBlocks: true
         #   enableNowPlaying: true
@@ -35,7 +51,7 @@
     - Pi-hole:
         href: http://10.10.21.50/admin
         description: Network-wide ad blocker
-        icon: pihole.png
+        icon: pi-hole.png
         # Uncomment and configure widget when ready:
         # widget:
         #   type: pihole

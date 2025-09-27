@@ -35,9 +35,11 @@ metadata:
 data:
   kubernetes.yaml: |
     mode: cluster
+    
   settings.yaml: |
     title: "Lab Dashboard"
-    background: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
+    # Clean color background
+    background: "#1e293b"
     cardBlur: md
     theme: dark
     color: slate
@@ -46,16 +48,16 @@ data:
     layout:
       - Infrastructure:
           style: row
-          columns: 3
+          columns: 4
       - Media Services:
           style: row  
-          columns: 2
+          columns: 1
       - Network & Security:
           style: row
-          columns: 2
+          columns: 1
       - Kubernetes Management:
           style: row
-          columns: 4
+          columns: 2
     language: en
     startUrl: /
     useEqualHeights: true
@@ -63,41 +65,66 @@ data:
       searchDescriptions: true
       hideInternetSearch: false
       hideVisitURL: false
-  custom.css: ""
+      
+  custom.css: |
+    /* Clean minimal styling */
+    .service-card {
+      transition: all 0.2s ease-in-out;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .bookmark-text:hover {
+      transform: translateY(-1px);
+    }
+  
   bookmarks.yaml: |
+    - Infrastructure:
+        - Proxmox Firefly:
+            - abbr: PF
+              href: https://10.10.21.31:8006/
+              icon: proxmox.png
+        - Proxmox DragonFly:
+            - abbr: PD
+              href: https://10.10.21.32:8006
+              icon: proxmox.png
+        - TrueNAS:
+            - abbr: TNS
+              href: https://10.10.21.14/ui/signin
+              icon: truenas.png
+        - Ugreen NAS:
+            - abbr: UG
+              href: https://10.10.21.11:9443/desktop/
+              icon: synology.png
+    
+    - Media & Network:
+        - Jellyfin:
+            - abbr: JF
+              href: http://10.10.21.11:8899/
+              icon: jellyfin.png
+        - Pi-hole:
+            - abbr: PH
+              href: https://10.10.21.11:18443/admin/login
+              icon: pi-hole.png
+    
     - Development:
         - GitHub:
             - abbr: GH
               href: https://github.com/fafiorim
               icon: github.png
-        - GitLab:
-            - abbr: GL
-              href: https://gitlab.com/
-              icon: gitlab.png
         - Docker Hub:
             - abbr: DH
               href: https://hub.docker.com/
               icon: docker.png
-    
-    - Cloud & Infrastructure:
-        - Proxmox:
-            - abbr: PVE
-              href: https://10.10.21.100:8006
-              icon: proxmox.png
-        - Talos Dashboard:
-            - abbr: TAL
-              href: https://www.talos.dev/
-              icon: talos.png
     
     - Documentation:
         - Kubernetes Docs:
             - abbr: K8s
               href: https://kubernetes.io/docs/
               icon: kubernetes.png
-        - Homepage Docs:
-            - abbr: HP
-              href: https://gethomepage.dev/
-              icon: homepage.png
         - Talos Documentation:
             - abbr: DOC
               href: https://www.talos.dev/docs/
@@ -105,27 +132,37 @@ data:
   
   services.yaml: |
     - Infrastructure:
-        - Proxmox Node 1:
-            href: https://10.10.21.100:8006
+        - Proxmox Firefly:
+            href: https://10.10.21.31:8006/
             description: Primary hypervisor
             icon: proxmox.png
         
-        - Proxmox Node 2:
-            href: https://10.10.21.101:8006
+        - Proxmox DragonFly:
+            href: https://10.10.21.32:8006
             description: Secondary hypervisor
             icon: proxmox.png
+            
+        - TrueNAS:
+            href: https://10.10.21.14/ui/signin
+            description: Network Attached Storage
+            icon: truenas.png
+            
+        - Ugreen NAS:
+            href: https://10.10.21.11:9443/desktop/
+            description: Network storage system
+            icon: synology.png
     
     - Media Services:
         - Jellyfin:
-            href: https://jellyfin.yourdomain.com
+            href: http://10.10.21.11:8899/
             description: Media streaming server
             icon: jellyfin.png
     
     - Network & Security:
         - Pi-hole:
-            href: http://10.10.21.50/admin
+            href: https://10.10.21.11:18443/admin/login
             description: Network-wide ad blocker
-            icon: pihole.png
+            icon: pi-hole.png
     
     - Kubernetes Management:
         - Homepage Dashboard:
@@ -139,26 +176,7 @@ data:
             icon: kubernetes.png
   
   widgets.yaml: |
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: "Production Cluster"
-        nodes:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-    
-    - resources:
-        backend: resources
-        expanded: true
-        cpu: true
-        memory: true
-        disk: /
-    
+    # Simplified widgets configuration to avoid API errors
     - search:
         provider: duckduckgo
         target: _blank
@@ -169,11 +187,29 @@ data:
           timeStyle: short
           dateStyle: short
           hourCycle: h23
+    
+    # Basic kubernetes info (less resource intensive)
+    - kubernetes:
+        cluster:
+          show: true
+          showLabel: true
+          label: "Talos Cluster"
+        nodes:
+          show: true
+          showLabel: true
+    
+    # Only enable if metrics-server is working properly
+    # - resources:
+    #     backend: resources
+    #     expanded: true
+    #     cpu: true
+    #     memory: true
+    #     disk: /
   
   docker.yaml: ""
 
 ---
-# ClusterRole for Kubernetes API access
+# Enhanced ClusterRole for Talos Kubernetes
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -181,31 +217,62 @@ metadata:
   labels:
     app.kubernetes.io/name: homepage
 rules:
+  # Core resources
   - apiGroups:
       - ""
     resources:
       - namespaces
       - pods
       - nodes
+      - services
+      - configmaps
+      - secrets
+      - persistentvolumes
+      - persistentvolumeclaims
     verbs:
       - get
       - list
+      - watch
+  
+  # Apps resources
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  
+  # Networking
   - apiGroups:
       - extensions
       - networking.k8s.io
     resources:
       - ingresses
+      - networkpolicies
     verbs:
       - get
       - list
+      - watch
+  
+  # Traefik resources
   - apiGroups:
       - traefik.containo.us
       - traefik.io
     resources:
       - ingressroutes
+      - middlewares
+      - traefikservices
     verbs:
       - get
       - list
+      - watch
+  
+  # Metrics (optional - enable only if metrics-server is working)
   - apiGroups:
       - metrics.k8s.io
     resources:
@@ -214,12 +281,27 @@ rules:
     verbs:
       - get
       - list
+  
+  # CRDs
   - apiGroups:
       - apiextensions.k8s.io
     resources:
+      - customresourcedefinitions
       - customresourcedefinitions/status
     verbs:
       - get
+      - list
+      - watch
+  
+  # Events for troubleshooting
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - get
+      - list
+      - watch
 
 ---
 # ClusterRoleBinding
@@ -277,7 +359,22 @@ spec:
     app.kubernetes.io/name: homepage
 
 ---
-# Deployment
+# PodDisruptionBudget for high availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: homepage
+  namespace: default
+  labels:
+    app.kubernetes.io/name: homepage
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: homepage
+
+---
+# Deployment with improved stability
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -287,7 +384,7 @@ metadata:
     app.kubernetes.io/name: homepage
 spec:
   revisionHistoryLimit: 3
-  replicas: 1
+  replicas: 2  # Increased replicas for better availability
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -305,18 +402,24 @@ spec:
       automountServiceAccountToken: true
       dnsPolicy: ClusterFirst
       enableServiceLinks: true
+      terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: homepage
-          image: "ghcr.io/gethomepage/homepage:latest"
-          imagePullPolicy: Always
+          image: "ghcr.io/gethomepage/homepage:v0.8.8"  # Pin to stable version
+          imagePullPolicy: IfNotPresent  # Changed from Always to reduce instability
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
             capabilities:
               drop:
                 - ALL
@@ -327,10 +430,29 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: DISABLE_DOCKER
+              value: "true"  # Disable docker integration for stability
           ports:
             - name: http
               containerPort: 3000
               protocol: TCP
+          # Health checks - simplified to avoid API endpoint issues
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - mountPath: /app/config/custom.css
               name: homepage-config
@@ -355,16 +477,33 @@ spec:
               subPath: widgets.yaml
             - mountPath: /app/config/logs
               name: logs
+            - mountPath: /tmp
+              name: tmp-dir
           resources:
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 1000m      # Increased CPU limit
+              memory: 1Gi     # Increased memory limit
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 200m       # Increased CPU request
+              memory: 256Mi   # Increased memory request
+      # Pod affinity to avoid scheduling on same node
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - homepage
+              topologyKey: kubernetes.io/hostname
       volumes:
         - name: homepage-config
           configMap:
             name: homepage
         - name: logs
+          emptyDir: {}
+        - name: tmp-dir
           emptyDir: {}
