@@ -1,0 +1,163 @@
+# Example services.yaml configuration
+# Copy and modify this file, then update the ConfigMap
+
+- Infrastructure:
+    - Kubernetes Dashboard:
+        href: https://dashboard.k8s.local
+        description: Cluster management interface
+        icon: kubernetes.png
+        widget:
+          type: kubernetes
+          cluster:
+            show: true
+            cpu: true
+            memory: true
+        
+    - Portainer:
+        href: https://portainer.local:9443
+        description: Container management platform
+        icon: portainer.png
+        widget:
+          type: portainer
+          url: https://portainer.local:9443
+          env: 2
+
+    - Grafana:
+        href: https://grafana.local
+        description: Monitoring and observability
+        icon: grafana.png
+        widget:
+          type: grafana
+          url: https://grafana.local
+          username: admin
+          password: your-password
+
+- Media Services:
+    - Plex:
+        href: https://plex.local:32400
+        description: Media streaming server
+        icon: plex.png
+        widget:
+          type: plex
+          url: https://plex.local:32400
+          key: your-plex-token
+
+    - Jellyfin:
+        href: https://jellyfin.local:8096
+        description: Open source media server
+        icon: jellyfin.png
+        widget:
+          type: jellyfin
+          url: https://jellyfin.local:8096
+          key: your-api-key
+
+    - Sonarr:
+        href: https://sonarr.local
+        description: TV series management
+        icon: sonarr.png
+        widget:
+          type: sonarr
+          url: https://sonarr.local
+          key: your-api-key
+
+    - Radarr:
+        href: https://radarr.local
+        description: Movie management
+        icon: radarr.png
+        widget:
+          type: radarr
+          url: https://radarr.local
+          key: your-api-key
+
+- Development:
+    - GitLab:
+        href: https://gitlab.local
+        description: Git repository and CI/CD
+        icon: gitlab.png
+        widget:
+          type: gitlab
+          url: https://gitlab.local
+          key: your-api-token
+
+    - Jenkins:
+        href: https://jenkins.local:8080
+        description: CI/CD automation server
+        icon: jenkins.png
+        
+    - SonarQube:
+        href: https://sonar.local
+        description: Code quality analysis
+        icon: sonarqube.png
+        widget:
+          type: sonarqube
+          url: https://sonar.local
+          key: your-token
+
+    - Nexus Repository:
+        href: https://nexus.local
+        description: Artifact repository manager
+        icon: nexus.png
+
+- Network & Security:
+    - Pi-hole:
+        href: https://pihole.local/admin
+        description: Network-wide ad blocker
+        icon: pihole.png
+        widget:
+          type: pihole
+          url: https://pihole.local
+          key: your-api-key
+
+    - Traefik:
+        href: https://traefik.local:8080
+        description: Reverse proxy and load balancer
+        icon: traefik.png
+        widget:
+          type: traefik
+          url: https://traefik.local:8080
+
+    - AdGuard Home:
+        href: https://adguard.local
+        description: Network-wide ad and tracker blocker
+        icon: adguard.png
+        widget:
+          type: adguard
+          url: https://adguard.local
+          username: admin
+          password: your-password
+
+- Storage & Backup:
+    - TrueNAS:
+        href: https://truenas.local
+        description: Network attached storage
+        icon: truenas.png
+        widget:
+          type: truenas
+          url: https://truenas.local
+          username: root
+          password: your-password
+
+    - Nextcloud:
+        href: https://nextcloud.local
+        description: Self-hosted cloud storage
+        icon: nextcloud.png
+        widget:
+          type: nextcloud
+          url: https://nextcloud.local
+          username: admin
+          password: your-password
+
+- Automation:
+    - Home Assistant:
+        href: https://homeassistant.local:8123
+        description: Home automation platform
+        icon: home-assistant.png
+        widget:
+          type: homeassistant
+          url: https://homeassistant.local:8123
+          key: your-long-lived-token
+
+    - Node-RED:
+        href: https://nodered.local:1880
+        description: Flow-based development tool
+        icon: node-red.png
