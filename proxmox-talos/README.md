@@ -87,14 +87,34 @@ The token needs these permissions:
 
 ## Complete Deployment Process
 
-### Step 1: Create VMs
+### Option 1: Master Script (Recommended)
 ```bash
-./create_talos_vms.sh
+# 1. Copy and configure terraform.tfvars
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your settings
+
+# 2. Deploy the cluster
+./deploy_talos_cluster.sh
 ```
 
-### Step 2: Setup Talos Cluster
+This single script will:
+- ✅ Check if VMs already exist (fails if they do)
+- ✅ Create 3 VMs with proper specifications
+- ✅ Configure the Talos Kubernetes cluster
+- ✅ Bootstrap the cluster and retrieve kubeconfig
+
+### Option 2: Step-by-Step Deployment
 ```bash
+# Step 1: Create VMs
+./create_talos_vms.sh
+
+# Step 2: Setup Talos Cluster
 ./setup_talos_cluster.sh
+```
+
+### Cleanup
+```bash
+./cleanup_vms.sh
 ```
 
 This will create a Talos Kubernetes cluster named "laternfly" with:
@@ -213,8 +233,10 @@ curl -k -X DELETE -H "Authorization: PVEAPIToken=terraform@pve!terraform-token=Y
 
 ## Files Overview
 
-- `create_talos_vms.sh`: VM creation script
-- `setup_talos_cluster.sh`: Talos cluster configuration script
+- `deploy_talos_cluster.sh`: **Master deployment script (recommended)**
+- `cleanup_vms.sh`: VM cleanup script
+- `create_talos_vms.sh`: VM creation script (step-by-step)
+- `setup_talos_cluster.sh`: Talos cluster configuration script (step-by-step)
 - `main.tf`: Terraform configuration (alternative)
 - `variables.tf`: Terraform variables
 - `outputs.tf`: Terraform outputs

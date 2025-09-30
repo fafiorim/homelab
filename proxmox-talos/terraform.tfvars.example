@@ -10,10 +10,11 @@ storage_pool    = "local-lvm"  # Update with your storage pool name
 network_bridge  = "vmbr0"      # Update with your network bridge name
 iso_storage     = "local"      # Storage where the Talos ISO is uploaded
 
-# Talos Cluster IPs
-control_plane_ip   = "10.10.21.110"
-worker_node_01_ip  = "10.10.21.111"
-worker_node_02_ip  = "10.10.21.112"
+# Talos Cluster Configuration
+cluster_name        = "laternfly"     # Name of your Kubernetes cluster
+control_plane_ip    = "10.10.21.110"
+worker_node_01_ip   = "10.10.21.111"
+worker_node_02_ip   = "10.10.21.112"
 
 # ISO Configuration
 talos_iso = "talos-v1.11.1-amd64.iso"
