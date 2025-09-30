@@ -62,6 +62,12 @@ The token needs these permissions:
    ./create_talos_vms.sh
    ```
 
+3. **Setup the Talos Kubernetes cluster:**
+   ```bash
+   chmod +x setup_talos_cluster.sh
+   ./setup_talos_cluster.sh
+   ```
+
 ### Option 2: Terraform (Alternative)
 
 **Note**: The Terraform provider has compatibility issues with Proxmox VE 9.0+ due to deprecated `VM.Monitor` permission. Use the API script instead.
@@ -79,9 +85,36 @@ The token needs these permissions:
    terraform apply
    ```
 
-## Post-Deployment: Talos Configuration
+## Complete Deployment Process
 
-After VMs are created and running:
+### Step 1: Create VMs
+```bash
+./create_talos_vms.sh
+```
+
+### Step 2: Setup Talos Cluster
+```bash
+./setup_talos_cluster.sh
+```
+
+This will create a Talos Kubernetes cluster named "laternfly" with:
+- 1 control plane (VM 400)
+- 2 worker nodes (VMs 411, 412)
+
+### Cluster Setup Features
+
+The `setup_talos_cluster.sh` script automatically:
+- ✅ Checks for `talosctl` installation
+- ✅ Generates Talos machine configurations
+- ✅ Applies configurations to all VMs
+- ✅ Bootstraps the Kubernetes cluster
+- ✅ Retrieves kubeconfig for kubectl access
+- ✅ Verifies cluster status and node readiness
+- ✅ Creates organized config files in `./talos-configs/`
+
+## Post-Deployment: Manual Talos Configuration (Alternative)
+
+If you prefer to configure Talos manually after VMs are created and running:
 
 ### 1. Generate Talos Machine Configs
 
@@ -180,7 +213,8 @@ curl -k -X DELETE -H "Authorization: PVEAPIToken=terraform@pve!terraform-token=Y
 
 ## Files Overview
 
-- `create_talos_vms.sh`: Main deployment script (recommended)
+- `create_talos_vms.sh`: VM creation script
+- `setup_talos_cluster.sh`: Talos cluster configuration script
 - `main.tf`: Terraform configuration (alternative)
 - `variables.tf`: Terraform variables
 - `outputs.tf`: Terraform outputs
