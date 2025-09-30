@@ -1,0 +1,43 @@
+# Ignore Terraform files
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate*
+terraform/tfplan*
+terraform/terraform.tfvars
+
+# Ignore generated configs
+configs/
+*.yaml
+*.yml
+!terraform/*.tf
+!examples/*.yaml
+!examples/*.yml
+
+# Ignore backup files
+*.backup
+*.bak
+*.db
+
+# Ignore logs
+*.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore temporary files
+/tmp/
+*.tmp
+
+# Ignore sensitive files
+secrets/
+*.key
+*.crt
+*.pem
