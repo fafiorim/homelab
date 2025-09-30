@@ -47,7 +47,7 @@ The token needs these permissions:
 
 ### Option 1: Direct API Script (Recommended)
 
-1. **Update configuration in `create_vms_v2.sh`:**
+1. **Update configuration in `create_talos_vms.sh`:**
    ```bash
    # Edit these variables
    PROXMOX_URL="https://YOUR_PROXMOX_IP:8006/api2/json"
@@ -58,8 +58,8 @@ The token needs these permissions:
 
 2. **Run the deployment script:**
    ```bash
-   chmod +x create_vms_v2.sh
-   ./create_vms_v2.sh
+   chmod +x create_talos_vms.sh
+   ./create_talos_vms.sh
    ```
 
 ### Option 2: Terraform (Alternative)
@@ -180,8 +180,7 @@ curl -k -X DELETE -H "Authorization: PVEAPIToken=terraform@pve!terraform-token=Y
 
 ## Files Overview
 
-- `create_vms_v2.sh`: Main deployment script (recommended)
-- `create_vms.sh`: Original deployment script
+- `create_talos_vms.sh`: Main deployment script (recommended)
 - `main.tf`: Terraform configuration (alternative)
 - `variables.tf`: Terraform variables
 - `outputs.tf`: Terraform outputs
