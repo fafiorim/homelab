@@ -112,6 +112,20 @@ This single script will:
 ./setup_talos_cluster.sh
 ```
 
+### Option 3: Configure Existing VMs
+If you already have VMs running and just want to configure Talos:
+```bash
+# Configure Talos on existing VMs
+./configure_talos_cluster.sh
+```
+
+This script will:
+- ✅ Skip VM creation (assumes VMs already exist)
+- ✅ Generate Talos machine configurations
+- ✅ Apply configurations to all VMs
+- ✅ Bootstrap the Kubernetes cluster
+- ✅ Retrieve kubeconfig for kubectl access
+
 ### Cleanup
 ```bash
 ./cleanup_vms.sh
@@ -234,6 +248,7 @@ curl -k -X DELETE -H "Authorization: PVEAPIToken=terraform@pve!terraform-token=Y
 ## Files Overview
 
 - `deploy_talos_cluster.sh`: **Master deployment script (recommended)**
+- `configure_talos_cluster.sh`: **Talos configuration script for existing VMs**
 - `cleanup_vms.sh`: VM cleanup script
 - `create_talos_vms.sh`: VM creation script (step-by-step)
 - `setup_talos_cluster.sh`: Talos cluster configuration script (step-by-step)
