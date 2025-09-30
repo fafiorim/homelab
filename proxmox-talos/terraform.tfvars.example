@@ -1,0 +1,19 @@
+# Proxmox Configuration
+proxmox_api_url           = "https://10.10.21.31:8006/api2/json"
+proxmox_api_token_id      = "terraform@pve!terraform-token"
+proxmox_api_token_secret  = "759bd6ba-d0f7-4169-8718-d279f67c9706"
+proxmox_tls_insecure      = true
+proxmox_node              = "firefly"
+
+# Storage and Network
+storage_pool    = "local-lvm"  # Update with your storage pool name
+network_bridge  = "vmbr0"      # Update with your network bridge name
+iso_storage     = "local"      # Storage where the Talos ISO is uploaded
+
+# Talos Cluster IPs
+control_plane_ip   = "10.10.21.110"
+worker_node_01_ip  = "10.10.21.111"
+worker_node_02_ip  = "10.10.21.112"
+
+# ISO Configuration
+talos_iso = "talos-v1.11.1-amd64.iso"
