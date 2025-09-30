@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Master deployment script for Talos Kubernetes cluster
-# This script checks for existing VMs, creates them if needed, and configures the cluster
+# Talos cluster configuration script
+# This script configures Talos on existing VMs (skips VM creation)
 
 # Load configuration from terraform.tfvars
 if [ ! -f "terraform.tfvars" ]; then
@@ -34,146 +34,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
-
-# Function to make API calls
-api_call() {
-    local method=$1
-    local endpoint=$2
-    local data=$3
-    
-    if [ -n "$data" ]; then
-        curl -k -X "$method" \
-            -H "Authorization: PVEAPIToken=${proxmox_api_token_id}=${proxmox_api_token_secret}" \
-            -H "Content-Type: application/json" \
-            -d "$data" \
-            "${proxmox_api_url}${endpoint}"
-    else
-        curl -k -X "$method" \
-            -H "Authorization: PVEAPIToken=${proxmox_api_token_id}=${proxmox_api_token_secret}" \
-            "${proxmox_api_url}${endpoint}"
-    fi
-}
-
-# Function to check if VM exists
-check_vm_exists() {
-    local vmid=$1
-    local name=$2
-    
-    echo -e "${YELLOW}Checking if VM $name (ID: $vmid) exists...${NC}"
-    
-    local result=$(api_call "GET" "/cluster/resources?type=vm" 2>/dev/null)
-    
-    if echo "$result" | grep -q "\"vmid\":$vmid"; then
-        echo -e "${RED}✗ VM $name (ID: $vmid) already exists!${NC}"
-        return 0
-    else
-        echo -e "${GREEN}✓ VM $name (ID: $vmid) does not exist${NC}"
-        return 1
-    fi
-}
-
-# Function to check if any VMs exist
-check_existing_vms() {
-    echo -e "${YELLOW}Checking for existing VMs...${NC}"
-    
-    local control_exists=false
-    local worker1_exists=false
-    local worker2_exists=false
-    
-    if check_vm_exists 400 "talos-control-plane"; then
-        control_exists=true
-    fi
-    
-    if check_vm_exists 411 "talos-worker-01"; then
-        worker1_exists=true
-    fi
-    
-    if check_vm_exists 412 "talos-worker-02"; then
-        worker2_exists=true
-    fi
-    
-    if [ "$control_exists" = true ] || [ "$worker1_exists" = true ] || [ "$worker2_exists" = true ]; then
-        echo ""
-        echo -e "${RED}❌ ERROR: One or more VMs already exist!${NC}"
-        echo -e "${YELLOW}Existing VMs:${NC}"
-        [ "$control_exists" = true ] && echo -e "  - talos-control-plane (ID: 400)"
-        [ "$worker1_exists" = true ] && echo -e "  - talos-worker-01 (ID: 411)"
-        [ "$worker2_exists" = true ] && echo -e "  - talos-worker-02 (ID: 412)"
-        echo ""
-        echo -e "${YELLOW}Please delete existing VMs first or use different VM IDs.${NC}"
-        echo -e "${BLUE}To delete VMs via Proxmox web interface:${NC}"
-        echo -e "  1. Go to each VM → More → Destroy"
-        echo -e "  2. Or use the cleanup script: ./cleanup_vms.sh"
-        exit 1
-    fi
-    
-    echo -e "${GREEN}✓ No conflicting VMs found. Safe to proceed.${NC}"
-}
-
-# Function to create VM
-create_vm() {
-    local vmid=$1
-    local name=$2
-    local macaddr=$3
-    local ip_comment=$4
-    
-    echo -e "${YELLOW}Creating VM: $name (ID: $vmid)${NC}"
-    
-    # Create VM configuration
-    local vm_config="{
-        \"vmid\": $vmid,
-        \"name\": \"$name\",
-        \"cores\": 4,
-        \"sockets\": 1,
-        \"memory\": 6144,
-        \"boot\": \"order=ide2;scsi0\",
-        \"scsihw\": \"virtio-scsi-pci\",
-        \"agent\": 0,
-        \"ostype\": \"l26\",
-        \"cpu\": \"host\",
-        \"numa\": false,
-        \"hotplug\": \"network,disk,usb\",
-        \"net0\": \"virtio,bridge=${network_bridge},macaddr=$macaddr,firewall=0\",
-        \"scsi0\": \"${storage_pool}:50,format=raw\",
-        \"ide2\": \"${iso_storage}:iso/${talos_iso},media=cdrom\",
-        \"tags\": \"talos,$(if [[ $name == *control* ]]; then echo 'control-plane'; else echo 'worker'; fi)\"
-    }"
-    
-    # Create the VM
-    local result=$(api_call "POST" "/nodes/${proxmox_node}/qemu" "$vm_config")
-    
-    if echo "$result" | grep -q '"data":'; then
-        echo -e "${GREEN}✓ VM $name created successfully${NC}"
-        echo -e "  - VM ID: $vmid"
-        echo -e "  - IP: $ip_comment"
-        echo -e "  - MAC: $macaddr"
-        echo -e "  - Specs: 4 cores, 1 socket, 6GB RAM, 50GB disk"
-        return 0
-    else
-        echo -e "${RED}✗ Failed to create VM $name${NC}"
-        echo "Error: $result"
-        return 1
-    fi
-}
-
-# Function to start VM
-start_vm() {
-    local vmid=$1
-    local name=$2
-    
-    echo -e "${YELLOW}Starting VM: $name (ID: $vmid)${NC}"
-    
-    local result=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/start")
-    
-    if echo "$result" | grep -q '"data":'; then
-        echo -e "${GREEN}✓ VM $name started successfully${NC}"
-        return 0
-    else
-        echo -e "${RED}✗ Failed to start VM $name${NC}"
-        echo "Error: $result"
-        return 1
-    fi
-}
 
 # Function to check if talosctl is installed
 check_talosctl() {
@@ -210,7 +70,6 @@ generate_configs() {
         echo -e "  - Control plane config: ./talos-configs/controlplane.yaml"
         echo -e "  - Worker config: ./talos-configs/worker.yaml"
         echo -e "  - Talos config: ./talos-configs/talosconfig"
-        echo -e "  - Secrets: ./talos-secrets.yaml"
     else
         echo -e "${RED}✗ Failed to generate Talos machine configs${NC}"
         exit 1
@@ -282,7 +141,7 @@ get_kubeconfig() {
     export TALOSCONFIG="./talos-configs/talosconfig"
     
     # Get kubeconfig
-    talosctl --talosconfig="$TALOSCONFIG" kubeconfig .
+    talosctl --talosconfig="$TALOSCONFIG" kubeconfig . --nodes "${control_plane_ip}"
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Kubeconfig retrieved successfully${NC}"
@@ -342,7 +201,7 @@ display_info() {
 }
 
 # Main execution
-echo -e "${GREEN}=== Talos Kubernetes Cluster Deployment ===${NC}"
+echo -e "${GREEN}=== Talos Cluster Configuration ===${NC}"
 echo -e "Cluster Name: ${cluster_name}"
 echo -e "Control Plane: ${control_plane_ip} (VM 400)"
 echo -e "Workers: ${worker_node_01_ip} (VM 411), ${worker_node_02_ip} (VM 412)"
@@ -351,41 +210,6 @@ echo ""
 # Check prerequisites
 echo -e "${YELLOW}Checking prerequisites...${NC}"
 check_talosctl
-
-# Check for existing VMs
-check_existing_vms
-
-# Check if Talos ISO exists
-echo -e "${YELLOW}Checking if Talos ISO exists...${NC}"
-iso_check=$(api_call "GET" "/nodes/${proxmox_node}/storage/${iso_storage}/content")
-if echo "$iso_check" | grep -q "${talos_iso}"; then
-    echo -e "${GREEN}✓ Talos ISO found${NC}"
-else
-    echo -e "${RED}✗ Talos ISO not found. Please upload ${talos_iso} to ${iso_storage} storage${NC}"
-    exit 1
-fi
-
-echo ""
-
-# Create VMs
-echo -e "${YELLOW}Creating VMs...${NC}"
-create_vm 400 "talos-control-plane" "bc:24:11:82:9f:fb" "${control_plane_ip}"
-create_vm 411 "talos-worker-01" "bc:24:11:51:6f:4d" "${worker_node_01_ip}"
-create_vm 412 "talos-worker-02" "bc:24:11:82:9f:3c" "${worker_node_02_ip}"
-
-echo ""
-
-# Start VMs
-echo -e "${YELLOW}Starting VMs...${NC}"
-start_vm 400 "talos-control-plane"
-start_vm 411 "talos-worker-01"
-start_vm 412 "talos-worker-02"
-
-echo ""
-
-# Wait for VMs to be ready
-echo -e "${YELLOW}Waiting for VMs to be ready...${NC}"
-sleep 60
 
 # Create config directory
 mkdir -p ./talos-configs
