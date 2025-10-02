@@ -3,10 +3,12 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - rbac.yaml
   - homepage.yaml
   - config.yaml
 
 namespace: homepage
 
 commonLabels:
+  app.kubernetes.io/name: homepage
   app.kubernetes.io/part-of: homepage-dashboard

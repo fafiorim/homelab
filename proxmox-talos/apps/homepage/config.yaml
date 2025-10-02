@@ -3,79 +3,136 @@ kind: ConfigMap
 metadata:
   name: homepage-config
   namespace: homepage
+  labels:
+    app.kubernetes.io/name: homepage
 data:
   settings.yaml: |
-    title: Homelab Dashboard
-    subtitle: Talos Kubernetes Cluster
+    title: Talos Homelab
+    subtitle: Kubernetes Cluster Dashboard
     logo: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
     headerStyle: clean
     theme: dark
     color: slate
     target: _blank
+    layout:
+      Infrastructure:
+        style: row
+        columns: 3
+      Monitoring:
+        style: row  
+        columns: 2
+      GitOps:
+        style: row
+        columns: 2
     
   services.yaml: |
     - Infrastructure:
-        - Proxmox:
+        - Proxmox VE:
             href: https://10.10.21.31:8006
             description: Virtualization Platform
-            icon: proxmox
+            icon: proxmox.png
+            server: proxmox-01
+            container: pve
             
-        - Talos Dashboard:
+        - Talos Control Plane:
             href: https://10.10.21.110:6443
-            description: Kubernetes API
-            icon: kubernetes
+            description: Kubernetes API Server
+            icon: kubernetes.png
+            
+        - Node 1 (Worker):
+            href: https://10.10.21.111
+            description: Worker Node 1
+            icon: kubernetes.png
+            
+        - Node 2 (Worker):
+            href: https://10.10.21.112
+            description: Worker Node 2
+            icon: kubernetes.png
             
     - Monitoring:
         - Grafana:
             href: http://10.10.21.110:30000
-            description: Metrics Dashboard
-            icon: grafana
+            description: Metrics Visualization
+            icon: grafana.png
             
         - Prometheus:
-            href: http://10.10.21.110:9090
+            href: http://prometheus.monitoring.svc.cluster.local:9090
             description: Metrics Collection
-            icon: prometheus
+            icon: prometheus.png
             
     - GitOps:
         - ArgoCD:
-            href: http://localhost:8080
+            href: http://argocd-server.argocd.svc.cluster.local
             description: Continuous Deployment
-            icon: argocd
+            icon: argocd.png
+            
+        - GitHub Repository:
+            href: https://github.com/fafiorim/homelab
+            description: Source Repository
+            icon: github.png
             
   widgets.yaml: |
+    - logo:
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
+        
+    - search:
+        provider: google
+        target: _blank
+        
+    - greeting:
+        text_size: xl
+        text: "Welcome to Talos Homelab!"
+        
     - kubernetes:
         cluster:
           show: true
           cpu: true
           memory: true
           showLabel: true
+          label: "Cluster"
         nodes:
           show: true
           cpu: true
           memory: true
           showLabel: true
+          label: "Nodes"
           
     - resources:
+        backend: resources
+        expanded: true
         cpu: true
         memory: true
-        disk: /
-        cputemp: true
-        uptime: true
         
-    - search:
-        provider: google
-        target: _blank
+    - datetime:
+        text_size: l
+        format:
+          timeStyle: short
+          dateStyle: short
+          hourCycle: h23
         
   bookmarks.yaml: |
-    - Homelab:
-        - Documentation:
-            - abbr: DOC
+    - Developer:
+        - Github:
+            - abbr: GH
               href: https://github.com/fafiorim/homelab
               
-        - Talos:
+    - Documentation:
+        - Talos Linux:
             - abbr: TLS
               href: https://www.talos.dev/docs/
               
         - Kubernetes:
             - abbr: K8S
               href: https://kubernetes.io/docs/
+              
+        - Homepage:
+            - abbr: HP
+              href: https://gethomepage.dev/
+              
+    - Infrastructure:
+        - Proxmox Forum:
+            - abbr: PVE
+              href: https://forum.proxmox.com/
+              
+  kubernetes.yaml: |
+    mode: cluster

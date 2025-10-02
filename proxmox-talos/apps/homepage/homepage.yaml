@@ -15,6 +15,7 @@ spec:
       labels:
         app: homepage
     spec:
+      serviceAccountName: homepage
       containers:
       - name: homepage
         image: ghcr.io/gethomepage/homepage:latest
@@ -25,9 +26,15 @@ spec:
           value: "1000"
         - name: PGID
           value: "1000"
+        - name: LOG_TARGETS
+          value: "stdout"
+        - name: HOMEPAGE_ALLOWED_HOSTS
+          value: "10.10.21.110,10.10.21.111,10.10.21.112"
         volumeMounts:
         - name: config
           mountPath: /app/config
+        - name: logs
+          mountPath: /app/config/logs
         resources:
           requests:
             memory: "128Mi"
@@ -35,10 +42,16 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
       volumes:
       - name: config
         configMap:
           name: homepage-config
+      - name: logs
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
