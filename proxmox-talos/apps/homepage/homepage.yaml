@@ -48,10 +48,76 @@ spec:
           runAsNonRoot: true
       volumes:
       - name: config
-        configMap:
-          name: homepage-config
+        emptyDir: {}
       - name: logs
         emptyDir: {}
+      initContainers:
+      - name: config-init
+        image: ghcr.io/gethomepage/homepage:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cp -r /app/src/skeleton/* /app/config/ || true
+            if [ ! -f /app/config/settings.yaml ]; then
+              cat > /app/config/settings.yaml << 'EOF'
+            ---
+            title: Home Lab Dashboard
+            favicon: https://github.com/walkxcode/dashboard-icons/blob/main/png/homepage.png
+
+            theme: dark
+            color: slate
+
+            headerStyle: clean
+            layout:
+              Cluster:
+                style: row
+                columns: 3
+              Monitoring:
+                style: row
+                columns: 2
+            EOF
+            fi
+            if [ ! -f /app/config/widgets.yaml ]; then
+              cat > /app/config/widgets.yaml << 'EOF'
+            ---
+            - resources:
+                backend: resources
+                expanded: true
+                cpu: true
+                memory: true
+            - search:
+                provider: duckduckgo
+                target: _blank
+            EOF
+            fi
+            if [ ! -f /app/config/services.yaml ]; then
+              cat > /app/config/services.yaml << 'EOF'
+            ---
+            - Cluster:
+                - Kubernetes Dashboard:
+                    href: http://10.10.21.110:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+                    description: Kubernetes Web UI
+                    icon: kubernetes
+                - ArgoCD:
+                    href: http://10.10.21.110:30002
+                    description: GitOps Continuous Delivery
+                    icon: argocd
+
+            - Monitoring:
+                - Grafana:
+                    href: http://10.10.21.110:30000
+                    description: Metrics Dashboard
+                    icon: grafana
+                - Prometheus:
+                    href: http://10.10.21.110:30003
+                    description: Metrics Collection
+                    icon: prometheus
+            EOF
+            fi
+            chown -R 1000:1000 /app/config
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
 ---
 apiVersion: v1
 kind: Service
