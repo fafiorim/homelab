@@ -33,25 +33,35 @@ export TALOSCONFIG=./talos-configs/talosconfig
 
 ## 🎯 Enhanced Features
 
-### 1. **Automatic Status Verification**
+### 1. **Smart VM Cleanup Logic**
+- Intelligent VM status detection before operations
+- Conditional shutdown→delete sequence based on VM state (running/stopped)
+- Graceful shutdown with automatic fallback to force stop
+- Proper API response validation and task ID handling
+- Verification of deletion completion
+- Prevents deployment failures from orphaned VM states
+
+### 2. **Automatic Status Verification**
 - Deployment script now automatically verifies cluster health
 - Shows real-time node status and system pods
 - Provides immediate feedback on cluster readiness
 
-### 2. **Smart Environment Setup**
+### 3. **Smart Environment Setup**
 - `setup-env.sh` - One-command environment configuration  
 - `./talos-cluster.sh env` - Interactive environment setup guide
 - Automatic environment detection and validation
 
-### 3. **Improved Wait Times**
-- **VM Boot Wait**: 120 seconds (was 60s)
+### 4. **Improved Wait Times**
+- **VM Boot Wait**: 120 seconds (optimized for reliability)
 - **Node Initialization**: 90 seconds (was 60s)  
 - **Final Verification**: 30 seconds
 - **Total Deploy Time**: ~6-7 minutes
 
-### 4. **Better Error Handling**
+### 5. **Better Error Handling**
 - Retry logic for cluster connectivity
 - Graceful handling of initialization delays
+- Comprehensive error messages with API responses
+- Smart VM state detection preventing unnecessary operations
 - Clear status messages and next steps
 
 ## 📋 Available Commands
@@ -63,7 +73,7 @@ export TALOSCONFIG=./talos-configs/talosconfig
 | `status` | Show cluster status | ✅ Comprehensive health check |
 | `argocd` | Install ArgoCD | ✅ GitOps ready |
 | `apps` | Deploy applications | ✅ Application management |
-| `cleanup` | Remove everything | ✅ Complete cleanup |
+| `cleanup` | Remove everything | ✅ Smart VM cleanup with status detection |
 
 ## 🔧 Usage Examples
 
@@ -106,14 +116,52 @@ kubectl cluster-info
 talosctl get nodes
 ```
 
+## 🧹 Smart VM Cleanup
+
+The enhanced cleanup logic provides intelligent VM management:
+
+### Features
+- **Status Detection**: Automatically detects VM state (running, stopped, or other)
+- **Conditional Operations**: Only stops running VMs, skips already-stopped VMs
+- **Graceful Shutdown**: Attempts graceful shutdown before forcing stop
+- **API Validation**: Validates all API responses and task IDs
+- **Deletion Verification**: Confirms VM deletion completed successfully
+- **Error Reporting**: Provides detailed feedback on failures
+
+### Cleanup Workflow
+```bash
+# Full cluster cleanup (with confirmation)
+./talos-cluster.sh cleanup
+
+# The cleanup process:
+# 1. Lists VMs to be deleted
+# 2. Confirms user intent
+# 3. For each VM:
+#    - Detects current status
+#    - Stops if running (graceful → force if needed)
+#    - Deletes VM
+#    - Verifies deletion
+# 4. Removes config files (kubeconfig, talosconfig, secrets)
+```
+
+### Benefits
+- Prevents API errors from stopping already-stopped VMs
+- Avoids orphaned VM states
+- Ensures clean deployment environment
+- Provides clear feedback on each operation
+- Handles edge cases gracefully
+
 ## 🎉 What's New
 
+- **✅ Smart VM Cleanup**: Intelligent status detection and conditional shutdown→delete workflow
+- **✅ Enhanced API Integration**: Better error handling and task ID validation
 - **✅ Automatic Environment Setup**: No more manual export commands
 - **✅ Real-time Status Display**: See cluster health immediately
-- **✅ Smart Wait Times**: Optimized timing for reliable deployment  
+- **✅ Optimized Wait Times**: 120s VM boot for reliable deployment  
 - **✅ Multiple Setup Options**: Choose your preferred configuration method
-- **✅ Enhanced Error Handling**: Better feedback and retry logic
+- **✅ Comprehensive Error Handling**: Better feedback, API response validation, and retry logic
 - **✅ Ready-to-Use Commands**: Immediate kubectl access post-deployment
+- **✅ Clean Repository Structure**: Organized manifests and application files
 
 ## 🚀 Next Steps
 
