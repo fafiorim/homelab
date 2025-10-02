@@ -44,7 +44,25 @@ cp cluster.conf.example cluster.conf
 ./talos-cluster.sh status
 ```
 
-### 4. Cleanup
+### 4. Install ArgoCD (GitOps)
+
+```bash
+./talos-cluster.sh argocd
+```
+
+### 5. Deploy Applications
+
+```bash
+./talos-cluster.sh apps
+```
+
+**Note**: Applications will sync from the Git repository configured in `cluster.conf`. By default, this is set to `https://github.com/fafiorim/homelab`. You can change this by editing `cluster.conf` or using the helper script:
+
+```bash
+./update-git-repo.sh
+```
+
+### 6. Cleanup
 
 ```bash
 ./talos-cluster.sh cleanup
@@ -59,6 +77,9 @@ This is the **single entry point** for all cluster operations:
 | Command | Description | Options |
 |---------|-------------|---------|
 | `deploy` | Deploy complete Talos Kubernetes cluster | `--force`, `--verbose`, `--dry-run` |
+| `argocd` | Install ArgoCD for GitOps | `--verbose` |
+| `apps` | Deploy applications via ArgoCD | `--verbose` |
+| `argocd-info` | Show ArgoCD access information | `--verbose` |
 | `cleanup` | Remove all VMs and configurations | `--verbose` |
 | `status` | Show cluster and VM status | `--verbose` |
 | `help` | Show help message | |
@@ -89,6 +110,31 @@ This is the **single entry point** for all cluster operations:
 ```
 
 ## Configuration
+
+Edit `cluster.conf` to configure your Proxmox and cluster settings.
+
+### Git Repository Configuration
+
+The GitOps setup uses a configurable Git repository for application deployment. You can change the repository by:
+
+1. **Edit `cluster.conf`**:
+   ```bash
+   # GitOps Configuration
+   git_repo_url = "https://github.com/your-username/your-repo"
+   git_repo_branch = "main"
+   ```
+
+2. **Use the helper script**:
+   ```bash
+   ./update-git-repo.sh
+   ```
+
+3. **Redeploy applications**:
+   ```bash
+   ./talos-cluster.sh apps
+   ```
+
+### Proxmox Configuration
 
 Edit `cluster.conf` to configure:
 

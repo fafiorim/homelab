@@ -10,6 +10,10 @@ kubeconfig
 controlplane.yaml
 worker.yaml
 
+# Generated ArgoCD application manifests
+apps/*/homepage-app.yaml
+apps/*/monitoring-app.yaml
+
 # OS
 .DS_Store
 Thumbs.db

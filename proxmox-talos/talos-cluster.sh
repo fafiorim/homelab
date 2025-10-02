@@ -39,6 +39,9 @@ usage() {
     echo ""
     echo "Commands:"
     echo "  deploy          Deploy complete Talos Kubernetes cluster"
+    echo "  argocd          Install ArgoCD for GitOps"
+    echo "  apps            Deploy applications via ArgoCD"
+    echo "  argocd-info     Show ArgoCD access information"
     echo "  cleanup         Remove all VMs and configurations"
     echo "  status          Show cluster and VM status"
     echo "  help            Show this help message"
@@ -51,6 +54,9 @@ usage() {
     echo "Examples:"
     echo "  $0 deploy                    # Deploy cluster (will error if VMs exist)"
     echo "  $0 deploy --force           # Deploy cluster, delete existing VMs first"
+    echo "  $0 argocd                   # Install ArgoCD for GitOps"
+    echo "  $0 argocd-info              # Show ArgoCD access information"
+    echo "  $0 apps                     # Deploy applications via ArgoCD"
     echo "  $0 cleanup                  # Remove all VMs and configurations"
     echo "  $0 status                   # Show current status"
     echo ""
@@ -407,6 +413,50 @@ cleanup_cluster() {
     echo -e "${BLUE}You can now run '$0 deploy' to create a fresh cluster.${NC}"
 }
 
+# Function to install ArgoCD
+install_argocd() {
+    echo -e "${BLUE}🚀 Installing ArgoCD for GitOps...${NC}"
+    echo ""
+    
+    # Check if cluster is ready
+    if [ ! -f "kubeconfig" ]; then
+        echo -e "${RED}✗ kubeconfig not found${NC}"
+        echo -e "${YELLOW}Please run './talos-cluster.sh deploy' first${NC}"
+        exit 1
+    fi
+    
+    # Run ArgoCD installation script
+    if [ -f "install-argocd.sh" ]; then
+        chmod +x install-argocd.sh
+        ./install-argocd.sh
+    else
+        echo -e "${RED}✗ install-argocd.sh not found${NC}"
+        exit 1
+    fi
+}
+
+# Function to deploy applications via ArgoCD
+deploy_apps() {
+    echo -e "${BLUE}🚀 Deploying applications via ArgoCD...${NC}"
+    echo ""
+    
+    # Check if ArgoCD is installed
+    if [ ! -f "kubeconfig" ]; then
+        echo -e "${RED}✗ kubeconfig not found${NC}"
+        echo -e "${YELLOW}Please run './talos-cluster.sh deploy' first${NC}"
+        exit 1
+    fi
+    
+    # Run application deployment script
+    if [ -f "deploy-apps.sh" ]; then
+        chmod +x deploy-apps.sh
+        ./deploy-apps.sh
+    else
+        echo -e "${RED}✗ deploy-apps.sh not found${NC}"
+        exit 1
+    fi
+}
+
 # Function to show status
 show_status() {
     echo -e "${CYAN}📊 Cluster Status${NC}"
@@ -494,6 +544,15 @@ parse_arguments() {
         "deploy")
             deploy_cluster
             ;;
+        "argocd")
+            install_argocd
+            ;;
+        "apps")
+            deploy_apps
+            ;;
+        "argocd-info")
+            show_argocd_info
+            ;;
         "cleanup")
             cleanup_cluster
             ;;
@@ -514,6 +573,52 @@ parse_arguments() {
             exit 1
             ;;
     esac
+}
+
+# Function to show ArgoCD access information
+show_argocd_info() {
+    echo -e "${BLUE}🔍 ArgoCD Access Information${NC}"
+    echo ""
+    
+    # Check if kubeconfig exists
+    if [ ! -f "kubeconfig" ]; then
+        echo -e "${RED}✗ kubeconfig not found${NC}"
+        echo -e "${YELLOW}Please run './talos-cluster.sh deploy' first${NC}"
+        exit 1
+    fi
+    
+    # Set kubeconfig
+    export KUBECONFIG=./kubeconfig
+    
+    # Check if ArgoCD is installed
+    if ! kubectl get deployment argocd-server -n argocd >/dev/null 2>&1; then
+        echo -e "${RED}✗ ArgoCD is not installed${NC}"
+        echo -e "${YELLOW}Please run './talos-cluster.sh argocd' first${NC}"
+        exit 1
+    fi
+    
+    # Get ArgoCD admin password
+    ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 2>/dev/null || echo "Password not available")
+    
+    echo -e "${YELLOW}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}                    ARGOCD ACCESS INFORMATION                    ${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${GREEN}🌐 ArgoCD Web UI:${NC}"
+    echo -e "   ${BLUE}URL:${NC} http://10.10.21.110:30080"
+    echo ""
+    echo -e "${GREEN}🔐 Login Credentials:${NC}"
+    echo -e "   ${BLUE}Username:${NC} admin"
+    echo -e "   ${BLUE}Password:${NC} ${ARGOCD_PASSWORD}"
+    echo ""
+    echo -e "${YELLOW}════════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${BLUE}💡 CLI Access:${NC}"
+    echo -e "  argocd login 10.10.21.110:30080"
+    echo -e "  argocd account update-password"
+    echo ""
+    echo -e "${GREEN}📊 ArgoCD Status:${NC}"
+    kubectl get pods -n argocd
 }
 
 # Main execution

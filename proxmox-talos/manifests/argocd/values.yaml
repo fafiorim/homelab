@@ -1,0 +1,77 @@
+# ArgoCD Helm Values
+# Custom configuration for Talos Kubernetes cluster
+
+server:
+  # Use NodePort for external access
+  service:
+    type: NodePort
+    nodePortHttp: 30080
+    nodePortHttps: 30443
+  
+  # Enable insecure mode for easier access
+  extraArgs:
+    - --insecure
+  
+  # Configuration
+  config:
+    application.instanceLabelKey: "argocd.argoproj.io/instance"
+    server.insecure: "true"
+    url: "http://10.10.21.110:30080"
+  
+  # Resource limits
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Controller configuration
+controller:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Repository server configuration
+repoServer:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Redis configuration
+redis:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Dex configuration (for SSO)
+dex:
+  enabled: false
+
+# Notifications
+notifications:
+  enabled: false
+
+# ApplicationSet controller
+applicationSet:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

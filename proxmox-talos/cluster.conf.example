@@ -25,3 +25,8 @@ worker_02_mac       = "bc:24:11:82:9f:3c"
 
 # ISO Configuration
 talos_iso = "talos-v1.11.1-amd64.iso"
+
+# GitOps Configuration
+# Git repository for ArgoCD to sync applications from
+git_repo_url = "https://github.com/fafiorim/homelab"
+git_repo_branch = "main"  # or "master" depending on your default branch
