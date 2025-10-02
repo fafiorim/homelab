@@ -366,15 +366,18 @@ display_info() {
     echo -e "  - Talos Config: ./talos-configs/talosconfig"
     echo -e "  - Kubeconfig: ./kubeconfig"
     echo ""
-    echo -e "${BLUE}Quick Commands:${NC}"
-    echo -e "  ${GREEN}# Environment variables are already set for this session${NC}"
+    echo -e "${BLUE}To use kubectl, first set up your environment:${NC}"
+    echo -e "${YELLOW}# Run this command to set up your environment:${NC}"
+    echo -e "${GREEN}source ./setup-env.sh${NC}"
+    echo ""
+    echo -e "${YELLOW}# Or manually export:${NC}"
+    echo -e "export KUBECONFIG=./kubeconfig"  
+    echo -e "export TALOSCONFIG=./talos-configs/talosconfig"
+    echo ""
+    echo -e "${BLUE}Then you can use:${NC}"
     echo -e "  kubectl get nodes"
     echo -e "  kubectl get pods -A"
     echo -e "  kubectl cluster-info"
-    echo ""
-    echo -e "  ${GREEN}# For new terminal sessions, run:${NC}"
-    echo -e "  export KUBECONFIG=./kubeconfig"
-    echo -e "  export TALOSCONFIG=./talos-configs/talosconfig"
     echo ""
     echo -e "${BLUE}Next Steps:${NC}"
     echo -e "  ./talos-cluster.sh argocd    # Install ArgoCD for GitOps"
@@ -427,7 +430,7 @@ echo ""
 
 # Wait for VMs to be ready
 echo -e "${YELLOW}Waiting for VMs to be ready...${NC}"
-sleep 120
+sleep 80
 
 # Create config directory
 mkdir -p ./talos-configs
@@ -460,3 +463,7 @@ display_info
 
 echo ""
 echo -e "${GREEN}🎉 Talos cluster '${cluster_name}' is ready!${NC}"
+echo ""
+echo -e "${YELLOW}⚠️  IMPORTANT: To use kubectl, run this command first:${NC}"
+echo -e "${GREEN}source ./setup-env.sh${NC}"
+echo ""
