@@ -110,6 +110,13 @@ control_plane_ip    = "10.10.21.110"
 worker_node_01_ip   = "10.10.21.111"
 worker_node_02_ip   = "10.10.21.112"
 
+# MAC Address Configuration
+# Format: xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx
+# These MAC addresses should be unique within your network
+control_plane_mac   = "bc:24:11:82:9f:fb"
+worker_01_mac       = "bc:24:11:51:6f:4d"
+worker_02_mac       = "bc:24:11:82:9f:3c"
+
 # Talos ISO
 talos_iso = "talos-v1.11.1-amd64.iso"
 ```
@@ -120,6 +127,22 @@ The script manages 3 VMs by default:
 - **Control Plane**: VM ID 400 (talos-control-plane)
 - **Worker 01**: VM ID 411 (talos-worker-01)  
 - **Worker 02**: VM ID 412 (talos-worker-02)
+
+### MAC Address Configuration
+
+MAC addresses are configurable through the `terraform.tfvars` file:
+
+| VM | Variable | Default MAC | Purpose |
+|----|----------|-------------|---------|
+| Control Plane | `control_plane_mac` | `bc:24:11:82:9f:fb` | Control plane VM network interface |
+| Worker 01 | `worker_01_mac` | `bc:24:11:51:6f:4d` | First worker VM network interface |
+| Worker 02 | `worker_02_mac` | `bc:24:11:82:9f:3c` | Second worker VM network interface |
+
+**Important Notes:**
+- MAC addresses must be unique within your network
+- Format: `xx:xx:xx:xx:xx:xx` or `xx-xx-xx-xx-xx-xx`
+- The system validates MAC address format automatically
+- Changing MAC addresses requires VM recreation
 
 ## Cluster Information
 

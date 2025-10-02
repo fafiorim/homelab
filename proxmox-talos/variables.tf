@@ -73,3 +73,34 @@ variable "talos_iso" {
   type        = string
   default     = "talos-v1.11.1-amd64.iso"
 }
+
+# MAC Address Configuration
+variable "control_plane_mac" {
+  description = "MAC address for the control plane VM (format: xx:xx:xx:xx:xx:xx)"
+  type        = string
+  default     = "bc:24:11:82:9f:fb"
+  validation {
+    condition     = can(regex("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", var.control_plane_mac))
+    error_message = "MAC address must be in format xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx"
+  }
+}
+
+variable "worker_01_mac" {
+  description = "MAC address for worker node 01 (format: xx:xx:xx:xx:xx:xx)"
+  type        = string
+  default     = "bc:24:11:51:6f:4d"
+  validation {
+    condition     = can(regex("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", var.worker_01_mac))
+    error_message = "MAC address must be in format xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx"
+  }
+}
+
+variable "worker_02_mac" {
+  description = "MAC address for worker node 02 (format: xx:xx:xx:xx:xx:xx)"
+  type        = string
+  default     = "bc:24:11:82:9f:3c"
+  validation {
+    condition     = can(regex("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", var.worker_02_mac))
+    error_message = "MAC address must be in format xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx"
+  }
+}

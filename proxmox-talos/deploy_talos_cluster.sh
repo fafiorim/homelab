@@ -369,9 +369,9 @@ echo ""
 
 # Create VMs
 echo -e "${YELLOW}Creating VMs...${NC}"
-create_vm 400 "talos-control-plane" "bc:24:11:82:9f:fb" "${control_plane_ip}"
-create_vm 411 "talos-worker-01" "bc:24:11:51:6f:4d" "${worker_node_01_ip}"
-create_vm 412 "talos-worker-02" "bc:24:11:82:9f:3c" "${worker_node_02_ip}"
+create_vm 400 "talos-control-plane" "${control_plane_mac}" "${control_plane_ip}"
+create_vm 411 "talos-worker-01" "${worker_01_mac}" "${worker_node_01_ip}"
+create_vm 412 "talos-worker-02" "${worker_02_mac}" "${worker_node_02_ip}"
 
 echo ""
 

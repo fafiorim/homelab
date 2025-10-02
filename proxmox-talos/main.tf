@@ -35,7 +35,7 @@ resource "proxmox_vm_qemu" "talos_control_plane" {
   network {
     model    = "virtio"
     bridge   = var.network_bridge
-    macaddr  = "bc:24:11:82:9f:fb"
+    macaddr  = var.control_plane_mac
     firewall = false
   }
   
@@ -95,7 +95,7 @@ resource "proxmox_vm_qemu" "talos_worker_01" {
   network {
     model    = "virtio"
     bridge   = var.network_bridge
-    macaddr  = "bc:24:11:51:6f:4d"
+    macaddr  = var.worker_01_mac
     firewall = false
   }
   
@@ -155,7 +155,7 @@ resource "proxmox_vm_qemu" "talos_worker_02" {
   network {
     model    = "virtio"
     bridge   = var.network_bridge
-    macaddr  = "87:33:11:82:9f:3c"  # Please verify this MAC address
+    macaddr  = var.worker_02_mac
     firewall = false
   }
   

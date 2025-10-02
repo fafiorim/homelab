@@ -54,20 +54,20 @@ output "cluster_summary" {
       name = proxmox_vm_qemu.talos_control_plane.name
       id   = proxmox_vm_qemu.talos_control_plane.vmid
       ip   = var.control_plane_ip
-      mac  = "bc:24:11:82:9f:fb"
+      mac  = var.control_plane_mac
     }
     workers = [
       {
         name = proxmox_vm_qemu.talos_worker_01.name
         id   = proxmox_vm_qemu.talos_worker_01.vmid
         ip   = var.worker_node_01_ip
-        mac  = "bc:24:11:51:6f:4d"
+        mac  = var.worker_01_mac
       },
       {
         name = proxmox_vm_qemu.talos_worker_02.name
         id   = proxmox_vm_qemu.talos_worker_02.vmid
         ip   = var.worker_node_02_ip
-        mac  = "87:33:11:82:9f:3c"  # Please verify this MAC address
+        mac  = var.worker_02_mac
       }
     ]
   }

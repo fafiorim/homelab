@@ -16,5 +16,12 @@ control_plane_ip    = "10.10.21.110"
 worker_node_01_ip   = "10.10.21.111"
 worker_node_02_ip   = "10.10.21.112"
 
+# MAC Address Configuration
+# Format: xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx
+# These MAC addresses should be unique within your network
+control_plane_mac   = "bc:24:11:82:9f:fb"
+worker_01_mac       = "bc:24:11:51:6f:4d"
+worker_02_mac       = "bc:24:11:82:9f:3c"
+
 # ISO Configuration
 talos_iso = "talos-v1.11.1-amd64.iso"
