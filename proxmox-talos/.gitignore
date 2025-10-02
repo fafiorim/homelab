@@ -9,6 +9,8 @@ talosconfig
 kubeconfig
 controlplane.yaml
 worker.yaml
+talos-configs/
+talos-secrets.yaml
 
 # Generated ArgoCD application manifests
 apps/*/homepage-app.yaml
