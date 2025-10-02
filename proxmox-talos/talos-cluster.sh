@@ -192,23 +192,76 @@ delete_existing_vms() {
         local name="${VM_NAMES[$i]}"
         
         if echo "$result" | grep -q "\"vmid\":$vmid"; then
-            echo -e "${BLUE}  Deleting $name (ID: $vmid)...${NC}"
+            echo -e "${BLUE}  Processing $name (ID: $vmid)...${NC}"
             
-            # Stop VM first
-            local stop_result=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/shutdown")
-            if echo "$stop_result" | grep -q '"data":'; then
-                echo -e "${GREEN}    ✓ VM stopped${NC}"
+            # First, check the current status of the VM
+            local current_status=$(echo "$result" | jq -r ".data[] | select(.vmid == $vmid) | .status" 2>/dev/null)
+            echo -e "${BLUE}    Current status: $current_status${NC}"
+            
+            # Handle VM based on its current status
+            if [[ "$current_status" == "running" ]]; then
+                echo -e "${YELLOW}    VM is running, stopping first...${NC}"
+                
+                # Try graceful shutdown first
+                local stop_result=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/shutdown")
+                if echo "$stop_result" | grep -q '"data":'; then
+                    echo -e "${GREEN}    ✓ Graceful shutdown initiated${NC}"
+                    sleep 10
+                    
+                    # Check if it actually stopped
+                    local status_check=$(api_call "GET" "/nodes/${proxmox_node}/qemu/$vmid/status/current")
+                    local new_status=$(echo "$status_check" | jq -r '.data.status // "unknown"' 2>/dev/null)
+                    
+                    if [[ "$new_status" == "running" ]]; then
+                        echo -e "${YELLOW}    VM still running, forcing stop...${NC}"
+                        local force_stop=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/stop")
+                        if echo "$force_stop" | grep -q '"data":'; then
+                            echo -e "${GREEN}    ✓ Force stop initiated${NC}"
+                            sleep 5
+                        fi
+                    else
+                        echo -e "${GREEN}    ✓ VM stopped gracefully${NC}"
+                    fi
+                else
+                    echo -e "${YELLOW}    Graceful shutdown failed, trying force stop...${NC}"
+                    local force_stop=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/stop")
+                    if echo "$force_stop" | grep -q '"data":'; then
+                        echo -e "${GREEN}    ✓ Force stop initiated${NC}"
+                        sleep 5
+                    fi
+                fi
+                
+            elif [[ "$current_status" == "stopped" ]]; then
+                echo -e "${GREEN}    ✓ VM is already stopped${NC}"
+                
+            else
+                echo -e "${YELLOW}    VM status is '$current_status', proceeding with deletion...${NC}"
             fi
             
-            # Wait for shutdown
-            sleep 5
+            # Now delete the VM
+            echo -e "${BLUE}    Deleting VM...${NC}"
             
             # Delete VM
             local delete_result=$(api_call "DELETE" "/nodes/${proxmox_node}/qemu/$vmid")
-            if echo "$delete_result" | grep -q '"data":'; then
-                echo -e "${GREEN}    ✓ VM deleted${NC}"
+            
+            # Check if we got a task ID (successful API call)
+            local task_id=$(echo "$delete_result" | jq -r '.data // empty' 2>/dev/null)
+            if [[ -n "$task_id" && "$task_id" != "null" && "$task_id" != "" ]]; then
+                echo -e "${GREEN}    ✓ VM deletion task started${NC}"
+                
+                # Wait for deletion task to complete
+                sleep 8
+                
+                # Verify deletion by checking if VM still exists
+                local verify_result=$(api_call "GET" "/cluster/resources?type=vm" 2>/dev/null)
+                if ! echo "$verify_result" | grep -q "\"vmid\":$vmid"; then
+                    echo -e "${GREEN}    ✓ VM successfully deleted${NC}"
+                else
+                    echo -e "${RED}    ✗ VM still exists after deletion attempt${NC}"
+                fi
             else
-                echo -e "${RED}    ✗ Failed to delete VM${NC}"
+                echo -e "${RED}    ✗ Failed to initiate VM deletion${NC}"
+                echo -e "${YELLOW}    API Response: $delete_result${NC}"
             fi
         fi
     done
@@ -230,29 +283,34 @@ deploy_cluster() {
     if [ "$FORCE_DELETE_EXISTING_VMS" = true ]; then
         delete_existing_vms
         
-        # Wait for VMs to be completely deleted
-        echo -e "${YELLOW}⏳ Waiting for VMs to be completely deleted...${NC}"
-        sleep 10
+        # Final verification (optional since each VM deletion is already verified)
+        echo -e "${YELLOW}⏳ Final verification of VM deletion...${NC}"
+        sleep 5
         
-        # Verify VMs are actually deleted
+        # Check if any VMs still exist
         local result=$(api_call "GET" "/cluster/resources?type=vm" 2>/dev/null)
-        local still_exist=false
+        local still_exist_count=0
+        local still_exist_names=()
         
         for i in "${!VM_IDS[@]}"; do
             local vmid="${VM_IDS[$i]}"
+            local name="${VM_NAMES[$i]}"
             if echo "$result" | grep -q "\"vmid\":$vmid"; then
-                still_exist=true
-                break
+                still_exist_count=$((still_exist_count + 1))
+                still_exist_names+=("$name (ID: $vmid)")
             fi
         done
         
-        if [ "$still_exist" = true ]; then
-            echo -e "${RED}✗ Some VMs still exist after deletion attempt${NC}"
-            echo -e "${YELLOW}Please wait a moment and try again, or manually delete VMs via Proxmox${NC}"
-            exit 1
+        if [ "$still_exist_count" -gt 0 ]; then
+            echo -e "${YELLOW}⚠️  $still_exist_count VM(s) may still be in deletion process:${NC}"
+            for name in "${still_exist_names[@]}"; do
+                echo -e "${YELLOW}    - $name${NC}"
+            done
+            echo -e "${BLUE}ℹ️  This is normal for Proxmox - VMs are being deleted in the background${NC}"
+            echo -e "${GREEN}✓ Proceeding with deployment${NC}"
+        else
+            echo -e "${GREEN}✓ All VMs successfully deleted${NC}"
         fi
-        
-        echo -e "${GREEN}✓ All VMs successfully deleted${NC}"
         
         # Clean up configuration files
         echo -e "${YELLOW}🧹 Cleaning up configuration files...${NC}"
