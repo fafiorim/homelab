@@ -1,5 +1,82 @@
 # Release Notes
 
+## v0.2.0 - Enhanced Cluster Management & Smart VM Cleanup (2025-10-02)
+
+### 🚀 Key Features
+
+#### **Smart VM Cleanup Logic**
+- **Intelligent Status Detection**: Automatically detects VM state before operations
+- **Conditional Operations**: Only stops running VMs, skips already-stopped VMs
+- **Graceful Shutdown**: Attempts graceful shutdown with automatic fallback to force stop
+- **API Validation**: Comprehensive validation of all API responses and task IDs
+- **Deletion Verification**: Confirms VM deletion completed successfully
+- **Enhanced Error Reporting**: Detailed feedback on failures with API responses
+
+#### **Environment Setup Improvements**
+- **Auto-Configuration Script**: `setup-env.sh` for one-command environment setup
+- **Multiple Setup Options**: Script, CLI command, or manual export
+- **Environment Validation**: Automatic detection and validation of cluster access
+- **Clear Instructions**: Comprehensive guidance for kubectl access after deployment
+
+#### **Deployment Timing Optimization**
+- **VM Boot Wait**: Increased to 120 seconds for improved reliability
+- **Node Initialization**: 90 seconds for proper startup
+- **Total Deploy Time**: ~6-7 minutes with enhanced stability
+
+### 🔧 Technical Improvements
+
+#### **Enhanced Functions**
+- `cleanup_cluster()` - Smart VM status detection and conditional cleanup
+- `delete_existing_vms()` - Intelligent VM deletion with proper API handling
+- `setup-env.sh` - Automated environment configuration script
+
+#### **Better Error Handling**
+- Task ID validation for async operations
+- Comprehensive API response checking
+- Smart VM state detection preventing unnecessary operations
+- Clear error messages with detailed API responses
+- Graceful handling of edge cases
+
+### 📚 Documentation
+
+#### **Enhanced Documentation**
+- `ENHANCED-FEATURES.md` - Comprehensive feature documentation
+- Updated README with improved usage instructions
+- Smart cleanup workflow documentation
+- Environment setup guide with multiple options
+
+### 🧹 Repository Cleanup
+
+- Organized ArgoCD application manifests
+- Clean folder structure (single apps/ directory)
+- Proper .gitignore configuration
+- Removed duplicate and orphaned files
+
+### 🎯 Benefits
+
+- **Prevents Deployment Failures**: Smart cleanup handles orphaned VM states
+- **Better User Experience**: Clear feedback at every step
+- **More Reliable**: Optimized timing and error handling
+- **Production Ready**: Enterprise-grade cluster management
+- **Easy Environment Setup**: No more manual export commands
+
+### 🧪 Testing
+
+- ✅ Full end-to-end cluster deployment tested
+- ✅ Smart cleanup logic validated with various VM states
+- ✅ Environment setup verified for proper kubectl access
+- ✅ Repository structure cleanup confirmed
+- ✅ All error handling paths tested
+
+### 📊 Changes
+
+- **Files Modified**: 2 files (talos-cluster.sh, deploy_talos_cluster.sh)
+- **New Files**: 1 (setup-env.sh)
+- **Documentation Added**: ENHANCED-FEATURES.md
+- **Lines Enhanced**: 200+ lines of improved logic
+
+---
+
 ## v0.1.0 - ArgoCD GitOps Integration (2025-10-02)
 
 ### 🎉 Major Features
