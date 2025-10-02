@@ -3,14 +3,14 @@
 # Master deployment script for Talos Kubernetes cluster
 # This script checks for existing VMs, creates them if needed, and configures the cluster
 
-# Load configuration from terraform.tfvars
-if [ ! -f "terraform.tfvars" ]; then
-    echo "Error: terraform.tfvars file not found!"
-    echo "Please copy terraform.tfvars.example to terraform.tfvars and configure it."
+# Load configuration from cluster.conf
+if [ ! -f "cluster.conf" ]; then
+    echo "Error: cluster.conf file not found!"
+    echo "Please copy cluster.conf.example to cluster.conf and configure it."
     exit 1
 fi
 
-# Parse terraform.tfvars file and export variables
+# Parse cluster.conf file and export variables
 while IFS='=' read -r key value; do
     # Skip comments and empty lines
     if [[ $key =~ ^[[:space:]]*# ]] || [[ -z "${key// }" ]]; then
@@ -23,7 +23,7 @@ while IFS='=' read -r key value; do
     
     # Export the variable
     export "$key"="$value"
-done < terraform.tfvars
+done < cluster.conf
 
 # Cluster Configuration
 CLUSTER_ENDPOINT="https://${control_plane_ip}:6443"

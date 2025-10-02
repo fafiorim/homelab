@@ -55,7 +55,7 @@ usage() {
     echo "  $0 status                   # Show current status"
     echo ""
     echo "Configuration:"
-    echo "  Edit terraform.tfvars to configure Proxmox and cluster settings"
+    echo "  Edit cluster.conf to configure Proxmox and cluster settings"
     echo "  VM IDs: ${VM_IDS[*]}"
     echo "  VM Names: ${VM_NAMES[*]}"
 }
@@ -73,9 +73,9 @@ check_prerequisites() {
     command -v jq >/dev/null 2>&1 || missing+=("jq")
     
     # Check configuration file
-    if [ ! -f "terraform.tfvars" ]; then
-        echo -e "${RED}✗ terraform.tfvars not found${NC}"
-        echo -e "${YELLOW}Please copy terraform.tfvars.example to terraform.tfvars and configure it.${NC}"
+    if [ ! -f "cluster.conf" ]; then
+        echo -e "${RED}✗ cluster.conf not found${NC}"
+        echo -e "${YELLOW}Please copy cluster.conf.example to cluster.conf and configure it.${NC}"
         exit 1
     fi
     
@@ -93,11 +93,11 @@ check_prerequisites() {
     echo -e "${GREEN}✓ All prerequisites met${NC}"
 }
 
-# Function to parse terraform.tfvars
+# Function to parse cluster.conf
 parse_config() {
     echo -e "${YELLOW}📋 Loading configuration...${NC}"
     
-    # Parse terraform.tfvars file and export variables
+    # Parse cluster.conf file and export variables
     while IFS='=' read -r key value; do
         # Skip comments and empty lines
         if [[ $key =~ ^[[:space:]]*# ]] || [[ -z "${key// }" ]]; then
@@ -110,7 +110,7 @@ parse_config() {
         
         # Export the variable
         export "$key"="$value"
-    done < terraform.tfvars
+    done < cluster.conf
     
     echo -e "${GREEN}✓ Configuration loaded${NC}"
 }
@@ -164,7 +164,7 @@ check_existing_vms() {
             echo -e "${YELLOW}Options:${NC}"
             echo -e "  1. Use --force to delete existing VMs and continue"
             echo -e "  2. Manually delete VMs via Proxmox web interface"
-            echo -e "  3. Use different VM IDs in terraform.tfvars"
+            echo -e "  3. Use different VM IDs in cluster.conf"
             echo ""
             echo -e "${BLUE}To force delete and continue: $0 deploy --force${NC}"
             exit 1
@@ -413,7 +413,7 @@ show_status() {
     echo ""
     
     # Check configuration
-    if [ ! -f "terraform.tfvars" ]; then
+    if [ ! -f "cluster.conf" ]; then
         echo -e "${RED}✗ Configuration file not found${NC}"
         exit 1
     fi

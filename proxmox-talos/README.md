@@ -24,8 +24,8 @@ This project provides the **easiest way** to:
 Copy and edit the configuration file:
 
 ```bash
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your Proxmox details
+cp cluster.conf.example cluster.conf
+# Edit cluster.conf with your Proxmox details
 ```
 
 ### 2. Deploy Cluster
@@ -90,7 +90,7 @@ This is the **single entry point** for all cluster operations:
 
 ## Configuration
 
-Edit `terraform.tfvars` to configure:
+Edit `cluster.conf` to configure:
 
 ```hcl
 # Proxmox Configuration
@@ -130,7 +130,7 @@ The script manages 3 VMs by default:
 
 ### MAC Address Configuration
 
-MAC addresses are configurable through the `terraform.tfvars` file:
+MAC addresses are configurable through the `cluster.conf` file:
 
 | VM | Variable | Default MAC | Purpose |
 |----|----------|-------------|---------|
@@ -163,13 +163,10 @@ After deployment, you'll have:
 ```
 ├── talos-cluster.sh            # Main management script
 ├── deploy_talos_cluster.sh     # Core deployment logic
-├── terraform.tfvars            # Configuration file
-├── terraform.tfvars.example    # Example configuration
+├── cluster.conf                # Configuration file
+├── cluster.conf.example        # Example configuration
 ├── talos-configs/              # Generated Talos configs
-├── kubeconfig                  # Kubernetes config
-├── main.tf                     # Terraform configuration
-├── variables.tf                # Terraform variables
-└── outputs.tf                  # Terraform outputs
+└── kubeconfig                  # Kubernetes config
 ```
 
 ## Error Handling
@@ -177,7 +174,7 @@ After deployment, you'll have:
 - **Existing VMs**: By default, the script will error if VMs with the same IDs exist
 - **Force Mode**: Use `--force` to automatically delete existing VMs and continue
 - **Prerequisites**: Script checks for required tools (talosctl, kubectl, curl, jq)
-- **Configuration**: Validates terraform.tfvars file exists and is properly configured
+- **Configuration**: Validates cluster.conf file exists and is properly configured
 
 ## Troubleshooting
 
@@ -191,7 +188,7 @@ After deployment, you'll have:
 2. **VM Conflict Errors**
    - Use `--force` to delete existing VMs
    - Or manually delete VMs via Proxmox web interface
-   - Or use different VM IDs in terraform.tfvars
+   - Or use different VM IDs in cluster.conf
 
 3. **Talos Configuration Fails**
    - Check network connectivity
@@ -218,7 +215,7 @@ After deployment, you'll have:
 
 ## Security
 
-- Keep `terraform.tfvars` secure
+- Keep `cluster.conf` secure
 - Don't commit secrets to version control
 - Use proper RBAC for production deployments
 - Regularly update Talos and Kubernetes
