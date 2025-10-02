@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: Homelab Dashboard
+    subtitle: Talos Kubernetes Cluster
+    logo: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
+    headerStyle: clean
+    theme: dark
+    color: slate
+    target: _blank
+    
+  services.yaml: |
+    - Infrastructure:
+        - Proxmox:
+            href: https://10.10.21.31:8006
+            description: Virtualization Platform
+            icon: proxmox
+            
+        - Talos Dashboard:
+            href: https://10.10.21.110:6443
+            description: Kubernetes API
+            icon: kubernetes
+            
+    - Monitoring:
+        - Grafana:
+            href: http://10.10.21.110:30000
+            description: Metrics Dashboard
+            icon: grafana
+            
+        - Prometheus:
+            href: http://10.10.21.110:9090
+            description: Metrics Collection
+            icon: prometheus
+            
+    - GitOps:
+        - ArgoCD:
+            href: http://localhost:8080
+            description: Continuous Deployment
+            icon: argocd
+            
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          
+    - resources:
+        cpu: true
+        memory: true
+        disk: /
+        cputemp: true
+        uptime: true
+        
+    - search:
+        provider: google
+        target: _blank
+        
+  bookmarks.yaml: |
+    - Homelab:
+        - Documentation:
+            - abbr: DOC
+              href: https://github.com/fafiorim/homelab
+              
+        - Talos:
+            - abbr: TLS
+              href: https://www.talos.dev/docs/
+              
+        - Kubernetes:
+            - abbr: K8S
+              href: https://kubernetes.io/docs/
