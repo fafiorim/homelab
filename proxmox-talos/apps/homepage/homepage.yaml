@@ -29,7 +29,7 @@ spec:
         - name: LOG_TARGETS
           value: "stdout"
         - name: HOMEPAGE_ALLOWED_HOSTS
-          value: "10.10.21.110:30001,10.10.21.111:30001,10.10.21.112:30001,localhost:30001"
+          value: "10.10.0.0/16,192.168.20.0/24,192.168.50.0/24,localhost"
         volumeMounts:
         - name: config
           mountPath: /app/config
