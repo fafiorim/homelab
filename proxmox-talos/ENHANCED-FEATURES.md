@@ -2,7 +2,7 @@
 
 ## 🚀 Quick Start with Auto-Configuration
 
-The cluster deployment script has been enhanced with automatic environment setup and improved status reporting.
+The cluster deployment script has been enhanced with automatic environment setup, improved status reporting, and comprehensive monitoring stack.
 
 ### Deploy and Auto-Configure
 
@@ -123,11 +123,43 @@ After successful deployment:
 # Install GitOps (ArgoCD)
 ./talos-cluster.sh argocd
 
-# Deploy applications
+# Deploy applications (includes monitoring stack)
 ./talos-cluster.sh apps
 
 # Check status anytime
 ./talos-cluster.sh status
 ```
 
-Your Talos Kubernetes cluster is now enterprise-ready with automatic configuration! 🎊
+## 📊 Complete Monitoring Stack
+
+The cluster now includes a comprehensive monitoring solution deployed via GitOps:
+
+### Components
+- **Prometheus** - Metrics collection and storage
+- **Grafana** - Visualization dashboards (NodePort 30000)
+- **Node Exporter** - System metrics from all nodes
+
+### Quick Access
+```bash
+# Access Grafana dashboard
+open http://10.10.21.110:30000
+# Default login: admin / admin123
+
+# View ArgoCD applications
+./talos-cluster.sh argocd-info
+```
+
+### Features
+- ✅ Automatic Kubernetes service discovery
+- ✅ Node-level system metrics (CPU, memory, disk, network)
+- ✅ Pod and container metrics
+- ✅ Pre-configured Prometheus datasource in Grafana
+- ✅ Privileged security context for host metrics access
+- ✅ GitOps managed via ArgoCD
+
+### Documentation
+- See `MONITORING.md` for detailed configuration and usage
+- Import community dashboards for comprehensive visualization
+- Customize alerts and retention policies as needed
+
+Your Talos Kubernetes cluster is now enterprise-ready with automatic configuration and full observability! 🎊

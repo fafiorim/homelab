@@ -62,6 +62,22 @@ cp cluster.conf.example cluster.conf
 ./update-git-repo.sh
 ```
 
+#### Available Applications
+
+- **Homepage**: Dashboard application for service overview
+- **Monitoring**: Complete monitoring stack with Prometheus, Grafana, and Node Exporter
+- **Test Applications**: Simple applications for testing cluster functionality
+
+#### Monitoring Stack Access
+
+After deploying applications, you can access:
+- **Grafana Dashboard**: `http://<any-node-ip>:30000`
+  - Default credentials: `admin` / `admin123`
+  - Pre-configured with Prometheus datasource
+- **Prometheus**: Internal access at `http://prometheus.monitoring.svc.cluster.local:9090`
+
+Example: `http://10.10.21.110:30000` (using control plane IP)
+
 ### 6. Cleanup
 
 ```bash
@@ -209,10 +225,21 @@ After deployment, you'll have:
 ```
 ├── talos-cluster.sh            # Main management script
 ├── deploy_talos_cluster.sh     # Core deployment logic
+├── install-argocd.sh           # ArgoCD installation script
+├── deploy-apps.sh              # Application deployment script
+├── setup-env.sh                # Environment setup script
 ├── cluster.conf                # Configuration file
 ├── cluster.conf.example        # Example configuration
 ├── talos-configs/              # Generated Talos configs
-└── kubeconfig                  # Kubernetes config
+├── kubeconfig                  # Kubernetes config
+├── manifests/                  # Kubernetes manifests
+│   └── argocd/                 # ArgoCD installation files
+├── apps/                       # ArgoCD Applications (GitOps)
+│   ├── homepage/               # Homepage dashboard
+│   ├── monitoring/             # Monitoring stack (Prometheus + Grafana)
+│   ├── simple-test/            # Simple test applications
+│   └── test-app/               # Test applications
+└── ENHANCED-FEATURES.md        # Documentation of enhancements
 ```
 
 ## Error Handling
@@ -278,9 +305,17 @@ After deployment, you'll have:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Documentation
+
+- **README.md** - Main documentation and quick start guide
+- **ENHANCED-FEATURES.md** - Detailed feature documentation and improvements
+- **MONITORING.md** - Comprehensive monitoring stack documentation
+- **cluster.conf.example** - Configuration template with examples
+
 ## Support
 
 For issues and questions:
 - Check the troubleshooting section
 - Review Talos documentation: https://www.talos.dev/docs/
+- Review monitoring documentation: `MONITORING.md`
 - Open an issue on GitHub
