@@ -1,7 +1,7 @@
 # Proxmox Configuration
 proxmox_api_url           = "https://10.10.21.31:8006/api2/json"
 proxmox_api_token_id      = "terraform@pve!terraform-token"
-proxmox_api_token_secret  = "759bd6ba-d0f7-4169-8718-d279f67c9706"
+proxmox_api_token_secret  = "0b62f0b-e403-4697-be3b-9ca62a4df295"
 proxmox_tls_insecure      = true
 proxmox_node              = "firefly"
 

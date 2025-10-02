@@ -39,6 +39,7 @@ usage() {
     echo ""
     echo "Commands:"
     echo "  deploy          Deploy complete Talos Kubernetes cluster"
+    echo "  env             Setup environment variables for cluster access"
     echo "  argocd          Install ArgoCD for GitOps"
     echo "  apps            Deploy applications via ArgoCD"
     echo "  argocd-info     Show ArgoCD access information"
@@ -367,23 +368,74 @@ cleanup_cluster() {
         local name="${VM_NAMES[$i]}"
         
         if echo "$result" | grep -q "\"vmid\":$vmid"; then
-            echo -e "${BLUE}  Deleting $name (ID: $vmid)...${NC}"
+            echo -e "${BLUE}  Processing $name (ID: $vmid)...${NC}"
             
-            # Stop VM first
-            local stop_result=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/shutdown")
-            if echo "$stop_result" | grep -q '"data":'; then
-                echo -e "${GREEN}    ✓ VM stopped${NC}"
+            # First, check the current status of the VM
+            local current_status=$(echo "$result" | jq -r ".data[] | select(.vmid == $vmid) | .status" 2>/dev/null)
+            echo -e "${BLUE}    Current status: $current_status${NC}"
+            
+            # Handle VM based on its current status
+            if [[ "$current_status" == "running" ]]; then
+                echo -e "${YELLOW}    VM is running, stopping first...${NC}"
+                
+                # Try graceful shutdown first
+                local stop_result=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/shutdown")
+                if echo "$stop_result" | grep -q '"data":'; then
+                    echo -e "${GREEN}    ✓ Graceful shutdown initiated${NC}"
+                    sleep 10
+                    
+                    # Check if it actually stopped
+                    local status_check=$(api_call "GET" "/nodes/${proxmox_node}/qemu/$vmid/status/current")
+                    local new_status=$(echo "$status_check" | jq -r '.data.status // "unknown"' 2>/dev/null)
+                    
+                    if [[ "$new_status" == "running" ]]; then
+                        echo -e "${YELLOW}    VM still running, forcing stop...${NC}"
+                        local force_stop=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/stop")
+                        if echo "$force_stop" | grep -q '"data":'; then
+                            echo -e "${GREEN}    ✓ Force stop initiated${NC}"
+                            sleep 5
+                        fi
+                    else
+                        echo -e "${GREEN}    ✓ VM stopped gracefully${NC}"
+                    fi
+                else
+                    echo -e "${YELLOW}    Graceful shutdown failed, trying force stop...${NC}"
+                    local force_stop=$(api_call "POST" "/nodes/${proxmox_node}/qemu/$vmid/status/stop")
+                    if echo "$force_stop" | grep -q '"data":'; then
+                        echo -e "${GREEN}    ✓ Force stop initiated${NC}"
+                        sleep 5
+                    fi
+                fi
+                
+            elif [[ "$current_status" == "stopped" ]]; then
+                echo -e "${GREEN}    ✓ VM is already stopped${NC}"
+                
+            else
+                echo -e "${YELLOW}    VM status is '$current_status', proceeding with deletion...${NC}"
             fi
             
-            # Wait for shutdown
-            sleep 5
-            
-            # Delete VM
+            # Now delete the VM
+            echo -e "${BLUE}    Deleting VM...${NC}"
             local delete_result=$(api_call "DELETE" "/nodes/${proxmox_node}/qemu/$vmid")
-            if echo "$delete_result" | grep -q '"data":'; then
-                echo -e "${GREEN}    ✓ VM deleted${NC}"
+            
+            # Check if we got a task ID (successful API call)
+            local task_id=$(echo "$delete_result" | jq -r '.data // empty' 2>/dev/null)
+            if [[ -n "$task_id" && "$task_id" != "null" && "$task_id" != "" ]]; then
+                echo -e "${GREEN}    ✓ VM deletion task started${NC}"
+                
+                # Wait for deletion task to complete
+                sleep 8
+                
+                # Verify deletion by checking if VM still exists
+                local verify_result=$(api_call "GET" "/cluster/resources?type=vm" 2>/dev/null)
+                if ! echo "$verify_result" | grep -q "\"vmid\":$vmid"; then
+                    echo -e "${GREEN}    ✓ VM successfully deleted${NC}"
+                else
+                    echo -e "${RED}    ✗ VM still exists after deletion attempt${NC}"
+                fi
             else
-                echo -e "${RED}    ✗ Failed to delete VM${NC}"
+                echo -e "${RED}    ✗ Failed to initiate VM deletion${NC}"
+                echo -e "${YELLOW}    API Response: $delete_result${NC}"
             fi
         else
             echo -e "${BLUE}  $name (ID: $vmid) not found, skipping...${NC}"
@@ -544,6 +596,9 @@ parse_arguments() {
         "deploy")
             deploy_cluster
             ;;
+        "env")
+            setup_environment
+            ;;
         "argocd")
             install_argocd
             ;;
@@ -573,6 +628,54 @@ parse_arguments() {
             exit 1
             ;;
     esac
+}
+
+# Function to setup environment variables
+setup_environment() {
+    echo -e "${BLUE}🔧 Setting up Talos cluster environment${NC}"
+    echo ""
+    
+    # Check if config files exist
+    if [ ! -f "kubeconfig" ]; then
+        echo -e "${RED}✗ kubeconfig not found${NC}"
+        echo -e "${YELLOW}Please run './talos-cluster.sh deploy' first${NC}"
+        exit 1
+    fi
+    
+    if [ ! -f "talos-configs/talosconfig" ]; then
+        echo -e "${RED}✗ talosconfig not found${NC}"
+        echo -e "${YELLOW}Please run './talos-cluster.sh deploy' first${NC}"
+        exit 1
+    fi
+    
+    # Display environment setup instructions
+    echo -e "${GREEN}✅ Configuration files found${NC}"
+    echo ""
+    echo -e "${YELLOW}To set up your environment, run one of these commands:${NC}"
+    echo ""
+    echo -e "${BLUE}Option 1 - Source the setup script:${NC}"
+    echo -e "  ${GREEN}source ./setup-env.sh${NC}"
+    echo ""
+    echo -e "${BLUE}Option 2 - Export manually:${NC}"
+    echo -e "  ${GREEN}export KUBECONFIG=./kubeconfig${NC}"
+    echo -e "  ${GREEN}export TALOSCONFIG=./talos-configs/talosconfig${NC}"
+    echo ""
+    echo -e "${BLUE}Option 3 - Copy and paste:${NC}"
+    echo -e "${GREEN}export KUBECONFIG=\"$(pwd)/kubeconfig\"${NC}"
+    echo -e "${GREEN}export TALOSCONFIG=\"$(pwd)/talos-configs/talosconfig\"${NC}"
+    echo ""
+    echo -e "${YELLOW}After setting environment variables, you can use:${NC}"
+    echo -e "  kubectl get nodes"
+    echo -e "  kubectl get pods -A"
+    echo -e "  talosctl get nodes"
+    echo ""
+    
+    # Try to show current cluster status if possible
+    export KUBECONFIG="./kubeconfig"
+    if command -v kubectl >/dev/null 2>&1 && kubectl get nodes >/dev/null 2>&1; then
+        echo -e "${BLUE}Current cluster status:${NC}"
+        kubectl get nodes 2>/dev/null || echo -e "${YELLOW}⚠️  Unable to get cluster status${NC}"
+    fi
 }
 
 # Function to show ArgoCD access information

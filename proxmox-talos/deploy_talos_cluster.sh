@@ -304,16 +304,32 @@ verify_cluster() {
     echo -e "${BLUE}Waiting for nodes to be ready...${NC}"
     sleep 30
     
-    # Check nodes
+    # Check nodes with retry logic
     echo -e "${BLUE}Checking cluster nodes:${NC}"
-    kubectl get nodes -o wide
+    local retry_count=0
+    local max_retries=5
+    
+    while [ $retry_count -lt $max_retries ]; do
+        if kubectl get nodes -o wide 2>/dev/null; then
+            echo -e "${GREEN}✓ All nodes are accessible${NC}"
+            break
+        else
+            retry_count=$((retry_count + 1))
+            echo -e "${YELLOW}⚠️  Nodes not ready yet (attempt $retry_count/$max_retries), waiting 15s...${NC}"
+            sleep 15
+        fi
+    done
+    
+    if [ $retry_count -eq $max_retries ]; then
+        echo -e "${YELLOW}⚠️  Nodes may still be initializing. Cluster info will be displayed anyway.${NC}"
+    fi
     
     echo ""
-    echo -e "${BLUE}Checking cluster pods:${NC}"
-    kubectl get pods -A
+    echo -e "${BLUE}Checking cluster info:${NC}"
+    kubectl cluster-info 2>/dev/null || echo -e "${YELLOW}⚠️  Cluster info not available yet${NC}"
 }
 
-# Function to display cluster information
+# Function to display cluster information and status
 display_info() {
     echo ""
     echo -e "${GREEN}=== Talos Cluster Setup Complete ===${NC}"
@@ -325,18 +341,44 @@ display_info() {
     echo -e "  - Worker 02: ${worker_node_02_ip} (VM 412)"
     echo -e "  - API Endpoint: $CLUSTER_ENDPOINT"
     echo ""
+    
+    # Automatically set environment variables for this session
+    export KUBECONFIG="./kubeconfig"
+    export TALOSCONFIG="./talos-configs/talosconfig"
+    
+    echo -e "${BLUE}Current Cluster Status:${NC}"
+    echo -e "${YELLOW}Checking nodes...${NC}"
+    if kubectl get nodes -o wide 2>/dev/null; then
+        echo ""
+        echo -e "${YELLOW}Checking system pods...${NC}"
+        kubectl get pods -A --field-selector=status.phase=Running 2>/dev/null | head -10
+        if [ $(kubectl get pods -A --field-selector=status.phase=Running 2>/dev/null | wc -l) -gt 10 ]; then
+            echo -e "${BLUE}... and more system pods running${NC}"
+        fi
+        echo ""
+        echo -e "${GREEN}✅ Your Talos Kubernetes cluster is ready!${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Cluster might still be initializing. Wait a moment and try: kubectl get nodes${NC}"
+    fi
+    
+    echo ""
     echo -e "${BLUE}Configuration Files:${NC}"
     echo -e "  - Talos Config: ./talos-configs/talosconfig"
     echo -e "  - Kubeconfig: ./kubeconfig"
     echo ""
-    echo -e "${BLUE}Usage:${NC}"
-    echo -e "  # Use kubectl"
-    echo -e "  export KUBECONFIG=./kubeconfig"
+    echo -e "${BLUE}Quick Commands:${NC}"
+    echo -e "  ${GREEN}# Environment variables are already set for this session${NC}"
     echo -e "  kubectl get nodes"
+    echo -e "  kubectl get pods -A"
+    echo -e "  kubectl cluster-info"
     echo ""
-    echo -e "  # Use talosctl"
+    echo -e "  ${GREEN}# For new terminal sessions, run:${NC}"
+    echo -e "  export KUBECONFIG=./kubeconfig"
     echo -e "  export TALOSCONFIG=./talos-configs/talosconfig"
-    echo -e "  talosctl get nodes"
+    echo ""
+    echo -e "${BLUE}Next Steps:${NC}"
+    echo -e "  ./talos-cluster.sh argocd    # Install ArgoCD for GitOps"
+    echo -e "  ./talos-cluster.sh apps      # Deploy applications"
     echo ""
     echo -e "${YELLOW}Note: Keep the configuration files secure!${NC}"
 }
@@ -385,7 +427,7 @@ echo ""
 
 # Wait for VMs to be ready
 echo -e "${YELLOW}Waiting for VMs to be ready...${NC}"
-sleep 60
+sleep 120
 
 # Create config directory
 mkdir -p ./talos-configs
@@ -402,7 +444,7 @@ echo ""
 
 # Wait for nodes to initialize
 echo -e "${YELLOW}Waiting for nodes to initialize...${NC}"
-sleep 60
+sleep 90
 
 # Bootstrap cluster
 bootstrap_cluster
