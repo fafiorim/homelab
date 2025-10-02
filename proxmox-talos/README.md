@@ -1,290 +1,204 @@
-# Talos Kubernetes Cluster on Proxmox
+# Proxmox Talos Kubernetes Cluster
 
-This project deploys a 3-node Talos Kubernetes cluster on Proxmox VE using direct API calls (bypassing Terraform provider issues).
+A streamlined automation solution for deploying a Talos Kubernetes cluster on Proxmox infrastructure with a single command.
 
-## Architecture
+## Overview
 
-- **Control Plane**: 1 node (4 cores, 6GB RAM, 50GB disk)
-- **Worker Nodes**: 2 nodes (4 cores, 6GB RAM, 50GB disk each)
+This project provides the **easiest way** to:
+- Create 3 Proxmox VMs (1 control plane + 2 workers)
+- Install and configure Talos Linux
+- Bootstrap a fully functional Kubernetes cluster
+- Manage the entire lifecycle with one script
 
-## VM Configuration
+## Quick Start
 
-| Node | VM ID | IP Address | MAC Address | Role | Specs |
-|------|-------|------------|-------------|------|-------|
-| talos-control-plane | 400 | 10.10.21.110 | bc:24:11:82:9f:fb | Control Plane | 4 cores, 6GB RAM, 50GB disk |
-| talos-worker-01 | 411 | 10.10.21.111 | bc:24:11:51:6f:4d | Worker | 4 cores, 6GB RAM, 50GB disk |
-| talos-worker-02 | 412 | 10.10.21.112 | bc:24:11:82:9f:3c | Worker | 4 cores, 6GB RAM, 50GB disk |
+### Prerequisites
 
-## Prerequisites
+- Proxmox VE server with API access
+- `talosctl` and `kubectl` installed locally
+- Network access to Proxmox API
+- Talos ISO uploaded to Proxmox storage
 
-1. **Proxmox VE** with API access configured
-2. **Talos ISO** uploaded to Proxmox storage (`talos-v1.11.1-amd64.iso`)
-3. **Network bridge** configured (default: vmbr0)
-4. **Storage pool** available (default: local-lvm)
-5. **API Token** with sufficient permissions
+### 1. Configuration
 
-## Proxmox Setup
+Copy and edit the configuration file:
 
-### 1. Create API Token
-
-1. Go to **Datacenter** → **Permissions** → **API Tokens**
-2. Click **Add** → **API Token**
-3. **User**: `terraform@pve`
-4. **Token ID**: `terraform-token`
-5. **Privilege Separation**: Disabled (for full permissions)
-6. **Comment**: "Terraform automation token"
-7. **Copy the generated secret**
-
-### 2. Required Permissions
-
-The token needs these permissions:
-- `VM.Allocate`, `VM.Clone`, `VM.Config.*`, `VM.PowerMgmt`
-- `Datastore.AllocateSpace`, `Datastore.Audit`
-- `Sys.Audit`, `Sys.Modify`
-- `Pool.Audit`
-
-## Quick Deployment
-
-### Option 1: Direct API Script (Recommended)
-
-1. **Update configuration in `create_talos_vms.sh`:**
-   ```bash
-   # Edit these variables
-   PROXMOX_URL="https://YOUR_PROXMOX_IP:8006/api2/json"
-   TOKEN_ID="terraform@pve!terraform-token"
-   TOKEN_SECRET="your-token-secret-here"
-   NODE="your-proxmox-node-name"
-   ```
-
-2. **Run the deployment script:**
-   ```bash
-   chmod +x create_talos_vms.sh
-   ./create_talos_vms.sh
-   ```
-
-3. **Setup the Talos Kubernetes cluster:**
-   ```bash
-   chmod +x setup_talos_cluster.sh
-   ./setup_talos_cluster.sh
-   ```
-
-### Option 2: Terraform (Alternative)
-
-**Note**: The Terraform provider has compatibility issues with Proxmox VE 9.0+ due to deprecated `VM.Monitor` permission. Use the API script instead.
-
-1. **Configure variables:**
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars
-   # Edit terraform.tfvars with your settings
-   ```
-
-2. **Deploy with Terraform:**
-   ```bash
-   terraform init
-   terraform plan
-   terraform apply
-   ```
-
-## Complete Deployment Process
-
-### Option 1: Master Script (Recommended)
 ```bash
-# 1. Copy and configure terraform.tfvars
 cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your settings
-
-# 2. Deploy the cluster
-./deploy_talos_cluster.sh
+# Edit terraform.tfvars with your Proxmox details
 ```
 
-This single script will:
-- ✅ Check if VMs already exist (fails if they do)
-- ✅ Create 3 VMs with proper specifications
-- ✅ Configure the Talos Kubernetes cluster
-- ✅ Bootstrap the cluster and retrieve kubeconfig
-
-### Option 2: Step-by-Step Deployment
-```bash
-# Step 1: Create VMs
-./create_talos_vms.sh
-
-# Step 2: Setup Talos Cluster
-./setup_talos_cluster.sh
-```
-
-### Option 3: Configure Existing VMs
-If you already have VMs running and just want to configure Talos:
-```bash
-# Configure Talos on existing VMs
-./configure_talos_cluster.sh
-```
-
-This script will:
-- ✅ Skip VM creation (assumes VMs already exist)
-- ✅ Generate Talos machine configurations
-- ✅ Apply configurations to all VMs
-- ✅ Bootstrap the Kubernetes cluster
-- ✅ Retrieve kubeconfig for kubectl access
-
-### Cleanup
-```bash
-./cleanup_vms.sh
-```
-
-This will create a Talos Kubernetes cluster named "laternfly" with:
-- 1 control plane (VM 400)
-- 2 worker nodes (VMs 411, 412)
-
-### Cluster Setup Features
-
-The `setup_talos_cluster.sh` script automatically:
-- ✅ Checks for `talosctl` installation
-- ✅ Generates Talos machine configurations
-- ✅ Applies configurations to all VMs
-- ✅ Bootstraps the Kubernetes cluster
-- ✅ Retrieves kubeconfig for kubectl access
-- ✅ Verifies cluster status and node readiness
-- ✅ Creates organized config files in `./talos-configs/`
-
-## Post-Deployment: Manual Talos Configuration (Alternative)
-
-If you prefer to configure Talos manually after VMs are created and running:
-
-### 1. Generate Talos Machine Configs
+### 2. Deploy Cluster
 
 ```bash
-# Generate cluster configuration
-talosctl gen config talos-cluster https://10.10.21.110:6443
+# Deploy complete cluster (will error if VMs exist)
+./talos-cluster.sh deploy
 
-# This creates:
-# - controlplane.yaml
-# - worker.yaml
-# - talosconfig
+# Deploy with force delete existing VMs
+./talos-cluster.sh deploy --force
 ```
 
-### 2. Apply Machine Configurations
+### 3. Check Status
 
 ```bash
-# Control plane
-talosctl apply-config --insecure --nodes 10.10.21.110 --file controlplane.yaml
-
-# Workers
-talosctl apply-config --insecure --nodes 10.10.21.111 --file worker.yaml
-talosctl apply-config --insecure --nodes 10.10.21.112 --file worker.yaml
+./talos-cluster.sh status
 ```
 
-### 3. Bootstrap the Cluster
+### 4. Cleanup
 
 ```bash
-# Set endpoint
-talosctl --talosconfig=./talosconfig config endpoint 10.10.21.110
-
-# Bootstrap the cluster
-talosctl --talosconfig=./talosconfig bootstrap --nodes 10.10.21.110
+./talos-cluster.sh cleanup
 ```
 
-### 4. Retrieve Kubeconfig
+## Main Script: `talos-cluster.sh`
+
+This is the **single entry point** for all cluster operations:
+
+### Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `deploy` | Deploy complete Talos Kubernetes cluster | `--force`, `--verbose`, `--dry-run` |
+| `cleanup` | Remove all VMs and configurations | `--verbose` |
+| `status` | Show cluster and VM status | `--verbose` |
+| `help` | Show help message | |
+
+### Options
+
+- `--force`: Force delete existing VMs with same IDs before deploying
+- `--verbose`: Enable verbose output for debugging
+- `--dry-run`: Show what would be done without executing
+
+### Examples
 
 ```bash
-# Get kubeconfig for kubectl
-talosctl --talosconfig=./talosconfig kubeconfig .
+# Deploy cluster (safe mode - errors if VMs exist)
+./talos-cluster.sh deploy
 
-# Use with kubectl
-export KUBECONFIG=./kubeconfig
-kubectl get nodes
+# Deploy cluster with force delete existing VMs
+./talos-cluster.sh deploy --force
+
+# Check current status
+./talos-cluster.sh status
+
+# Remove everything
+./talos-cluster.sh cleanup
+
+# Get help
+./talos-cluster.sh help
 ```
 
-## VM Specifications
+## Configuration
 
-- **OS Type**: Linux 2.6+ Kernel
-- **CPU**: Host passthrough (4 cores, 1 socket)
-- **Memory**: 6GB RAM
-- **Storage**: 50GB disk (raw format)
-- **SCSI Controller**: VirtIO SCSI
-- **Network Model**: VirtIO
-- **Boot Order**: CD-ROM first, then disk
-- **Agent**: Disabled (not needed for Talos)
+Edit `terraform.tfvars` to configure:
 
-## Network Configuration
+```hcl
+# Proxmox Configuration
+proxmox_api_url           = "https://your-proxmox:8006/api2/json"
+proxmox_api_token_id      = "your-token-id"
+proxmox_api_token_secret  = "your-token-secret"
+proxmox_node              = "your-node-name"
 
-- **Bridge**: vmbr0
-- **Firewall**: Disabled
-- **MAC Addresses**: Pre-configured for consistent networking
-- **IP Addresses**: Static (configured via Talos machine config)
+# Storage and Network
+storage_pool   = "local-lvm"
+network_bridge = "vmbr0"
+iso_storage    = "local"
+
+# Cluster Configuration
+cluster_name        = "your-cluster"
+control_plane_ip    = "10.10.21.110"
+worker_node_01_ip   = "10.10.21.111"
+worker_node_02_ip   = "10.10.21.112"
+
+# Talos ISO
+talos_iso = "talos-v1.11.1-amd64.iso"
+```
+
+## VM Management
+
+The script manages 3 VMs by default:
+- **Control Plane**: VM ID 400 (talos-control-plane)
+- **Worker 01**: VM ID 411 (talos-worker-01)  
+- **Worker 02**: VM ID 412 (talos-worker-02)
+
+## Cluster Information
+
+After deployment, you'll have:
+
+- **Control Plane**: VM ID 400 (10.10.21.110)
+- **Worker 01**: VM ID 411 (10.10.21.111)  
+- **Worker 02**: VM ID 412 (10.10.21.112)
+
+### Access Points
+
+- **Kubernetes API**: `https://10.10.21.110:6443`
+- **Kubeconfig**: `./kubeconfig`
+- **Talos Config**: `./talos-configs/talosconfig`
+
+## File Structure
+
+```
+├── talos-cluster.sh            # Main management script
+├── deploy_talos_cluster.sh     # Core deployment logic
+├── terraform.tfvars            # Configuration file
+├── terraform.tfvars.example    # Example configuration
+├── talos-configs/              # Generated Talos configs
+├── kubeconfig                  # Kubernetes config
+├── main.tf                     # Terraform configuration
+├── variables.tf                # Terraform variables
+└── outputs.tf                  # Terraform outputs
+```
+
+## Error Handling
+
+- **Existing VMs**: By default, the script will error if VMs with the same IDs exist
+- **Force Mode**: Use `--force` to automatically delete existing VMs and continue
+- **Prerequisites**: Script checks for required tools (talosctl, kubectl, curl, jq)
+- **Configuration**: Validates terraform.tfvars file exists and is properly configured
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **VM Creation Fails**:
-   - Check API token permissions
+1. **VM Creation Fails**
+   - Check Proxmox API credentials
    - Verify storage pool exists
    - Ensure Talos ISO is uploaded
 
-2. **MAC Address Errors**:
-   - Use valid unicast MAC addresses
-   - Format: `XX:XX:XX:XX:XX:XX`
+2. **VM Conflict Errors**
+   - Use `--force` to delete existing VMs
+   - Or manually delete VMs via Proxmox web interface
+   - Or use different VM IDs in terraform.tfvars
 
-3. **Terraform Provider Issues**:
-   - Use the direct API script instead
-   - Provider has compatibility issues with Proxmox VE 9.0+
+3. **Talos Configuration Fails**
+   - Check network connectivity
+   - Verify IP addresses are correct
+   - Ensure VMs are running
 
-### Cleanup
+4. **Cluster Bootstrap Fails**
+   - Check control plane VM status
+   - Verify network configuration
+   - Check Talos logs
 
-**Delete VMs via API:**
+### Logs and Debugging
+
 ```bash
-# Stop and delete VMs
-curl -k -X POST -H "Authorization: PVEAPIToken=terraform@pve!terraform-token=YOUR_SECRET" \
-  "https://YOUR_PROXMOX_IP:8006/api2/json/nodes/YOUR_NODE/qemu/400/status/shutdown"
+# Check cluster status
+./talos-cluster.sh status
 
-curl -k -X DELETE -H "Authorization: PVEAPIToken=terraform@pve!terraform-token=YOUR_SECRET" \
-  "https://YOUR_PROXMOX_IP:8006/api2/json/nodes/YOUR_NODE/qemu/400"
-# Repeat for VMs 411 and 412
+# Deploy with verbose output
+./talos-cluster.sh deploy --force --verbose
+
+# Check what would be done
+./talos-cluster.sh deploy --dry-run
 ```
 
-**Or via Proxmox Web Interface:**
-- Go to each VM → More → Destroy
+## Security
 
-## Files Overview
-
-- `deploy_talos_cluster.sh`: **Master deployment script (recommended)**
-- `configure_talos_cluster.sh`: **Talos configuration script for existing VMs**
-- `cleanup_vms.sh`: VM cleanup script
-- `create_talos_vms.sh`: VM creation script (step-by-step)
-- `setup_talos_cluster.sh`: Talos cluster configuration script (step-by-step)
-- `main.tf`: Terraform configuration (alternative)
-- `variables.tf`: Terraform variables
-- `outputs.tf`: Terraform outputs
-- `terraform.tfvars.example`: Example configuration
-- `README.md`: This documentation
-
-## Security Considerations
-
-⚠️ **Important**: 
-
-1. **API Token Security**:
-   - Store token secret securely
-   - Use environment variables in production
-   - Rotate tokens regularly
-
-2. **Network Security**:
-   - Configure firewall rules as needed
-   - Use VPN for remote access
-   - Enable TLS verification in production
-
-3. **Production Recommendations**:
-   - Use separate storage pools
-   - Enable Proxmox backup
-   - Monitor resource usage
-   - Set up log aggregation
-
-## Why Direct API Instead of Terraform?
-
-The Terraform `telmate/proxmox` provider has compatibility issues with Proxmox VE 9.0+:
-
-- **Issue**: Provider requests deprecated `VM.Monitor` permission
-- **Cause**: Proxmox VE 9.0 removed this permission
-- **Solution**: Use direct API calls for reliable deployment
+- Keep `terraform.tfvars` secure
+- Don't commit secrets to version control
+- Use proper RBAC for production deployments
+- Regularly update Talos and Kubernetes
 
 ## Contributing
 
@@ -297,3 +211,10 @@ The Terraform `telmate/proxmox` provider has compatibility issues with Proxmox V
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For issues and questions:
+- Check the troubleshooting section
+- Review Talos documentation: https://www.talos.dev/docs/
+- Open an issue on GitHub

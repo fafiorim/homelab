@@ -281,8 +281,8 @@ get_kubeconfig() {
     
     export TALOSCONFIG="./talos-configs/talosconfig"
     
-    # Get kubeconfig
-    talosctl --talosconfig="$TALOSCONFIG" kubeconfig .
+    # Get kubeconfig with proper node specification
+    talosctl --talosconfig="$TALOSCONFIG" kubeconfig . --nodes "${control_plane_ip}"
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Kubeconfig retrieved successfully${NC}"
