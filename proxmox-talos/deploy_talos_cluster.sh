@@ -430,7 +430,7 @@ echo ""
 
 # Wait for VMs to be ready
 echo -e "${YELLOW}Waiting for VMs to be ready...${NC}"
-sleep 80
+sleep 120
 
 # Create config directory
 mkdir -p ./talos-configs
