@@ -70,12 +70,18 @@ spec:
 
             headerStyle: clean
             target: _blank
+            hideVersion: false
+            showStats: false
             
             # Enable quick launch and theme selector
             quicklaunch:
               searchDescriptions: true
               hideInternetSearch: false
               hideVisitURL: false
+              
+            # Enable theme switching
+            fiveColumns: false
+            statusStyle: "dot"
             
             layout:
               Infrastructure:
@@ -159,6 +165,9 @@ spec:
                     description: Media Server
                     icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
             EOF
+            
+            # Create empty bookmarks file for theme selector access
+            echo "---" > /app/config/bookmarks.yaml
             
             chown -R 1000:1000 /app/config
         volumeMounts:
