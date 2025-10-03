@@ -105,18 +105,13 @@ spec:
             
             cat > /app/config/widgets.yaml << 'EOF'
             ---
-            - kubernetes:
-                cluster:
-                  show: true
-                  cpu: true
-                  memory: true
-                  showLabel: true
-                  label: "Talos Cluster"
-                nodes:
-                  show: true
-                  cpu: true
-                  memory: true
-                  showLabel: true
+            - resources:
+                expanded: true
+                label: "Container Resources"
+                cpu: true
+                memory: true
+                disk: /
+                refresh: 5000
             - search:
                 provider: duckduckgo
                 target: _blank
