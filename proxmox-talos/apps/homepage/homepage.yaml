@@ -231,11 +231,7 @@ spec:
             # Create kubernetes configuration for cluster access
             cat <<EOF > /app/config/kubernetes.yaml
             ---
-            cluster:
-              name: "Talos Cluster"
-              server: "https://kubernetes.default.svc"
-              skipTls: false
-              namespace: "homepage"
+            mode: cluster
             EOF
             
             # Keep custom files empty - Homepage will create default skeleton files
