@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-proxy-manager-data
+  namespace: nginx-proxy-manager
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-proxy-manager-letsencrypt
+  namespace: nginx-proxy-manager
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-proxy-manager
+  namespace: nginx-proxy-manager
+  labels:
+    app: nginx-proxy-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-proxy-manager
+  template:
+    metadata:
+      labels:
+        app: nginx-proxy-manager
+    spec:
+      containers:
+        - name: nginx-proxy-manager
+          image: jc21/nginx-proxy-manager:latest
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8443
+              name: https
+            - containerPort: 81
+              name: admin
+          env:
+            - name: DISABLE_IPV6
+              value: "true"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: letsencrypt
+              mountPath: /etc/letsencrypt
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: nginx-proxy-manager-data
+        - name: letsencrypt
+          persistentVolumeClaim:
+            claimName: nginx-proxy-manager-letsencrypt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-proxy-manager
+  namespace: nginx-proxy-manager
+  labels:
+    app: nginx-proxy-manager
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30081
+      name: http
+    - port: 8443
+      targetPort: 8443
+      nodePort: 30082
+      name: https
+    - port: 81
+      targetPort: 81
+      nodePort: 30083
+      name: admin
+  selector:
+    app: nginx-proxy-manager

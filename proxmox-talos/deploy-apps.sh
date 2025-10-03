@@ -82,6 +82,10 @@ kubectl apply -f apps/homepage/homepage-app.yaml
 echo -e "${BLUE}Deploying Monitoring...${NC}"
 kubectl apply -f apps/monitoring/monitoring-app.yaml
 
+# Deploy Nginx Proxy Manager
+echo -e "${BLUE}Deploying Nginx Proxy Manager...${NC}"
+kubectl apply -f apps/nginx-proxy-manager/nginx-proxy-manager-app.yaml
+
 echo -e "${GREEN}✅ Applications deployed successfully!${NC}"
 echo ""
 
