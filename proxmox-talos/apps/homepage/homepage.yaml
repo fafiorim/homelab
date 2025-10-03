@@ -30,6 +30,10 @@ spec:
           value: "stdout"
         - name: HOMEPAGE_ALLOWED_HOSTS
           value: "*"
+        - name: KUBERNETES_SERVICE_HOST
+          value: "kubernetes.default.svc"
+        - name: KUBERNETES_SERVICE_PORT
+          value: "443"
         volumeMounts:
         - name: config
           mountPath: /app/config
