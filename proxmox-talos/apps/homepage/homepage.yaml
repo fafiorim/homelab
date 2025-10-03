@@ -69,8 +69,6 @@ spec:
             color: slate
 
             headerStyle: clean
-            hideVersion: false
-            showStats: false
             target: _blank
             
             # Enable quick launch and theme selector
@@ -81,17 +79,17 @@ spec:
             
             layout:
               Infrastructure:
-                style: row
-                columns: 4
-              Cluster:
-                style: row
+                style: column
                 columns: 2
+              "K8s Cluster":
+                style: column
+                columns: 1
               Monitoring:
-                style: row
-                columns: 2
+                style: column
+                columns: 1
               "Media & Services":
-                style: row
-                columns: 2
+                style: column
+                columns: 1
             EOF
             
             cat > /app/config/widgets.yaml << 'EOF'
@@ -131,7 +129,7 @@ spec:
                     description: DNS Ad Blocker
                     icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/pi-hole.svg
 
-            - Cluster:
+            - K8s Cluster:
                 - Kubernetes Dashboard:
                     href: http://10.10.21.110:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
                     description: Kubernetes Web UI
