@@ -99,6 +99,7 @@ spec:
             - resources:
                 backend: resources
                 expanded: true
+                label: "Talos Node Resources"
                 cpu: true
                 memory: true
                 disk: /
