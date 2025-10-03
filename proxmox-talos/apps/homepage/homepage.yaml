@@ -69,6 +69,10 @@ spec:
             color: slate
 
             headerStyle: clean
+            hideVersion: false
+            showStats: false
+            target: _blank
+            
             layout:
               Infrastructure:
                 style: row
