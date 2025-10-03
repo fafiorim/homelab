@@ -69,10 +69,16 @@ spec:
 
             headerStyle: clean
             layout:
+              Infrastructure:
+                style: row
+                columns: 4
               Cluster:
                 style: row
-                columns: 3
+                columns: 2
               Monitoring:
+                style: row
+                columns: 2
+              "Media & Services":
                 style: row
                 columns: 2
             EOF
@@ -93,13 +99,31 @@ spec:
             if [ ! -f /app/config/services.yaml ]; then
               cat > /app/config/services.yaml << 'EOF'
             ---
+            - Infrastructure:
+                - Proxmox (Firefly):
+                    href: https://10.10.21.31:8006/
+                    description: Virtualization Platform
+                    icon: proxmox
+                - Ugreen NAS:
+                    href: https://10.10.21.11:9443/desktop/
+                    description: Network Attached Storage
+                    icon: nas
+                - TrueNAS:
+                    href: https://10.10.21.14/ui/signin
+                    description: TrueNAS Storage System
+                    icon: truenas
+                - PiHole:
+                    href: https://10.10.21.11:18443/admin/
+                    description: DNS Ad Blocker
+                    icon: pihole
+
             - Cluster:
                 - Kubernetes Dashboard:
                     href: http://10.10.21.110:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
                     description: Kubernetes Web UI
                     icon: kubernetes
                 - ArgoCD:
-                    href: http://10.10.21.110:30002
+                    href: http://10.10.21.110:30080/
                     description: GitOps Continuous Delivery
                     icon: argocd
 
@@ -112,6 +136,16 @@ spec:
                     href: http://10.10.21.110:30003
                     description: Metrics Collection
                     icon: prometheus
+
+            - Media & Services:
+                - OctoPrint:
+                    href: http://10.10.21.4
+                    description: 3D Printer Management
+                    icon: octoprint
+                - Jellyfin:
+                    href: http://10.10.21.11:8899/web/index.html
+                    description: Media Server
+                    icon: jellyfin
             EOF
             fi
             chown -R 1000:1000 /app/config
