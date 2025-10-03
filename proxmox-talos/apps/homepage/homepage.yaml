@@ -82,7 +82,7 @@ spec:
             # Kubernetes provider configuration for in-cluster access
             providers:
               kubernetes:
-                mode: cluster
+                mode: default
             
             layout:
               Infrastructure:
