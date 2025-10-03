@@ -166,8 +166,40 @@ spec:
                     icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
             EOF
             
-            # Create empty bookmarks file for theme selector access
-            echo "---" > /app/config/bookmarks.yaml
+            # Create bookmarks with theme shortcuts
+            cat > /app/config/bookmarks.yaml << 'EOF'
+            ---
+            - Developer:
+                - Theme Light:
+                    - abbr: LT
+                      href: "javascript:document.documentElement.setAttribute('data-theme', 'light')"
+                - Theme Dark:
+                    - abbr: DK
+                      href: "javascript:document.documentElement.setAttribute('data-theme', 'dark')"
+            EOF
+            
+            # Add custom JavaScript for theme selector
+            cat > /app/config/custom.js << 'EOF'
+            // Theme selector functionality
+            function toggleTheme() {
+              const currentTheme = document.documentElement.getAttribute('data-theme');
+              const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+              document.documentElement.setAttribute('data-theme', newTheme);
+              localStorage.setItem('theme', newTheme);
+            }
+
+            // Add theme button to header
+            window.addEventListener('DOMContentLoaded', function() {
+              const header = document.querySelector('header') || document.querySelector('.header');
+              if (header) {
+                const themeButton = document.createElement('button');
+                themeButton.innerHTML = '🎨';
+                themeButton.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px; border-radius: 4px; cursor: pointer;';
+                themeButton.onclick = toggleTheme;
+                document.body.appendChild(themeButton);
+              }
+            });
+            EOF
             
             chown -R 1000:1000 /app/config
         volumeMounts:
