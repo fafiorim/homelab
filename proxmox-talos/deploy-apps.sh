@@ -70,6 +70,10 @@ sed "s|{{GIT_REPO_URL}}|${GIT_REPO_URL}|g; s|{{GIT_REPO_BRANCH}}|${GIT_REPO_BRAN
 # Deploy applications
 echo -e "${YELLOW}📦 Deploying applications...${NC}"
 
+# Deploy Metrics Server (required for Homepage kubernetes widgets)
+echo -e "${BLUE}Deploying Metrics Server...${NC}"
+kubectl apply -f apps/metrics-server/metrics-server.yaml
+
 # Deploy Homepage
 echo -e "${BLUE}Deploying Homepage...${NC}"
 kubectl apply -f apps/homepage/homepage-app.yaml
