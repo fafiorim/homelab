@@ -103,18 +103,20 @@ spec:
                 columns: 1
             EOF
             
-            cat > /app/config/widgets.yaml << 'EOF'
+            cat <<EOF > /app/config/widgets.yaml
             ---
-            - openweathermap:
-                label: Weather
-                latitude: 40.7128
-                longitude: -74.0060
-                units: metric
-                cache: 5
-                apikey: test-key-for-demo
-            - search:
-                provider: duckduckgo
-                target: _blank
+            - kubernetes:
+                cluster:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
+                  label: "Talos Cluster"
+                nodes:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
             EOF
             
             cat > /app/config/services.yaml << 'EOF'
@@ -170,6 +172,16 @@ spec:
             
             # Create simple empty bookmarks
             echo "---" > /app/config/bookmarks.yaml
+            
+            # Create kubernetes configuration for cluster access
+            cat <<EOF > /app/config/kubernetes.yaml
+            ---
+            cluster:
+              name: "Talos Cluster"
+              server: "https://kubernetes.default.svc"
+              skipTls: false
+              namespace: "homepage"
+            EOF
             
             # Keep custom files empty - Homepage will create default skeleton files
             echo "" > /app/config/custom.css
