@@ -105,18 +105,13 @@ spec:
             
             cat > /app/config/widgets.yaml << 'EOF'
             ---
-            - kubernetes:
-                cluster:
-                  show: true
-                  cpu: true
-                  memory: true
-                  showLabel: true
-                  label: "Talos Cluster"
-                nodes:
-                  show: true
-                  cpu: true
-                  memory: true
-                  showLabel: true
+            - openweathermap:
+                label: Weather
+                latitude: 40.7128
+                longitude: -74.0060
+                units: metric
+                cache: 5
+                apikey: test-key-for-demo
             - search:
                 provider: duckduckgo
                 target: _blank

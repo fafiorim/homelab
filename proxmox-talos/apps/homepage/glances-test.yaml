@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: glances
+  namespace: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: glances
+  template:
+    metadata:
+      labels:
+        app: glances
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: glances
+        image: nicolargo/glances:latest
+        args: ["-w"]
+        ports:
+        - containerPort: 61208
+        env:
+        - name: GLANCES_OPT
+          value: "-w"
+        volumeMounts:
+        - name: proc
+          mountPath: /host/proc
+          readOnly: true
+        - name: sys
+          mountPath: /host/sys
+          readOnly: true
+        securityContext:
+          privileged: true
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: glances
+  namespace: homepage
+spec:
+  selector:
+    app: glances
+  ports:
+  - port: 61208
+    targetPort: 61208
+    nodePort: 30002
+  type: NodePort
