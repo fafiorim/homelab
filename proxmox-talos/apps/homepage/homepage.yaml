@@ -106,7 +106,7 @@ spec:
                 - Ugreen NAS:
                     href: https://10.10.21.11:9443/desktop/
                     description: Network Attached Storage
-                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/synology-dsm.svg
+                    icon: https://cdn.shopify.com/s/files/1/0630/9416/1602/files/1_ac289c67-fb47-437f-892d-49fae6245dc8.png
                 - TrueNAS:
                     href: https://10.10.21.14/ui/signin
                     description: TrueNAS Storage System
