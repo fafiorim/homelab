@@ -82,7 +82,7 @@ spec:
             # Kubernetes provider configuration for in-cluster access
             providers:
               kubernetes:
-                mode: default
+                mode: cluster
             
             layout:
               Infrastructure:
@@ -101,10 +101,18 @@ spec:
             
             cat > /app/config/widgets.yaml << 'EOF'
             ---
-            - resources:
-                cpu: true
-                memory: true
-                disk: /
+            - kubernetes:
+                cluster:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
+                  label: "Talos Cluster"
+                nodes:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
             - search:
                 provider: duckduckgo
                 target: _blank
