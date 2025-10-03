@@ -96,6 +96,7 @@ spec:
       - name: config-init
         image: ghcr.io/gethomepage/homepage:latest
         command: ["/bin/sh", "-c"]
+
         args:
           - |
             cp -r /app/src/skeleton/* /app/config/ || true
@@ -117,15 +118,18 @@ spec:
               hideInternetSearch: false
               hideVisitURL: false
               showSearchSuggestions: true
-              hideQuicklaunch: false
+              provider: duckduckgo
               
             # Enable theme switching by not setting theme/color - toggles appear automatically
             statusStyle: "dot"
             
-            # Kubernetes provider configuration for in-cluster access
+            # Provider configuration for cluster access and weather
             providers:
               kubernetes:
                 mode: cluster
+              openmeteo:
+                latitude: 38.97
+                longitude: -77.34
             
             layout:
               Infrastructure:
@@ -156,6 +160,10 @@ spec:
                   cpu: true
                   memory: true
                   showLabel: true
+            - openmeteo:
+                latitude: 38.97
+                longitude: -77.34
+                provider: openmeteo
             EOF
             
             cat > /app/config/services.yaml << 'EOF'
