@@ -178,27 +178,89 @@ spec:
                       href: "javascript:document.documentElement.setAttribute('data-theme', 'dark')"
             EOF
             
+            # Add custom CSS for theme selector button
+            cat > /app/config/custom.css << 'EOF'
+            /* Theme selector button */
+            .theme-selector {
+              position: fixed !important;
+              top: 20px !important;
+              right: 20px !important;
+              z-index: 9999 !important;
+              background: rgba(0, 0, 0, 0.7) !important;
+              color: white !important;
+              border: 2px solid rgba(255, 255, 255, 0.3) !important;
+              border-radius: 8px !important;
+              padding: 10px 15px !important;
+              cursor: pointer !important;
+              font-size: 16px !important;
+              font-weight: bold !important;
+              transition: all 0.3s ease !important;
+              user-select: none !important;
+            }
+            
+            .theme-selector:hover {
+              background: rgba(0, 0, 0, 0.9) !important;
+              transform: scale(1.05) !important;
+            }
+            
+            /* Ensure it's visible on both themes */
+            [data-theme="light"] .theme-selector {
+              background: rgba(255, 255, 255, 0.9) !important;
+              color: black !important;
+              border-color: rgba(0, 0, 0, 0.3) !important;
+            }
+            
+            [data-theme="light"] .theme-selector:hover {
+              background: rgba(255, 255, 255, 1) !important;
+            }
+            EOF
+            
             # Add custom JavaScript for theme selector
             cat > /app/config/custom.js << 'EOF'
             // Theme selector functionality
             function toggleTheme() {
-              const currentTheme = document.documentElement.getAttribute('data-theme');
+              const html = document.documentElement;
+              const currentTheme = html.getAttribute('data-theme') || 'dark';
               const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-              document.documentElement.setAttribute('data-theme', newTheme);
-              localStorage.setItem('theme', newTheme);
+              
+              html.setAttribute('data-theme', newTheme);
+              html.setAttribute('class', newTheme);
+              
+              // Update button text
+              const button = document.querySelector('.theme-selector');
+              if (button) {
+                button.textContent = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+              }
+              
+              // Save preference
+              localStorage.setItem('homepage-theme', newTheme);
             }
 
-            // Add theme button to header
-            window.addEventListener('DOMContentLoaded', function() {
-              const header = document.querySelector('header') || document.querySelector('.header');
-              if (header) {
-                const themeButton = document.createElement('button');
-                themeButton.innerHTML = '🎨';
-                themeButton.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px; border-radius: 4px; cursor: pointer;';
-                themeButton.onclick = toggleTheme;
-                document.body.appendChild(themeButton);
-              }
-            });
+            // Create and add theme button
+            function createThemeButton() {
+              const button = document.createElement('div');
+              button.className = 'theme-selector';
+              button.textContent = '☀️ Light';
+              button.onclick = toggleTheme;
+              button.title = 'Click to toggle theme';
+              document.body.appendChild(button);
+              
+              // Set initial theme
+              const savedTheme = localStorage.getItem('homepage-theme') || 'dark';
+              document.documentElement.setAttribute('data-theme', savedTheme);
+              document.documentElement.setAttribute('class', savedTheme);
+              button.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+            }
+
+            // Initialize when page loads
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', createThemeButton);
+            } else {
+              createThemeButton();
+            }
+            
+            // Also try after a short delay to ensure DOM is ready
+            setTimeout(createThemeButton, 1000);
             EOF
             
             chown -R 1000:1000 /app/config
