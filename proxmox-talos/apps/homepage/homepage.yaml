@@ -79,6 +79,11 @@ spec:
             # Enable theme switching by not setting theme/color - toggles appear automatically
             statusStyle: "dot"
             
+            # Kubernetes provider configuration for in-cluster access
+            providers:
+              kubernetes:
+                mode: cluster
+            
             layout:
               Infrastructure:
                 style: column
