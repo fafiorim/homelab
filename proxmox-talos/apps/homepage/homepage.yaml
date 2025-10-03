@@ -109,15 +109,6 @@ spec:
                 diskUnits: bytes
                 units: metric
                 refresh: 3000
-            - kubernetes:
-                cluster:
-                  show: true
-                  showLabel: true
-                  label: "K8s Cluster"
-                nodes:
-                  show: true
-                  showLabel: true
-                  label: "Nodes"
             - search:
                 provider: duckduckgo
                 target: _blank
