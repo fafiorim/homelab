@@ -65,9 +65,6 @@ spec:
             title: Home Lab Dashboard
             favicon: https://github.com/walkxcode/dashboard-icons/blob/main/png/homepage.png
 
-            theme: dark
-            color: slate
-
             headerStyle: clean
             target: _blank
             hideVersion: false
@@ -79,8 +76,7 @@ spec:
               hideInternetSearch: false
               hideVisitURL: false
               
-            # Enable theme switching
-            fiveColumns: false
+            # Enable theme switching by not setting theme/color - toggles appear automatically
             statusStyle: "dot"
             
             layout:
