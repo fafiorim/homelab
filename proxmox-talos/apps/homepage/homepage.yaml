@@ -73,6 +73,12 @@ spec:
             showStats: false
             target: _blank
             
+            # Enable quick launch and theme selector
+            quicklaunch:
+              searchDescriptions: true
+              hideInternetSearch: false
+              hideVisitURL: false
+            
             layout:
               Infrastructure:
                 style: row
@@ -95,6 +101,11 @@ spec:
                 expanded: true
                 cpu: true
                 memory: true
+                disk: /
+                diskUnits: bytes
+                uptime: true
+                units: metric
+                refresh: 3000
             - search:
                 provider: duckduckgo
                 target: _blank
