@@ -189,8 +189,24 @@ spec:
                     icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
             EOF
             
-            # Create simple empty bookmarks
-            echo "---" > /app/config/bookmarks.yaml
+            # Create bookmarks for search functionality
+            cat > /app/config/bookmarks.yaml << 'BOOKMARKS_EOF'
+            ---
+            - Development:
+                - GitHub:
+                    - abbr: GH
+                      href: https://github.com/
+                - Documentation:
+                    - abbr: Docs
+                      href: https://gethomepage.dev/
+            - Homelab:
+                - Proxmox:
+                    - abbr: PVE
+                      href: https://10.10.21.31:8006/
+                - ArgoCD:
+                    - abbr: ARGO
+                      href: http://10.10.21.110:30080/
+            BOOKMARKS_EOF
             
             # Create kubernetes configuration for cluster access
             cat <<EOF > /app/config/kubernetes.yaml
