@@ -102,49 +102,49 @@ spec:
                 - Proxmox (Firefly):
                     href: https://10.10.21.31:8006/
                     description: Virtualization Platform
-                    icon: proxmox
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/proxmox.svg
                 - Ugreen NAS:
                     href: https://10.10.21.11:9443/desktop/
                     description: Network Attached Storage
-                    icon: nas
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/nas.svg
                 - TrueNAS:
                     href: https://10.10.21.14/ui/signin
                     description: TrueNAS Storage System
-                    icon: truenas
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/truenas.svg
                 - PiHole:
                     href: https://10.10.21.11:18443/admin/
                     description: DNS Ad Blocker
-                    icon: pihole
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/pi-hole.svg
 
             - Cluster:
                 - Kubernetes Dashboard:
                     href: http://10.10.21.110:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
                     description: Kubernetes Web UI
-                    icon: kubernetes
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
                 - ArgoCD:
                     href: http://10.10.21.110:30080/
                     description: GitOps Continuous Delivery
-                    icon: argocd
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/argocd.svg
 
             - Monitoring:
                 - Grafana:
                     href: http://10.10.21.110:30000
                     description: Metrics Dashboard
-                    icon: grafana
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/grafana.svg
                 - Prometheus:
                     href: http://10.10.21.110:30003
                     description: Metrics Collection
-                    icon: prometheus
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/prometheus.svg
 
             - Media & Services:
                 - OctoPrint:
                     href: http://10.10.21.4
                     description: 3D Printer Management
-                    icon: octoprint
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/octoprint.svg
                 - Jellyfin:
                     href: http://10.10.21.11:8899/web/index.html
                     description: Media Server
-                    icon: jellyfin
+                    icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
             EOF
             
             chown -R 1000:1000 /app/config
