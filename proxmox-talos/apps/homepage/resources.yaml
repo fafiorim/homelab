@@ -1,0 +1,267 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homepage
+  namespace: homepage
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homepage
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: ["extensions", "apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homepage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: homepage
+subjects:
+  - kind: ServiceAccount
+    name: homepage
+    namespace: homepage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      serviceAccountName: homepage
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: LOG_TARGETS
+              value: "stdout"
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: "*"
+            - name: KUBERNETES_SERVICE_HOST
+              value: "kubernetes.default.svc"
+            - name: KUBERNETES_SERVICE_PORT
+              value: "443"
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+            - name: logs
+              mountPath: /app/config/logs
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+      initContainers:
+        - name: config-init
+          image: ghcr.io/gethomepage/homepage:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cp -r /app/src/skeleton/* /app/config/ || true
+              
+              # Always overwrite configuration files with our custom settings
+              cat > /app/config/settings.yaml << 'EOF'
+              ---
+              title: Home Lab Dashboard
+              favicon: https://github.com/walkxcode/dashboard-icons/blob/main/png/homepage.png
+
+              headerStyle: underlined
+              target: _blank
+              hideVersion: false
+              showStats: true
+              
+              # Enable quick launch and theme selector with comprehensive search
+              quicklaunch:
+                searchDescriptions: true
+                hideInternetSearch: false
+                hideVisitURL: false
+                showSearchSuggestions: true
+                provider: duckduckgo
+                
+              # Enable theme switching by not setting theme/color - toggles appear automatically
+              statusStyle: "dot"
+              
+              # Provider configuration for cluster access and weather
+              providers:
+                kubernetes:
+                  mode: cluster
+                openmeteo:
+                  latitude: 38.97
+                  longitude: -77.34
+              
+              layout:
+                Infrastructure:
+                  style: column
+                  columns: 2
+                "K8s Cluster":
+                  style: column
+                  columns: 1
+                Monitoring:
+                  style: column
+                  columns: 1
+                "Media & Services":
+                  style: column
+                  columns: 1
+              EOF
+              
+              cat <<EOF > /app/config/widgets.yaml
+              ---
+              - kubernetes:
+                  cluster:
+                    show: true
+                    cpu: true
+                    memory: true
+                    showLabel: true
+                    label: "Talos Cluster"
+                  nodes:
+                    show: true
+                    cpu: true
+                    memory: true
+                    showLabel: true
+              - openmeteo:
+                  latitude: 38.97
+                  longitude: -77.34
+                  provider: openmeteo
+              EOF
+              
+              cat > /app/config/services.yaml << 'EOF'
+              ---
+              - Infrastructure:
+                  - Proxmox (Firefly):
+                      href: https://10.10.21.31:8006/
+                      description: Virtualization Platform
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/proxmox.svg
+                  - Ugreen NAS:
+                      href: https://10.10.21.11:9443/desktop/
+                      description: Network Attached Storage
+                      icon: https://cdn.shopify.com/s/files/1/0630/9416/1602/files/1_ac289c67-fb47-437f-892d-49fae6245dc8.png
+                  - TrueNAS:
+                      href: https://10.10.21.14/ui/signin
+                      description: TrueNAS Storage System
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/truenas.svg
+                  - PiHole:
+                      href: https://10.10.21.11:18443/admin/
+                      description: DNS Ad Blocker
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/pi-hole.svg
+
+              - K8s Cluster:
+                  - Kubernetes Dashboard:
+                      href: http://10.10.21.110:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+                      description: Kubernetes Web UI
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
+                  - ArgoCD:
+                      href: http://10.10.21.110:30080/
+                      description: GitOps Continuous Delivery
+                      icon: https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/logo.png
+
+              - Monitoring:
+                  - Grafana:
+                      href: http://10.10.21.110:30000
+                      description: Metrics Dashboard
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/grafana.svg
+                  - Prometheus:
+                      href: http://10.10.21.110:30003
+                      description: Metrics Collection
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/prometheus.svg
+
+              - Media & Services:
+                  - OctoPrint:
+                      href: http://10.10.21.4
+                      description: 3D Printer Management
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/octoprint.svg
+                  - Jellyfin:
+                      href: http://10.10.21.11:8899/web/index.html
+                      description: Media Server
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
+              EOF
+              
+              # Create bookmarks for search functionality
+              cat > /app/config/bookmarks.yaml << 'BOOKMARKS_EOF'
+              ---
+              - Development:
+                  - GitHub:
+                      - abbr: GH
+                        href: https://github.com/
+                  - Documentation:
+                      - abbr: Docs
+                        href: https://gethomepage.dev/
+              - Homelab:
+                  - Proxmox:
+                      - abbr: PVE
+                        href: https://10.10.21.31:8006/
+                  - ArgoCD:
+                      - abbr: ARGO
+                        href: http://10.10.21.110:30080/
+              BOOKMARKS_EOF
+              
+              # Create kubernetes configuration for cluster access
+              cat <<EOF > /app/config/kubernetes.yaml
+              ---
+              mode: cluster
+              EOF
+              
+              # Keep custom files empty - Homepage will create default skeleton files
+              echo "" > /app/config/custom.css
+              echo "" > /app/config/custom.js
+              
+              chown -R 1000:1000 /app/config
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30001
+  selector:
+    app: homepage

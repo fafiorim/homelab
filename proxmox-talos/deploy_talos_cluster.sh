@@ -430,7 +430,7 @@ echo ""
 
 # Wait for VMs to be ready
 echo -e "${YELLOW}Waiting for VMs to be ready...${NC}"
-sleep 80
+sleep 60
 
 # Create config directory
 mkdir -p ./talos-configs
@@ -447,7 +447,7 @@ echo ""
 
 # Wait for nodes to initialize
 echo -e "${YELLOW}Waiting for nodes to initialize...${NC}"
-sleep 90
+sleep 30
 
 # Bootstrap cluster
 bootstrap_cluster

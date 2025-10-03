@@ -1,0 +1,921 @@
+Script started on Thu Oct  2 23:00:29 2025
+    1  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"\n
+    2  brew update
+    3  brew help
+    4  ssh -i "franzvitorf.pem" ec2-user@ec2-54-218-250-146.us-west-2.compute.amazonaws.com
+    5  ssh -i "franzvitorf.pem" ubuntu@ec2-35-93-146-238.us-west-2.compute.amazonaws.com
+    6  brew
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;32m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     1  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent [K..com/Homebrew/install/HEAD/install.sh)"\n[?1l>[?2004l
+    2  brew update
+    3  brew help
+    4  ssh -i "franzvitorf.pem" ec2-user@ec2-54-218-250-146.us-west-2.compute.amazonaws.com
+    5  ssh -i "franzvitorf.pem" ubuntu@ec2-35-93-146-238.us-west-2.compute.amazonaws.com
+    6  brew
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  s]2;cd -1 /bin/bash -c ]1;1cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     2  brew update[?1l>[?2004l
+    3  brew help
+    4  ssh -i "franzvitorf.pem" ec2-user@ec2-54-218-250-146.us-west-2.compute.amazonaws.com
+    5  ssh -i "franzvitorf.pem" ubuntu@ec2-35-93-146-238.us-west-2.compute.amazonaws.com
+    6  brew
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.p]2;cd -2 brew update]1;2cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     3  brew help[?1l>[?2004l
+    4  ssh -i "franzvitorf.pem" ec2-user@ec2-54-218-250-146.us-west-2.compute.amazonaws.com
+    5  ssh -i "franzvitorf.pem" ubuntu@ec2-35-93-146-238.us-west-2.compute.amazonaws.com
+    6  brew
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f ]2;cd -3 brew help]1;3cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     4  ssh -i "franzvitorf.pem" ec2-user@ec2-54-218-250-146.us- [Kwwest-2.compute.amazonaws.com[?1l>[?2004l
+    5  ssh -i "franzvitorf.pem" ubuntu@ec2-35-93-146-238.us-west-2.compute.amazonaws.com
+    6  brew
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.]2;cd -4 ssh -i "franzvitorf.pem" ]1;4cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     5  ssh -i "franzvitorf.pem" ubuntu@ec2-35-93-146-238.us-wes [Ktt-2.compute.amazonaws.com[?1l>[?2004l
+    6  brew
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitor]2;cd -5 ssh -i "franzvitorf.pem" ]1;5cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     6  brew[?1l>[?2004l
+    7  export PATH=$PATH:/opt/homebrew/bin
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ss]2;cd -6 brew]1;6cd: string not in pwd: -6
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     7  export PATH=$PATH:/opt/homebrew/bin[?1l>[?2004l
+    8  brew
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh]2;cd -7 export PATH=$PATH:/opt/homebrew/bin]1;7cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     8  brew[?1l>[?2004l
+    9  brew update
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvit]2;cd -8 brew]1;8cd: string not in pwd: -8
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h     9  brew update[?1l>[?2004l
+   10  brew install flameshot
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux]2;cd -9 brew update]1;9cd: too many arguments
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    10  brew install flameshot[?1l>[?2004l
+   11  brew install htop
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a]2;10 brew install flameshot]1;10zsh: command not found: 10
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    11  brew install htop[?1l>[?2004l
+   12  sudo su
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf]2;11 brew install htop]1;11zsh: command not found: 11
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    12  sudo su[?1l>[?2004l
+   13  brew install wget
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -]2;12 sudo su]1;12zsh: command not found: 12
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    13  brew install wget[?1l>[?2004l
+   14  curl
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i]2;13 brew install wget]1;13zsh: command not found: 13
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    14  curl[?1l>[?2004l
+   15  brew install speedtest-cli
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh ]2;14 curl]1;14zsh: command not found: 14
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    15  brew install speedtest-cli[?1l>[?2004l
+   16  brew install python
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ss]2;15 brew install speedtest-cli]1;15zsh: command not found: 15
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    16  brew install python[?1l>[?2004l
+   17  speedtest-cli
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   ]2;16 brew install python]1;16zsh: command not found: 16
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    17  speedtest-cli[?1l>[?2004l
+   18  pwd
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitor]2;17 speedtest-cli]1;17zsh: command not found: 17
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    18  pwd[?1l>[?2004l
+   19  ls
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh]2;18 pwd]1;18zsh: command not found: 18
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    19  ls[?1l>[?2004l
+   20  cd OneDrive\ -\ TrendMicro
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran  ]2;19 ls]1;19zsh: command not found: 19
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    20  cd OneDrive\ -\ TrendMicro[?1l>[?2004l
+   21  ls
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i ]2;20 cd OneDrive\ -\ TrendMicro]1;20zsh: command not found: 20
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    21  ls[?1l>[?2004l
+   22  cd ../
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitor]2;21 ls]1;21zsh: command not found: 21
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    22  cd ../[?1l>[?2004l
+   23  cd OneDrive
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41 ]2;22 cd ../]1;22zsh: command not found: 22
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    23  cd OneDrive[?1l>[?2004l
+   24  ls
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              | ]2;23 cd OneDrive]1;23zsh: command not found: 23
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    24  ls[?1l>[?2004l
+   25  cd Work
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |            ]2;24 ls]1;24zsh: command not found: 24
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    25  cd Work[?1l>[?2004l
+   26  ls
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         ]2;25 cd Work]1;25zsh: command not found: 25
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    26  ls[?1l>[?2004l
+   27  cd Backup_2022
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6          ]2;26 ls]1;26zsh: command not found: 26
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    27  cd Backup_2022[?1l>[?2004l
+   28  ls
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe        ]2;27 cd Backup_2022]1;27zsh: command not found: 27
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    28  ls[?1l>[?2004l
+   29  cd Labs
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |    ]2;28 ls]1;28zsh: command not found: 28
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    29  cd Labs[?1l>[?2004l
+   30  cd SSH\ Keys/
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w   ]2;29 cd Labs]1;29zsh: command not found: 29
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    30  cd SSH\ Keys/[?1l>[?2004l
+   31  ls
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a          ]2;30 cd SSH\ Keys/]1;30zsh: command not found: 30
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    31  ls[?1l>[?2004l
+   32  cd Franz\ Key\ pairs
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s]2;31 ls]1;31zsh: command not found: 31
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    32  cd Franz\ Key\ pairs[?1l>[?2004l
+   33  ls
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |    ]2;32 cd Franz\ Key\ pairs]1;32zsh: command not found: 32
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    33  ls[?1l>[?2004l
+   34  cp franzvitorf.pem ~
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-  ]2;33 ls]1;33zsh: command not found: 33
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    34  cp franzvitorf.pem ~[?1l>[?2004l
+   35  pwd
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |      ]2;34 cp franzvitorf.pem ~]1;34zsh: command not found: 34
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    35  pwd[?1l>[?2004l
+   36  cp franzvitorf.pem /Users/franzvitorf
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws     ]2;35 pwd]1;35zsh: command not found: 35
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    36  cp franzvitorf.pem /Users/franzvitorf[?1l>[?2004l
+   37  cd ˜
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws         3               |              |   6      ]2;36 cp franzvitorf.pem /Users/franzvitorf]1;36zsh: command not found: 36
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    37  cd ˜[?1l>[?2004l
+   38  cd /Users/franzvitorf
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws         3               |              |   6         m"         ]2;37 cd ˜]1;37zsh: command not found: 37
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    38  cd /Users/franzvitorf[?1l>[?2004l
+   39  ls
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws         3               |              |   6         m"           -5              |           ]2;38 cd /Users/franzvitorf]1;38zsh: command not found: 38
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    39  ls[?1l>[?2004l
+   40  clear
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws         3               |              |   6         m"           -5              |            ut        ]2;39 ls]1;39zsh: command not found: 39
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    40  clear[?1l>[?2004l
+   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ssh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franzvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf.ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh |   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fran     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws         3               |              |   6         m"           -5              |            ut        aw            ]2;40 clear]1;40zsh: command not found: 40
+[1m[7m%[27m[1m[0m                                                                                ]2;franzvitorf@NABU-YQ6QC28B:~/Documents/LABs/homelab/proxmox-talos]1;..proxmox-talos]7;file://NABU-YQ6QC28B/Users/franzvitorf/Documents/LABs/homelab/proxmox-talos\[0m[27m[24m[J[01;31m➜  [36mproxmox-talos[00m [K[?1h=[?2004h    41  ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41 [K   ssh -i "franzvitorf.pe   41  ssh -i "franzvitorf.pe   41  ssh -i "f h   41  ss [Khh -i "frtr   41  ssh -i "u_   41  ssh -i "franzvitorf.pe   41  ssh -i "franzvito [Krrf.pe   41  ssh -i "franzvitorf.pe   on   41  ssh -i "franzvitorf.pe   41  ssh - [Kii "franzvitorf.pe   41  ssh -i "franzvitorf.pe-w   41  sshut   41  ssh -i "franz [Kvvitorf.pe   41  ssh -ux   41  ssh     41  ssh -i "fr a   41  ssh -i "franzvitorf [K..ppl   41  ssh -i "franzvitll   41  ssh -i3    41  ssh -i "franzvit     41  ssh  [K||   41  ssh -i "franzvitorf.pe    |   41  ssh -i "franzvitorps   41  ssh -i "fra [Knn     41  ssx    41  sRe   41  ssh -i "franzvitorf.pe   ea   41  s[?1l>[?2004l
+              |              |   6         6             an        pe              |     -6        -w             .a              |     s        ra              |           4-        27              |           ws         3               |              |   6         m"           -5              |            ut        aw                           |              |   6         6             an        pe              |     -6        -w             .a              | 
