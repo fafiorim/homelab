@@ -108,13 +108,57 @@ show_phase_time "VM Cleanup"
 # Phase 2: Deploy complete Talos cluster
 start_phase "Talos Cluster Deployment"
 echo -e "${BLUE}🏗️  Deploying complete Talos cluster...${NC}"
+
+# Deploy cluster and handle bootstrap issues
 ./talos-cluster.sh deploy --force
+TALOS_EXIT_CODE=${PIPESTATUS[0]}
+
+if [ $TALOS_EXIT_CODE -ne 0 ]; then
+    echo -e "${YELLOW}⚠️  Talos deployment had issues, checking if cluster is functional...${NC}"
+    
+    # Wait for cluster to be responsive
+    echo -e "${BLUE}⏳ Waiting for cluster to be responsive...${NC}"
+    for i in {1..30}; do
+        if kubectl cluster-info &>/dev/null; then
+            echo -e "${GREEN}✅ Cluster is responsive despite deployment warnings${NC}"
+            break
+        fi
+        echo "   Attempt $i/30: Waiting for cluster..."
+        sleep 10
+    done
+    
+    # Final check
+    if ! kubectl cluster-info &>/dev/null; then
+        echo -e "${RED}❌ Talos cluster is not functional after deployment${NC}"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✅ Talos cluster deployed successfully${NC}"
+fi
+
 show_phase_time "Talos Cluster Deployment"
+
+# Phase 3: Wait for cluster readiness
+start_phase "Cluster Readiness"
+echo -e "${BLUE}⏳ Waiting for all nodes to be ready...${NC}"
+for i in {1..60}; do
+    if kubectl get nodes | grep -v NotReady &>/dev/null && kubectl get nodes | grep Ready &>/dev/null; then
+        ready_count=$(kubectl get nodes --no-headers | grep " Ready " | wc -l)
+        total_count=$(kubectl get nodes --no-headers | wc -l)
+        if [ "$ready_count" -eq "$total_count" ] && [ "$total_count" -gt 0 ]; then
+            echo -e "${GREEN}✅ All $ready_count nodes are ready${NC}"
+            break
+        fi
+    fi
+    echo "   Attempt $i/60: Waiting for nodes to be ready..."
+    sleep 10
+done
+show_phase_time "Cluster Readiness"
 
 # Phase 4: Deploy applications
 start_phase "Application Deployment"
 echo -e "${CYAN}📦 Deploying applications...${NC}"
-./bootstrap-homelab.sh deploy
+./bootstrap-homelab.sh
 show_phase_time "Application Deployment"
 
 # Phase 5: Final verification
