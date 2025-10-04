@@ -11,10 +11,6 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   ingressClassName: traefik
-  tls:
-  - hosts:
-    - argocd.botocudo.net
-    secretName: argocd-tls
   rules:
   - host: argocd.botocudo.net
     http:

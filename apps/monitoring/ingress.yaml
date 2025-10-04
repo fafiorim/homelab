@@ -9,10 +9,6 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-scheme: https
 spec:
   ingressClassName: traefik
-  tls:
-  - hosts:
-    - grafana.botocudo.net
-    secretName: grafana-tls
   rules:
   - host: grafana.botocudo.net
     http:
@@ -36,10 +32,6 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-scheme: https
 spec:
   ingressClassName: traefik
-  tls:
-  - hosts:
-    - prometheus.botocudo.net
-    secretName: prometheus-tls
   rules:
   - host: prometheus.botocudo.net
     http:
