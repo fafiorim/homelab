@@ -113,7 +113,10 @@ wait_for_applications() {
     echo -e "${YELLOW}⏳ Waiting for core applications to be ready...${NC}"
     
     # Check if pods are actually running (more reliable than ArgoCD health status)
-    local max_attempts=20
+    local max_attempts=${FAST_DEPLOY:+8}
+    max_attempts=${max_attempts:-20}
+    local sleep_time=${FAST_DEPLOY:+8}
+    sleep_time=${sleep_time:-15}
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
@@ -134,7 +137,7 @@ wait_for_applications() {
         fi
         
         echo -e "${BLUE}Attempt $((attempt+1))/$max_attempts - Traefik: $traefik_ready pods, Homepage: $homepage_ready pods, LB IP: ${lb_ip:-"pending"}${NC}"
-        sleep 15
+        sleep $sleep_time
         ((attempt++))
     done
     
@@ -241,6 +244,48 @@ main() {
     show_access_info
 }
 
+# Function to delete all applications
+delete_applications() {
+    echo -e "${YELLOW}🗑️  Deleting all applications...${NC}"
+    
+    # Set kubeconfig
+    export KUBECONFIG=./kubeconfig
+    
+    # Delete all ArgoCD applications
+    echo -e "${BLUE}Deleting ArgoCD applications...${NC}"
+    kubectl delete applications --all -n argocd --ignore-not-found=true
+    
+    # Wait for applications to be deleted
+    echo -e "${YELLOW}⏳ Waiting for applications to be deleted...${NC}"
+    sleep 10
+    
+    # Delete application namespaces
+    echo -e "${BLUE}Deleting application namespaces...${NC}"
+    kubectl delete namespace homepage monitoring --ignore-not-found=true
+    
+    # Wait for namespaces to be fully deleted
+    echo -e "${YELLOW}⏳ Waiting for namespaces to be deleted...${NC}"
+    local max_wait=60
+    local wait_time=0
+    
+    while [ $wait_time -lt $max_wait ]; do
+        local remaining_ns=$(kubectl get namespace homepage monitoring --ignore-not-found=true 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$remaining_ns" = "0" ]; then
+            echo -e "${GREEN}✅ All application namespaces deleted${NC}"
+            break
+        fi
+        echo -e "${BLUE}Waiting for namespaces to terminate... (${wait_time}s/${max_wait}s)${NC}"
+        sleep 5
+        ((wait_time+=5))
+    done
+    
+    if [ $wait_time -ge $max_wait ]; then
+        echo -e "${YELLOW}⚠️  Timeout waiting for namespaces, continuing anyway${NC}"
+    fi
+    
+    echo -e "${GREEN}✅ Application cleanup complete${NC}"
+}
+
 # Parse command line arguments
 case "${1:-deploy}" in
     "bootstrap")
@@ -250,16 +295,44 @@ case "${1:-deploy}" in
     "deploy")
         main
         ;;
+    "delete")
+        delete_applications
+        ;;
+    "redeploy")
+        delete_applications
+        echo ""
+        echo -e "${GREEN}🔄 Starting fresh deployment...${NC}"
+        sleep 2
+        main
+        ;;
+    "fast-deploy")
+        export FAST_DEPLOY=1
+        echo -e "${BLUE}🚀 Fast deployment mode enabled${NC}"
+        main
+        ;;
+    "fast-redeploy")
+        export FAST_DEPLOY=1
+        echo -e "${BLUE}🚀 Fast redeploy mode enabled${NC}"
+        delete_applications
+        echo ""
+        echo -e "${GREEN}🔄 Starting fast fresh deployment...${NC}"
+        sleep 1
+        main
+        ;;
     "verify")
         verify_deployment
         ;;
     *)
-        echo "Usage: $0 [bootstrap|deploy|verify]"
+        echo "Usage: $0 [bootstrap|deploy|delete|redeploy|fast-deploy|fast-redeploy|verify]"
         echo ""
         echo "Commands:"
-        echo "  bootstrap  - Only bootstrap dependencies and secrets"
-        echo "  deploy     - Full deployment (default)"
-        echo "  verify     - Verify current deployment"
+        echo "  bootstrap      - Only bootstrap dependencies and secrets"
+        echo "  deploy         - Full deployment (default)"
+        echo "  delete         - Delete all applications and clean up"
+        echo "  redeploy       - Delete all applications and redeploy fresh"
+        echo "  fast-deploy    - Quick deployment with shorter waits"
+        echo "  fast-redeploy  - Quick delete and redeploy with shorter waits"
+        echo "  verify         - Verify current deployment"
         exit 1
         ;;
 esac
