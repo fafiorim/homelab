@@ -83,6 +83,22 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -127,8 +143,9 @@ spec:
                 kubernetes:
                   mode: cluster
                 openmeteo:
-                  latitude: 38.97
-                  longitude: -77.34
+                  latitude: -15.7975
+                  longitude: -47.8919
+                  timezone: America/Sao_Paulo
               
               layout:
                 Infrastructure:
@@ -163,8 +180,9 @@ spec:
                     memory: true
                     showLabel: true
               - openmeteo:
-                  latitude: 38.97
-                  longitude: -77.34
+                  latitude: -15.7975
+                  longitude: -47.8919
+                  timezone: America/Sao_Paulo
                   provider: openmeteo
               EOF
               
@@ -194,25 +212,19 @@ spec:
                       description: Kubernetes Web UI
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
                   - ArgoCD:
-                      href: http://10.10.21.110:30080/
+                      href: https://argocd.botocudo.net/
                       description: GitOps Continuous Delivery
                       icon: https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/logo.png
 
               - Monitoring:
                   - Grafana:
-                      href: http://10.10.21.110:30000
+                      href: https://grafana.botocudo.net/
                       description: Metrics Dashboard
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/grafana.svg
                   - Prometheus:
-                      href: http://10.10.21.110:30003
+                      href: https://prometheus.botocudo.net/
                       description: Metrics Collection
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/prometheus.svg
-
-              - Network Services:
-                  - Nginx Proxy Manager:
-                      href: http://10.10.21.110:30083
-                      description: Reverse Proxy Management
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/nginx-proxy-manager.svg
 
               - Media & Services:
                   - OctoPrint:
