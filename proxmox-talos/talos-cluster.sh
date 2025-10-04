@@ -39,6 +39,7 @@ usage() {
     echo ""
     echo "Commands:"
     echo "  deploy          Deploy complete Talos Kubernetes cluster"
+    echo "  full            Deploy cluster + ArgoCD + applications (complete setup)"
     echo "  env             Setup environment variables for cluster access"
     echo "  argocd          Install ArgoCD for GitOps"
     echo "  apps            Deploy applications via ArgoCD"
@@ -535,14 +536,18 @@ install_argocd() {
         exit 1
     fi
     
-    # Run ArgoCD installation script
-    if [ -f "install-argocd.sh" ]; then
-        chmod +x install-argocd.sh
-        ./install-argocd.sh
-    else
-        echo -e "${RED}✗ install-argocd.sh not found${NC}"
-        exit 1
-    fi
+    # Install ArgoCD directly
+    export KUBECONFIG="./kubeconfig"
+    
+    echo -e "${YELLOW}Installing ArgoCD...${NC}"
+    kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    
+    echo -e "${YELLOW}Waiting for ArgoCD to be ready...${NC}"
+    kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-server -n argocd --timeout=300s
+    
+    echo -e "${GREEN}✅ ArgoCD installed successfully${NC}"
+    echo -e "${BLUE}Access ArgoCD at: https://argocd.${DOMAIN:-botocudo.net}${NC}"
 }
 
 # Function to deploy applications via ArgoCD
@@ -557,12 +562,12 @@ deploy_apps() {
         exit 1
     fi
     
-    # Run application deployment script
-    if [ -f "deploy-apps.sh" ]; then
-        chmod +x deploy-apps.sh
-        ./deploy-apps.sh
+    # Deploy applications using bootstrap script
+    if [ -f "bootstrap-homelab.sh" ]; then
+        chmod +x bootstrap-homelab.sh
+        ./bootstrap-homelab.sh fast-deploy
     else
-        echo -e "${RED}✗ deploy-apps.sh not found${NC}"
+        echo -e "${RED}✗ bootstrap-homelab.sh not found${NC}"
         exit 1
     fi
 }
@@ -621,6 +626,38 @@ show_status() {
     fi
 }
 
+# Function for complete deployment (cluster + ArgoCD + apps)
+full_deployment() {
+    echo -e "${GREEN}🚀 Starting Complete Homelab Deployment${NC}"
+    echo -e "${BLUE}This will deploy: Cluster → ArgoCD → Applications${NC}"
+    echo ""
+    
+    # Deploy cluster
+    echo -e "${YELLOW}Phase 1: Deploying Talos cluster...${NC}"
+    deploy_cluster
+    
+    # Wait a moment for cluster to stabilize
+    sleep 10
+    
+    # Install ArgoCD
+    echo ""
+    echo -e "${YELLOW}Phase 2: Installing ArgoCD...${NC}"
+    install_argocd
+    
+    # Deploy applications
+    echo ""
+    echo -e "${YELLOW}Phase 3: Deploying applications...${NC}"
+    deploy_apps
+    
+    echo ""
+    echo -e "${GREEN}🎉 Complete homelab deployment finished!${NC}"
+    echo -e "${BLUE}Your services are available at:${NC}"
+    echo -e "  🏠 Homepage:    https://homepage.botocudo.net"
+    echo -e "  🔧 ArgoCD:      https://argocd.botocudo.net"
+    echo -e "  📊 Grafana:     https://grafana.botocudo.net"
+    echo -e "  📈 Prometheus:  https://prometheus.botocudo.net"
+}
+
 # Function to parse command line arguments
 parse_arguments() {
     local command="$1"
@@ -653,6 +690,9 @@ parse_arguments() {
     case "$command" in
         "deploy")
             deploy_cluster
+            ;;
+        "full")
+            full_deployment
             ;;
         "env")
             setup_environment

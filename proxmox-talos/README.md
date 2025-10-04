@@ -1,6 +1,6 @@
-# Proxmox Talos Kubernetes Cluster
+# Homelab Infrastructure with Talos Kubernetes
 
-A streamlined automation solution for deploying a Talos Kubernetes cluster on Proxmox infrastructure with a single command.
+Complete GitOps homelab setup with Talos Kubernetes, ArgoCD, and automated application deployment.
 
 ## Overview
 

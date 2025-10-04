@@ -264,15 +264,25 @@ bootstrap_cluster() {
     # Set endpoint
     talosctl --talosconfig="$TALOSCONFIG" config endpoint "${control_plane_ip}"
     
-    # Bootstrap the cluster
-    talosctl --talosconfig="$TALOSCONFIG" bootstrap --nodes "${control_plane_ip}"
+    # Bootstrap the cluster with retry logic
+    local max_attempts=10
+    local attempt=0
     
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Cluster bootstrapped successfully${NC}"
-    else
-        echo -e "${RED}✗ Failed to bootstrap cluster${NC}"
-        exit 1
-    fi
+    while [ $attempt -lt $max_attempts ]; do
+        echo -e "${BLUE}Bootstrap attempt $((attempt + 1))/$max_attempts...${NC}"
+        
+        if talosctl --talosconfig="$TALOSCONFIG" bootstrap --nodes "${control_plane_ip}" 2>/dev/null; then
+            echo -e "${GREEN}✓ Cluster bootstrapped successfully${NC}"
+            return 0
+        fi
+        
+        echo -e "${YELLOW}Bootstrap failed, waiting 30 seconds before retry... (attempt $((attempt + 1))/$max_attempts)${NC}"
+        sleep 30
+        ((attempt++))
+    done
+    
+    echo -e "${RED}✗ Failed to bootstrap cluster after $max_attempts attempts${NC}"
+    exit 1
 }
 
 # Function to retrieve kubeconfig
@@ -281,16 +291,26 @@ get_kubeconfig() {
     
     export TALOSCONFIG="./talos-configs/talosconfig"
     
-    # Get kubeconfig with proper node specification
-    talosctl --talosconfig="$TALOSCONFIG" kubeconfig . --nodes "${control_plane_ip}"
+    # Get kubeconfig with retry logic
+    local max_attempts=5
+    local attempt=0
     
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Kubeconfig retrieved successfully${NC}"
-        echo -e "  - Kubeconfig file: ./kubeconfig"
-    else
-        echo -e "${RED}✗ Failed to retrieve kubeconfig${NC}"
-        exit 1
-    fi
+    while [ $attempt -lt $max_attempts ]; do
+        echo -e "${BLUE}Kubeconfig retrieval attempt $((attempt + 1))/$max_attempts...${NC}"
+        
+        if talosctl --talosconfig="$TALOSCONFIG" kubeconfig . --nodes "${control_plane_ip}" 2>/dev/null; then
+            echo -e "${GREEN}✓ Kubeconfig retrieved successfully${NC}"
+            echo -e "  - Kubeconfig file: ./kubeconfig"
+            return 0
+        fi
+        
+        echo -e "${YELLOW}Kubeconfig retrieval failed, waiting 15 seconds... (attempt $((attempt + 1))/$max_attempts)${NC}"
+        sleep 15
+        ((attempt++))
+    done
+    
+    echo -e "${RED}✗ Failed to retrieve kubeconfig after $max_attempts attempts${NC}"
+    exit 1
 }
 
 # Function to verify cluster status
