@@ -1,5 +1,7 @@
 # Configuration files with sensitive data
 cluster.conf
+homelab.conf
+apps/traefik/cloudflare-secret.yaml
 
 # Sensitive files
 *.pem

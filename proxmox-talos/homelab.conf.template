@@ -1,0 +1,23 @@
+# Homelab Configuration
+# Copy this file to cluster.conf and fill in your values
+
+# Cluster Configuration
+export CLUSTER_NAME="homelab-cluster"
+export CONTROL_PLANE_IP="10.10.21.110"
+export WORKER_1_IP="10.10.21.111"
+export WORKER_2_IP="10.10.21.112"
+
+# Network Configuration
+export METALLB_IP_RANGE="10.10.21.200-10.10.21.210"
+export TRAEFIK_LOADBALANCER_IP="10.10.21.201"
+
+# Domain Configuration
+export DOMAIN="botocudo.net"
+export ADMIN_EMAIL="admin@botocudo.net"
+
+# Cloudflare Configuration (for SSL certificates)
+export CLOUDFLARE_API_TOKEN="your_cloudflare_api_token_here"
+
+# Git Repository (for ArgoCD)
+export GIT_REPO_URL="https://github.com/fafiorim/homelab"
+export GIT_REPO_BRANCH="main"

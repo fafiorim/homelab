@@ -1,55 +1,3 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: nginx-proxy-manager-data-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /var/lib/nginx-proxy-manager/data
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: nginx-proxy-manager-data
-  namespace: nginx-proxy-manager
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  volumeName: nginx-proxy-manager-data-pv
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: nginx-proxy-manager-letsencrypt-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /var/lib/nginx-proxy-manager/letsencrypt
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: nginx-proxy-manager-letsencrypt
-  namespace: nginx-proxy-manager
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  volumeName: nginx-proxy-manager-letsencrypt-pv
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -69,7 +17,7 @@ spec:
     spec:
       containers:
         - name: nginx-proxy-manager
-          image: jc21/nginx-proxy-manager:latest
+          image: jc21/nginx-proxy-manager:2.10.4
           ports:
             - containerPort: 80
               name: http
@@ -80,6 +28,10 @@ spec:
           env:
             - name: DISABLE_IPV6
               value: "true"
+            - name: NPM_ADMIN_USER
+              value: "admin@example.com"
+            - name: NPM_ADMIN_PASS
+              value: "changeme"
           volumeMounts:
             - name: data
               mountPath: /data
@@ -111,19 +63,16 @@ metadata:
   labels:
     app: nginx-proxy-manager
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30081
       name: http
     - port: 443
       targetPort: 443
-      nodePort: 30082
       name: https
     - port: 81
       targetPort: 81
-      nodePort: 30083
       name: admin
   selector:
     app: nginx-proxy-manager
