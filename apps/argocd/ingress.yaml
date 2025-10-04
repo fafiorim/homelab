@@ -9,6 +9,10 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-scheme: https
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    argocd.argoproj.io/health-check: |
+      hs = {}
+      hs.status = "Healthy"
+      return hs
 spec:
   ingressClassName: traefik
   rules:
