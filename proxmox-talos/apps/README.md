@@ -34,9 +34,9 @@ kubectl apply -f apps/homepage/homepage-app.yaml
 
 ## GitOps Configuration
 
-All applications sync from the Git repository configured in `cluster.conf`:
-- **Repository**: Set via `git_repo_url` in cluster.conf
-- **Branch**: Set via `git_repo_branch` in cluster.conf
+All applications sync from the Git repository configured in `config.conf`:
+- **Repository**: Set via `git_repo_url` in config.conf
+- **Branch**: Set via `git_repo_branch` in config.conf
 - **Auto-sync**: Enabled with pruning and self-healing
 - **Namespace Creation**: Automatic
 

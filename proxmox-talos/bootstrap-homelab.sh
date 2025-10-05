@@ -14,7 +14,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Configuration
-CONFIG_FILE="homelab.conf"
+CONFIG_FILE="config.conf"
 
 echo -e "${GREEN}🚀 Homelab GitOps Bootstrap${NC}"
 echo -e "${BLUE}This script handles initial bootstrap dependencies${NC}"
@@ -37,6 +37,55 @@ FAST_DEPLOY=${FAST_DEPLOY:-0}
 if [ "$FAST_DEPLOY" = "1" ]; then
     echo -e "${BLUE}🚀 Fast deployment mode enabled${NC}"
 fi
+
+# Install ArgoCD via Helm
+install_argocd() {
+    echo -e "${BLUE}🚀 Installing ArgoCD via Helm...${NC}"
+    
+    # Check if ArgoCD is already installed
+    if kubectl get namespace argocd >/dev/null 2>&1 && kubectl get deployment argocd-server -n argocd >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ ArgoCD already installed${NC}"
+        return 0
+    fi
+    
+    # Check if Helm is installed
+    if ! command -v helm >/dev/null 2>&1; then
+        echo -e "${YELLOW}📦 Installing Helm...${NC}"
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        rm get_helm.sh
+        
+        if ! command -v helm >/dev/null 2>&1; then
+            echo -e "${RED}❌ Failed to install Helm${NC}"
+            echo -e "${YELLOW}Please install Helm manually: https://helm.sh/docs/intro/install/${NC}"
+            exit 1
+        fi
+    fi
+    
+    # Add ArgoCD Helm repository
+    echo -e "${YELLOW}📦 Adding ArgoCD Helm repository...${NC}"
+    helm repo add argo https://argoproj.github.io/argo-helm
+    helm repo update
+    
+    # Create ArgoCD namespace
+    echo -e "${YELLOW}📁 Creating ArgoCD namespace...${NC}"
+    kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+    
+    # Install ArgoCD with Helm
+    echo -e "${YELLOW}🚀 Installing ArgoCD...${NC}"
+    helm upgrade --install argocd argo/argo-cd \
+        --namespace argocd \
+        --set server.service.type=LoadBalancer \
+        --set server.service.loadBalancerIP=10.10.21.201 \
+        --set server.ingress.enabled=true \
+        --set server.ingress.hosts[0]="argocd.$DOMAIN" \
+        --set server.ingress.tls[0].secretName=argocd-tls \
+        --set server.ingress.tls[0].hosts[0]="argocd.$DOMAIN" \
+        --wait
+    
+    echo -e "${GREEN}✅ ArgoCD installed successfully${NC}"
+}
 
 # Check if ArgoCD is ready (single call)
 wait_for_argocd() {
@@ -103,8 +152,11 @@ deploy_applications() {
         app_files+=("$file")
     done < <(find apps/ -name "*-app.yaml" -not -path "*/metallb/*" -not -path "*/traefik/*" -print0)
     
-    # Apply all applications in single command
-    kubectl apply -f "${app_files[@]}"
+    # Apply all applications
+    for app_file in "${app_files[@]}"; do
+        echo -e "${CYAN}📄 Applying $app_file...${NC}"
+        kubectl apply -f "$app_file"
+    done
     
     echo -e "${GREEN}✅ All applications deployed${NC}"
 }
@@ -247,6 +299,7 @@ show_credentials() {
 # Main execution function
 main() {
     bootstrap_metallb
+    install_argocd
     create_secrets
     deploy_applications
     wait_for_applications
@@ -274,6 +327,7 @@ main() {
 case "${1:-deploy}" in
     "bootstrap")
         bootstrap_metallb
+        install_argocd
         create_secrets
         ;;
     "deploy")
@@ -307,19 +361,23 @@ case "${1:-deploy}" in
         wait_for_argocd
         main
         ;;
+    "metallb")
+        bootstrap_metallb
+        ;;
     "verify")
         verify_deployment
         ;;
     *)
-        echo "Usage: $0 [bootstrap|deploy|delete|redeploy|fast-deploy|fast-redeploy|verify]"
+        echo "Usage: $0 [bootstrap|deploy|delete|redeploy|fast-deploy|fast-redeploy|metallb|verify]"
         echo ""
         echo "Commands:"
-        echo "  bootstrap      - Only bootstrap dependencies and secrets"
+        echo "  bootstrap      - Install MetalLB, ArgoCD, bootstrap dependencies and secrets"
         echo "  deploy         - Full deployment (default)"
         echo "  delete         - Delete all applications and clean up"
         echo "  redeploy       - Delete all applications and redeploy fresh"
         echo "  fast-deploy    - Quick deployment with shorter waits and batch operations"
         echo "  fast-redeploy  - Quick delete and redeploy with optimizations"
+        echo "  metallb        - Install only MetalLB LoadBalancer"
         echo "  verify         - Verify current deployment"
         echo ""
         echo "Optimizations:"

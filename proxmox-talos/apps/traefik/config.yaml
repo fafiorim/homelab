@@ -4,7 +4,7 @@ metadata:
   name: traefik-config
   namespace: traefik-system
 data:
-  traefik.yml: |
+  traefik.yaml: |
     api:
       dashboard: true
       insecure: true
@@ -12,23 +12,75 @@ data:
     entryPoints:
       web:
         address: ":80"
+        http:
+          redirections:
+            entrypoint:
+              to: websecure
+              scheme: https
       websecure:
         address: ":443"
-    
-    providers:
-      kubernetesIngress:
-        ingressClass: traefik
+      traefik:
+        address: ":8080"
     
     certificatesResolvers:
       letsencrypt:
         acme:
-          email: admin@botocudo.net
+          email: franz@vitorf.com
           storage: /data/acme.json
-          dnsChallenge:
-            provider: cloudflare
-            delayBeforeCheck: 30
+          httpChallenge:
+            entryPoint: web
+      letsencrypt-staging:
+        acme:
+          email: franz@vitorf.com
+          storage: /data/acme-staging.json
+          caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+          httpChallenge:
+            entryPoint: web
     
-    log:
-      level: INFO
+    providers:
+      kubernetesIngress:
+        ingressClass: traefik
+      kubernetesCRD: {}
     
-    accessLog: {}
+    # Enhanced Access Logging with structured format
+    accessLog:
+      format: json
+      fields:
+        names:
+          StartUTC: drop
+        headers:
+          defaultMode: keep
+          names:
+            User-Agent: redact
+            Authorization: drop
+            Content-Type: keep
+    
+    # Prometheus Metrics
+    metrics:
+      prometheus:
+        addEntryPointsLabels: true
+        addServicesLabels: true
+        addRoutersLabels: true
+        buckets:
+          - 0.1
+          - 0.3
+          - 1.2
+          - 5.0
+    
+    # Distributed Tracing (configure when Jaeger is available)
+    # tracing:
+    #   jaeger:
+    #     samplingParam: 1.0
+    #     localAgentHostPort: "jaeger-agent.observability:6831"
+    #     gen128Bit: true
+    #     propagation: jaeger
+    #     traceContextHeaderName: uber-trace-id
+    
+    # Global configuration
+    global:
+      checkNewVersion: false
+      sendAnonymousUsage: false
+    
+    # Health check endpoint
+    ping:
+      entryPoint: traefik

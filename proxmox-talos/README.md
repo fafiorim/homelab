@@ -1,6 +1,247 @@
-# Homelab Infrastructure with Talos Kubernetes
+# 🏠 Homelab Modular Deployment System
 
-Complete GitOps homelab setup with Talos Kubernetes, ArgoCD, and automated application deployment.
+A comprehensive, modular deployment system for a complete homelab infrastructure running on Proxmox with Talos Kubernetes.
+
+## 🏗️ Architecture Overview
+
+This system deploys a complete homelab infrastructure using a modular approach that allows for:
+- **Independent module deployment** - Run individual components separately
+- **Full stack deployment** - Deploy everything with a single command
+- **Easy troubleshooting** - Isolated modules for targeted debugging
+- **Future extensibility** - Add new modules without affecting existing ones
+
+## 📦 Modules
+
+### 1. Infrastructure (`01-infrastructure.sh`)
+- **Purpose**: Proxmox VM deployment and Talos Kubernetes cluster setup
+- **Features**:
+  - Creates 3 Proxmox VMs (1 control plane, 2 workers)
+  - Configures VMs with qemu-agent support for Proxmox integration
+  - Generates Talos configuration with network patches
+  - Bootstraps Kubernetes cluster
+  - Retrieves and validates kubeconfig
+
+### 2. MetalLB (`02-metallb.sh`)
+- **Purpose**: LoadBalancer service for bare-metal Kubernetes
+- **Features**:
+  - Installs MetalLB controller
+  - Configures IP address pool (10.10.21.200-10.10.21.210)
+  - Sets up L2 advertisement
+  - Validates LoadBalancer functionality
+
+### 3. Traefik (`03-traefik.sh`)
+- **Purpose**: Ingress controller with automatic SSL certificates
+- **Features**:
+  - Deploys Traefik v3.1 with LoadBalancer service
+  - Configures Let's Encrypt SSL via Cloudflare DNS-01 challenge
+  - Sets up automatic certificate renewal
+  - Provides ingress routing for all services
+
+### 4. ArgoCD (`04-argocd.sh`)
+- **Purpose**: GitOps continuous deployment controller
+- **Features**:
+  - Installs ArgoCD via Helm charts
+  - Configures ingress with SSL termination
+  - Retrieves admin credentials
+  - Sets up HTTPS access
+
+### 5. Applications (`05-applications.sh`)
+- **Purpose**: Application deployment orchestration via ArgoCD
+- **Features**:
+  - Auto-discovers applications in `apps/` directory
+  - Deploys applications via ArgoCD
+  - Monitors application health and sync status
+  - Verifies service accessibility
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Proxmox VE server with API access
+- Required tools: `curl`, `jq`, `kubectl`, `talosctl`, `helm`
+- Configuration files: `config.conf`, `cluster.conf`
+- Cloudflare API token with DNS permissions
+
+### Full Deployment
+```bash
+# Deploy complete homelab infrastructure
+./deploy-homelab.sh --full
+```
+
+### Individual Module Deployment
+```bash
+# Deploy only infrastructure
+./deploy-homelab.sh 01-infrastructure
+
+# Deploy only Traefik
+./deploy-homelab.sh 03-traefik
+```
+
+### Management Commands
+```bash
+# Check prerequisites
+./deploy-homelab.sh --check
+
+# Show deployment status
+./deploy-homelab.sh --status
+
+# Verify all services
+./deploy-homelab.sh --verify
+
+# List available modules
+./deploy-homelab.sh --list
+```
+
+## 📁 Directory Structure
+
+```
+homelab/
+├── deploy-homelab.sh           # Master orchestrator script
+├── config.conf                 # Main configuration file
+├── cluster.conf                # Talos cluster configuration
+├── modules/                    # Individual deployment modules
+│   ├── 01-infrastructure.sh
+│   ├── 02-metallb.sh
+│   ├── 03-traefik.sh
+│   ├── 04-argocd.sh
+│   └── 05-applications.sh
+├── apps/                       # ArgoCD application manifests
+│   ├── homepage/
+│   ├── grafana/
+│   ├── prometheus/
+│   └── metrics-server/
+└── manifests/                  # Kubernetes manifests
+    ├── metallb/
+    ├── traefik/
+    └── argocd/
+```
+
+## ⚙️ Configuration
+
+### Main Configuration (`config.conf`)
+```bash
+# Domain configuration
+DOMAIN="botocudo.net"
+
+# Cloudflare API
+CLOUDFLARE_API_TOKEN="your-token-here"
+CLOUDFLARE_EMAIL="your-email@domain.com"
+
+# MetalLB IP pool
+METALLB_IP_RANGE="10.10.21.200-10.10.21.210"
+LOADBALANCER_IP="10.10.21.201"
+```
+
+### Cluster Configuration (`cluster.conf`)
+```bash
+# Proxmox configuration
+PROXMOX_HOST="10.10.20.100"
+PROXMOX_USER="root@pam"
+PROXMOX_PASSWORD="your-password"
+
+# VM configuration
+CONTROL_PLANE_VM_ID=400
+WORKER_VM_IDS=(411 412)
+```
+
+## 🔧 Features
+
+### Error Handling
+- Comprehensive error checking at each step
+- Prerequisite validation before deployment
+- Graceful failure handling with rollback options
+- Detailed logging and status reporting
+
+### Security
+- Secrets management with `.gitignore` protection
+- SSL/TLS encryption for all services
+- Automatic certificate renewal
+- Secure credential storage
+
+### Monitoring
+- Real-time deployment status
+- Service health checks
+- Application sync monitoring
+- URL accessibility verification
+
+### Extensibility
+- Modular architecture for easy expansion
+- Template-based module creation
+- Standardized logging and error handling
+- Configuration-driven deployment
+
+## 🌐 Deployed Services
+
+After successful deployment, the following services will be available:
+
+- **🏠 Homepage**: `https://homepage.botocudo.net` - Dashboard and service overview
+- **📊 Grafana**: `https://grafana.botocudo.net` - Monitoring and visualization
+- **📈 Prometheus**: `https://prometheus.botocudo.net` - Metrics collection
+- **🔧 ArgoCD**: `https://argocd.botocudo.net` - GitOps management
+
+All services are secured with valid Let's Encrypt SSL certificates and accessible via HTTPS.
+
+## 🔍 Troubleshooting
+
+### Check Prerequisites
+```bash
+./deploy-homelab.sh --check
+```
+
+### View Deployment Status
+```bash
+./deploy-homelab.sh --status
+```
+
+### Test Service Connectivity
+```bash
+./deploy-homelab.sh --verify
+```
+
+### Individual Module Testing
+```bash
+# Test specific module
+./deploy-homelab.sh 02-metallb
+```
+
+### Manual Verification
+```bash
+# Check cluster connectivity
+export KUBECONFIG=./kubeconfig
+kubectl get nodes
+
+# Check service status
+kubectl get pods --all-namespaces
+
+# Check LoadBalancer IP
+kubectl get svc traefik -n traefik-system
+```
+
+## 🧹 Cleanup
+
+⚠️ **WARNING**: This will destroy ALL resources!
+
+```bash
+./deploy-homelab.sh --cleanup
+```
+
+## 📝 Logs and Credentials
+
+- **ArgoCD Admin Password**: Stored in `.argocd-admin-password`
+- **Service Credentials**: Stored in `service-credentials.txt`
+- **Deployment Logs**: Displayed in real-time during execution
+
+## 🤝 Contributing
+
+To add a new module:
+
+1. Create `modules/XX-newmodule.sh` following the existing pattern
+2. Add module to `MODULES` array in `deploy-homelab.sh`
+3. Add description to `MODULE_DESCRIPTIONS` array
+4. Test with `./deploy-homelab.sh XX-newmodule`
+
+## 📄 License
+
+This project is part of a personal homelab setup. Use at your own risk and ensure you understand the security implications of the deployed services.
 
 ## Overview
 
@@ -24,8 +265,8 @@ This project provides the **easiest way** to:
 Copy and edit the configuration file:
 
 ```bash
-cp cluster.conf.example cluster.conf
-# Edit cluster.conf with your Proxmox details
+cp config.conf.example config.conf
+# Edit config.conf with your Proxmox details
 ```
 
 ### 2. Deploy Cluster
@@ -56,7 +297,7 @@ cp cluster.conf.example cluster.conf
 ./talos-cluster.sh apps
 ```
 
-**Note**: Applications will sync from the Git repository configured in `cluster.conf`. By default, this is set to `https://github.com/fafiorim/homelab`. You can change this by editing `cluster.conf` or using the helper script:
+**Note**: Applications will sync from the Git repository configured in `config.conf`. By default, this is set to `https://github.com/fafiorim/homelab`. You can change this by editing `config.conf` or using the helper script:
 
 ```bash
 ./update-git-repo.sh
@@ -127,13 +368,13 @@ This is the **single entry point** for all cluster operations:
 
 ## Configuration
 
-Edit `cluster.conf` to configure your Proxmox and cluster settings.
+Edit `config.conf` to configure your Proxmox and cluster settings.
 
 ### Git Repository Configuration
 
 The GitOps setup uses a configurable Git repository for application deployment. You can change the repository by:
 
-1. **Edit `cluster.conf`**:
+1. **Edit `config.conf`**:
    ```bash
    # GitOps Configuration
    git_repo_url = "https://github.com/your-username/your-repo"
@@ -152,7 +393,7 @@ The GitOps setup uses a configurable Git repository for application deployment. 
 
 ### Proxmox Configuration
 
-Edit `cluster.conf` to configure:
+Edit `config.conf` to configure:
 
 ```hcl
 # Proxmox Configuration
@@ -192,7 +433,7 @@ The script manages 3 VMs by default:
 
 ### MAC Address Configuration
 
-MAC addresses are configurable through the `cluster.conf` file:
+MAC addresses are configurable through the `config.conf` file:
 
 | VM | Variable | Default MAC | Purpose |
 |----|----------|-------------|---------|
@@ -228,8 +469,8 @@ After deployment, you'll have:
 ├── install-argocd.sh           # ArgoCD installation script
 ├── deploy-apps.sh              # Application deployment script
 ├── setup-env.sh                # Environment setup script
-├── cluster.conf                # Configuration file
-├── cluster.conf.example        # Example configuration
+├── config.conf                 # Configuration file
+├── config.conf.example         # Example configuration
 ├── talos-configs/              # Generated Talos configs
 ├── kubeconfig                  # Kubernetes config
 ├── manifests/                  # Kubernetes manifests
@@ -247,7 +488,7 @@ After deployment, you'll have:
 - **Existing VMs**: By default, the script will error if VMs with the same IDs exist
 - **Force Mode**: Use `--force` to automatically delete existing VMs and continue
 - **Prerequisites**: Script checks for required tools (talosctl, kubectl, curl, jq)
-- **Configuration**: Validates cluster.conf file exists and is properly configured
+- **Configuration**: Validates config.conf file exists and is properly configured
 
 ## Troubleshooting
 
@@ -261,7 +502,7 @@ After deployment, you'll have:
 2. **VM Conflict Errors**
    - Use `--force` to delete existing VMs
    - Or manually delete VMs via Proxmox web interface
-   - Or use different VM IDs in cluster.conf
+   - Or use different VM IDs in config.conf
 
 3. **Talos Configuration Fails**
    - Check network connectivity
@@ -288,7 +529,7 @@ After deployment, you'll have:
 
 ## Security
 
-- Keep `cluster.conf` secure
+- Keep `config.conf` secure
 - Don't commit secrets to version control
 - Use proper RBAC for production deployments
 - Regularly update Talos and Kubernetes
@@ -310,7 +551,41 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **README.md** - Main documentation and quick start guide
 - **ENHANCED-FEATURES.md** - Detailed feature documentation and improvements
 - **MONITORING.md** - Comprehensive monitoring stack documentation
-- **cluster.conf.example** - Configuration template with examples
+- **config.conf.example** - Configuration template with examples
+
+## Security Considerations
+
+### Secrets Management
+
+**⚠️ IMPORTANT**: The `config.conf` file contains sensitive information including API tokens and credentials.
+
+1. **Never commit secrets to version control**:
+   ```bash
+   # Add config.conf to .gitignore
+   echo "config.conf" >> .gitignore
+   ```
+
+2. **Use config.conf.example as template**:
+   ```bash
+   cp config.conf.example config.conf
+   # Edit config.conf with your actual values
+   ```
+
+3. **Required secrets to configure**:
+   - `proxmox_api_token_secret`: Your Proxmox API token
+   - `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token for SSL certificates
+
+4. **File permissions**:
+   ```bash
+   chmod 600 config.conf  # Make readable only by owner
+   ```
+
+### Production Recommendations
+
+- Use dedicated service accounts with minimal required permissions
+- Rotate API tokens regularly
+- Consider using HashiCorp Vault or similar for secret management in production
+- Enable audit logging on Proxmox for API access monitoring
 
 ## Support
 
