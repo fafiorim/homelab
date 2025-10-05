@@ -28,3 +28,22 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Configuration with secrets (keep local for testing)
+config.conf
+
+# Deployment artifacts and temporary files
+talos-configs/
+service-credentials.txt
+deployment-timing.log
+.argocd-admin-password
+*_temp.sh
+*.backup
+
+# SSL certificate scripts (generated)
+fix-ssl-certificates.sh
+ssl-certificate-guide.sh
+switch-to-*-ssl.sh
+
+# Archive directories
+archive/legacy-scripts-*/
