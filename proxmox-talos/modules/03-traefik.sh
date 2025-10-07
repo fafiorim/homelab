@@ -35,6 +35,9 @@ fi
 
 source "$CONFIG_FILE"
 
+# Normalize configuration variables for consistency
+CLOUDFLARE_API_TOKEN="${cloudflare_api_token:-$CLOUDFLARE_API_TOKEN}"
+
 # =============================================================================
 # Helper Functions
 # =============================================================================
@@ -89,6 +92,13 @@ check_prerequisites() {
         exit 1
     fi
     
+    # Validate Cloudflare configuration early
+    if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+        log_error "CLOUDFLARE_API_TOKEN is not configured"
+        log_error "Please set 'cloudflare_api_token' in cluster.conf for Let's Encrypt SSL certificates"
+        exit 1
+    fi
+    
     log_success "Prerequisites check passed"
 }
 
@@ -126,13 +136,58 @@ create_namespace() {
 create_secrets() {
     log_info "Creating Cloudflare API token secret..."
     
+    # Validate Cloudflare API token
+    if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+        log_error "CLOUDFLARE_API_TOKEN is not set in configuration"
+        log_error "Please set 'cloudflare_api_token' in cluster.conf"
+        exit 1
+    fi
+    
+    # Check if token looks valid (should be 40 characters alphanumeric with underscores)
+    if [[ ! "$CLOUDFLARE_API_TOKEN" =~ ^[A-Za-z0-9_]{32,}$ ]]; then
+        log_warning "Cloudflare API token format may be invalid"
+        log_warning "Expected: 32+ character string with letters, numbers, and underscores"
+    fi
+    
+    log_info "Using Cloudflare API token: ${CLOUDFLARE_API_TOKEN:0:8}...${CLOUDFLARE_API_TOKEN: -4}"
+    
+    # Delete existing secret if it exists (to handle updates)
+    kubectl delete secret cloudflare-api-token -n traefik-system --ignore-not-found=true
+    
     # Create Cloudflare secret
     kubectl create secret generic cloudflare-api-token \
         --from-literal=CF_API_TOKEN="$CLOUDFLARE_API_TOKEN" \
-        --namespace=traefik-system \
-        --dry-run=client -o yaml | kubectl apply -f -
+        --namespace=traefik-system
     
-    log_success "Secrets created"
+    # Verify secret was created correctly
+    local secret_value=$(kubectl get secret cloudflare-api-token -n traefik-system -o jsonpath='{.data.CF_API_TOKEN}' | base64 -d)
+    if [ "$secret_value" = "$CLOUDFLARE_API_TOKEN" ]; then
+        log_success "Cloudflare API token secret created successfully"
+    else
+        log_error "Failed to create Cloudflare API token secret correctly"
+        exit 1
+    fi
+}
+
+check_and_fix_existing_secret() {
+    log_info "Checking existing Cloudflare secret..."
+    
+    if kubectl get secret cloudflare-api-token -n traefik-system &> /dev/null; then
+        local existing_token=$(kubectl get secret cloudflare-api-token -n traefik-system -o jsonpath='{.data.CF_API_TOKEN}' | base64 -d)
+        
+        if [ -z "$existing_token" ]; then
+            log_warning "Existing Cloudflare secret has empty token - recreating..."
+            create_secrets
+        elif [ "$existing_token" != "$CLOUDFLARE_API_TOKEN" ]; then
+            log_warning "Existing Cloudflare secret has different token - updating..."
+            create_secrets
+        else
+            log_success "Existing Cloudflare secret is correct"
+        fi
+    else
+        log_info "No existing Cloudflare secret found - creating new one..."
+        create_secrets
+    fi
 }
 
 create_rbac() {
@@ -438,7 +493,8 @@ main() {
     check_prerequisites
     
     if check_existing_installation; then
-        log_info "Traefik already installed, skipping installation"
+        log_info "Traefik already installed, checking configuration..."
+        check_and_fix_existing_secret
         verify_deployment
     else
         create_namespace
