@@ -4,11 +4,11 @@ metadata:
   name: traefik-config
   namespace: traefik-system
 data:
-  traefik.yaml: |
+  traefik.yml: |
     api:
       dashboard: true
       insecure: true
-    
+
     entryPoints:
       web:
         address: ":80"
@@ -21,33 +21,27 @@ data:
         address: ":443"
       traefik:
         address: ":8080"
-    
+
     certificatesResolvers:
       letsencrypt:
         acme:
-          email: franzvitor@gmail.com
+          email: franz@vitorf.com
           storage: /data/acme.json
-          dnsChallenge:
-            provider: cloudflare
-            resolvers:
-              - "1.1.1.1:53"
-              - "8.8.8.8:53"
+          httpChallenge:
+            entryPoint: web
       letsencrypt-staging:
         acme:
-          email: franzvitor@gmail.com
+          email: franz@vitorf.com
           storage: /data/acme-staging.json
           caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-          dnsChallenge:
-            provider: cloudflare
-            resolvers:
-              - "1.1.1.1:53"
-              - "8.8.8.8:53"
-    
+          httpChallenge:
+            entryPoint: web
+
     providers:
       kubernetesIngress:
         ingressClass: traefik
       kubernetesCRD: {}
-    
+
     # Enhanced Access Logging with structured format
     accessLog:
       format: json
@@ -60,7 +54,7 @@ data:
             User-Agent: redact
             Authorization: drop
             Content-Type: keep
-    
+
     # Prometheus Metrics
     metrics:
       prometheus:
@@ -72,21 +66,12 @@ data:
           - 0.3
           - 1.2
           - 5.0
-    
-    # Distributed Tracing (configure when Jaeger is available)
-    # tracing:
-    #   jaeger:
-    #     samplingParam: 1.0
-    #     localAgentHostPort: "jaeger-agent.observability:6831"
-    #     gen128Bit: true
-    #     propagation: jaeger
-    #     traceContextHeaderName: uber-trace-id
-    
+
     # Global configuration
     global:
       checkNewVersion: false
       sendAnonymousUsage: false
-    
+
     # Health check endpoint
     ping:
       entryPoint: traefik

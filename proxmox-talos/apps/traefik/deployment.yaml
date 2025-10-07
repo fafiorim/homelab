@@ -61,7 +61,7 @@ metadata:
   labels:
     app: traefik
   annotations:
-    metallb.universe.tf/loadBalancerIPs: 10.10.21.201
+    metallb.universe.tf/loadBalancerIPs: 10.10.21.202
 spec:
   type: LoadBalancer
   ports:

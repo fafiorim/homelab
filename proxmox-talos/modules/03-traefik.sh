@@ -371,7 +371,8 @@ EOF
     local waited=0
     while [ $waited -lt $max_wait ]; do
         local lb_ip=$(kubectl get svc traefik -n traefik-system -o jsonpath="{.status.loadBalancer.ingress[0].ip}" 2>/dev/null || echo "")
-        if [[ "$lb_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        if [[ "$lb_ip" = "$TRAEFIK_LOADBALANCER_IP" ]]; then
+            log_success "LoadBalancer IP assigned: $lb_ip"
             break
         fi
         sleep 5
@@ -394,8 +395,8 @@ verify_deployment() {
     
     # Check LoadBalancer IP
     local lb_ip=$(kubectl get svc traefik -n traefik-system -o jsonpath="{.status.loadBalancer.ingress[0].ip}" 2>/dev/null || echo "")
-    if [[ ! "$lb_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        log_error "Traefik LoadBalancer IP not assigned"
+    if [[ "$lb_ip" != "$TRAEFIK_LOADBALANCER_IP" ]]; then
+        log_error "Traefik LoadBalancer IP not assigned correctly. Expected: $TRAEFIK_LOADBALANCER_IP, Got: $lb_ip"
         kubectl describe svc traefik -n traefik-system
         return 1
     fi

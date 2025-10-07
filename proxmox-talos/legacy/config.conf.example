@@ -1,0 +1,54 @@
+# Homelab Infrastructure Configuration
+# Single configuration file for all deployment settings
+
+# =============================================================================
+# PROXMOX CONFIGURATION
+# =============================================================================
+proxmox_api_url="https://your_proxmox_ip:8006/api2/json"
+proxmox_api_token_id="your_proxmox_user@pam!your_token_name"
+proxmox_api_token_secret="your_proxmox_api_token_secret_here"
+proxmox_tls_insecure=true
+proxmox_node="your_proxmox_node_name"
+
+# Storage and Network
+storage_pool="local-lvm"
+network_bridge="vmbr0"
+iso_storage="local"
+
+# =============================================================================
+# TALOS CLUSTER CONFIGURATION
+# =============================================================================
+cluster_name="your_cluster_name"
+control_plane_ip="10.10.21.110"
+worker_node_01_ip="10.10.21.111"
+worker_node_02_ip="10.10.21.112"
+
+# Exported variables for scripts (same IPs as above)
+export CLUSTER_NAME="your_cluster_name"
+export CONTROL_PLANE_IP="10.10.21.110"
+export WORKER_1_IP="10.10.21.111"
+export WORKER_2_IP="10.10.21.112"
+
+# =============================================================================
+# NETWORK CONFIGURATION
+# =============================================================================
+export METALLB_IP_RANGE="10.10.21.200-10.10.21.210"
+export TRAEFIK_LOADBALANCER_IP="10.10.21.201"
+
+# =============================================================================
+# DOMAIN & SSL CONFIGURATION
+# =============================================================================
+export DOMAIN="your_domain.com"
+export ADMIN_EMAIL="admin@your_domain.com"
+
+# Cloudflare Configuration (for SSL certificates)
+export CLOUDFLARE_API_TOKEN="your_cloudflare_api_token_here"
+
+# =============================================================================
+# VM CONFIGURATION
+# =============================================================================
+# MAC Address Configuration (if needed)
+# Format: xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx
+control_plane_mac="xx:xx:xx:xx:xx:xx"
+worker_01_mac="xx:xx:xx:xx:xx:xx"
+worker_02_mac="xx:xx:xx:xx:xx:xx"

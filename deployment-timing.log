@@ -1,0 +1,21 @@
+🚀 COMPLETE HOMELAB DEPLOYMENT FROM SCRATCH - Sat Oct  4 15:44:49 EDT 2025
+=================================
+
+⏱️  Start Time: 2025-10-04 15:44:49
+
+📋 Phase 1: Deploying Talos Cluster
+zsh: no such file or directory: ./deploy_talos_cluster.sh
+=================================
+
+⏱️  Start Time: 2025-10-04 15:50:42
+
+📋 Phase 1: Complete Talos Cluster Deployment
+zsh: no such file or directory: ./deploy_talos_cluster.sh
+
+📋 Phase 1: Complete Talos Cluster Deployment (Updated ISO)
+Using Talos ISO: talos-v1.11.1-amd64.iso
+zsh: no such file or directory: ./deploy_talos_cluster.sh
+
+📋 Phase 2: Deploying ArgoCD and Applications (Fast Mode)
+⏱️  Phase 2 Start: 2025-10-04 16:36:18
+zsh: no such file or directory: ./bootstrap-homelab.sh

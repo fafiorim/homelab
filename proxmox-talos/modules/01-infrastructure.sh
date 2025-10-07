@@ -405,7 +405,8 @@ apply_talos_config() {
     fi
     
     log_info "Waiting for nodes to configure and restart..."
-    sleep 60
+    log_info "This may take 2-3 minutes for nodes to fully restart and reconfigure..."
+    sleep 120
     
     log_success "Talos configuration applied to all nodes"
 }
@@ -452,23 +453,34 @@ bootstrap_cluster() {
     log_info "Waiting for all nodes to be ready..."
     export KUBECONFIG=./kubeconfig
     
-    local max_attempts=20
+    local max_attempts=30
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
         local ready_nodes=$(kubectl get nodes --no-headers 2>/dev/null | grep -c "Ready" || echo "0")
         if [ "$ready_nodes" = "3" ]; then
             log_success "All 3 nodes are ready!"
+            # Additional check for node conditions
+            log_info "Verifying node health..."
+            if kubectl get nodes --no-headers | grep -v "Ready" > /dev/null; then
+                log_warning "Some nodes may have issues, continuing..."
+            fi
             break
         fi
         
         log_info "Attempt $attempt/$max_attempts: $ready_nodes/3 nodes ready"
-        sleep 15
+        # Show node status for debugging
+        kubectl get nodes --no-headers 2>/dev/null | head -3 | while read line; do
+            log_info "Node status: $line"
+        done
+        sleep 20
         ((attempt++))
     done
     
     if [ $attempt -gt $max_attempts ]; then
         log_error "Timeout waiting for nodes to become ready"
+        log_error "Final node status:"
+        kubectl get nodes 2>/dev/null || true
         return 1
     fi
     
