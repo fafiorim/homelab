@@ -20,7 +20,7 @@ spec:
         - name: traefik
           image: traefik:v3.1
           args:
-            - --configfile=/config/traefik.yml
+            - --configfile=/config/traefik.yaml
           env:
             - name: CLOUDFLARE_DNS_API_TOKEN
               valueFrom:
