@@ -26,7 +26,8 @@ TRAEFIK_VERSION="v3.1"
 REQUIRED_TOOLS=("kubectl")
 
 # Load configuration
-CONFIG_FILE="config.conf"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/../cluster.conf"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo -e "${RED}❌ Configuration file $CONFIG_FILE not found${NC}"
     exit 1

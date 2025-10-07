@@ -26,13 +26,17 @@ ARGOCD_CHART_VERSION="8.5.8"
 REQUIRED_TOOLS=("kubectl" "helm")
 
 # Load configuration
-CONFIG_FILE="config.conf"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/../cluster.conf"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo -e "${RED}❌ Configuration file $CONFIG_FILE not found${NC}"
     exit 1
 fi
 
 source "$CONFIG_FILE"
+
+# Map lowercase variables to uppercase for consistency
+DOMAIN="$domain"
 
 # =============================================================================
 # Helper Functions

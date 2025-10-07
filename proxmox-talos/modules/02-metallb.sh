@@ -26,13 +26,17 @@ METALLB_VERSION="v0.14.8"
 REQUIRED_TOOLS=("kubectl" "curl")
 
 # Load configuration
-CONFIG_FILE="config.conf"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/../cluster.conf"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo -e "${RED}❌ Configuration file $CONFIG_FILE not found${NC}"
     exit 1
 fi
 
 source "$CONFIG_FILE"
+
+# Set MetalLB IP range to control plane IP
+METALLB_IP_RANGE="$control_plane_ip"
 
 # =============================================================================
 # Helper Functions
