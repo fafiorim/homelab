@@ -37,9 +37,9 @@ source "$CONFIG_FILE"
 # VM Configuration
 CONTROL_PLANE_VM_ID=400
 WORKER_VM_IDS=(411 412)
-VM_MEMORY=4096
-VM_CORES=2
-VM_DISK_SIZE=32
+VM_MEMORY=8192
+VM_CORES=4
+VM_DISK_SIZE=50
 
 # =============================================================================
 # Helper Functions

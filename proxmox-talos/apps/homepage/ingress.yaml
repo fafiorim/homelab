@@ -13,6 +13,10 @@ metadata:
       return hs
 spec:
   ingressClassName: traefik
+  tls:
+  - hosts:
+    - homepage.botocudo.net
+    secretName: homepage-botocudo-net-tls
   rules:
   - host: homepage.botocudo.net
     http:
