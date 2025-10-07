@@ -102,10 +102,15 @@ get_application_files() {
     
     local app_files=()
     
-    # Find all *-app.yaml files in the apps directory
+    # Find all *-app.yaml files in the apps directory (primary pattern)
     while IFS= read -r -d '' file; do
         app_files+=("$file")
     done < <(find apps/ -name "*-app.yaml" -print0 2>/dev/null)
+    
+    # Also find application.yaml files as fallback
+    while IFS= read -r -d '' file; do
+        app_files+=("$file")
+    done < <(find apps/ -name "application.yaml" -print0 2>/dev/null)
     
     if [ ${#app_files[@]} -eq 0 ]; then
         log_error "No application files found in apps directory" >&2
