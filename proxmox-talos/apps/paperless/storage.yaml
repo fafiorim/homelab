@@ -15,8 +15,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   nfs:
-    server: 10.10.21.31  # Proxmox firefly IP
-    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/data
+    server: 10.10.21.11  # Proxmox firefly IP
+    path: /volume4/VM/containers/paperless/data
 ---
 # PersistentVolumeClaim for Paperless Data
 apiVersion: v1
@@ -54,8 +54,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   nfs:
-    server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/media
+    server: 10.10.21.11
+    path: /volume4/VM/containers/paperless/media
 ---
 # PersistentVolumeClaim for Paperless Media
 apiVersion: v1
@@ -93,8 +93,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   nfs:
-    server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/consume
+    server: 10.10.21.11
+    path: /volume4/VM/containers/paperless/consume
 ---
 # PersistentVolumeClaim for Paperless Consume
 apiVersion: v1
@@ -132,8 +132,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   nfs:
-    server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/export
+    server: 10.10.21.11
+    path: /volume4/VM/containers/paperless/export
 ---
 # PersistentVolumeClaim for Paperless Export
 apiVersion: v1
@@ -171,8 +171,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   nfs:
-    server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/postgres
+    server: 10.10.21.11
+    path: /volume4/VM/containers/paperless/postgres
 ---
 # PersistentVolumeClaim for PostgreSQL Data
 apiVersion: v1
