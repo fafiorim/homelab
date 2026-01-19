@@ -16,7 +16,7 @@ spec:
   storageClassName: nfs
   nfs:
     server: 10.10.21.31  # Proxmox firefly IP
-    path: /mnt/pve/Ugreen_NFS_VM/paperless/data
+    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/data
 ---
 # PersistentVolumeClaim for Paperless Data
 apiVersion: v1
@@ -55,7 +55,7 @@ spec:
   storageClassName: nfs
   nfs:
     server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/paperless/media
+    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/media
 ---
 # PersistentVolumeClaim for Paperless Media
 apiVersion: v1
@@ -94,7 +94,7 @@ spec:
   storageClassName: nfs
   nfs:
     server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/paperless/consume
+    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/consume
 ---
 # PersistentVolumeClaim for Paperless Consume
 apiVersion: v1
@@ -133,7 +133,7 @@ spec:
   storageClassName: nfs
   nfs:
     server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/paperless/export
+    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/export
 ---
 # PersistentVolumeClaim for Paperless Export
 apiVersion: v1
@@ -172,7 +172,7 @@ spec:
   storageClassName: nfs
   nfs:
     server: 10.10.21.31
-    path: /mnt/pve/Ugreen_NFS_VM/paperless/postgres
+    path: /mnt/pve/Ugreen_NFS_VM/containers/paperless/postgres
 ---
 # PersistentVolumeClaim for PostgreSQL Data
 apiVersion: v1
