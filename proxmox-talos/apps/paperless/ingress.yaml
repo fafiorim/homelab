@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paperless-ingress
+  namespace: paperless
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+    traefik.ingress.kubernetes.io/redirect-scheme: https
+    argocd.argoproj.io/health-check: |
+      hs = {}
+      hs.status = "Healthy"
+      return hs
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - paperless.botocudo.net
+    secretName: paperless-botocudo-net-tls
+  rules:
+  - host: paperless.botocudo.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: paperless
+            port:
+              number: 8000
