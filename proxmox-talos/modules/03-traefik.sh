@@ -37,6 +37,7 @@ source "$CONFIG_FILE"
 
 # Normalize configuration variables for consistency
 CLOUDFLARE_API_TOKEN="${cloudflare_api_token:-$CLOUDFLARE_API_TOKEN}"
+DOMAIN="${domain:-$DOMAIN}"
 
 # =============================================================================
 # Helper Functions
@@ -427,7 +428,7 @@ EOF
     local waited=0
     while [ $waited -lt $max_wait ]; do
         local lb_ip=$(kubectl get svc traefik -n traefik-system -o jsonpath="{.status.loadBalancer.ingress[0].ip}" 2>/dev/null || echo "")
-        if [[ "$lb_ip" = "$TRAEFIK_LOADBALANCER_IP" ]]; then
+        if [[ "$lb_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             log_success "LoadBalancer IP assigned: $lb_ip"
             break
         fi
@@ -451,11 +452,13 @@ verify_deployment() {
     
     # Check LoadBalancer IP
     local lb_ip=$(kubectl get svc traefik -n traefik-system -o jsonpath="{.status.loadBalancer.ingress[0].ip}" 2>/dev/null || echo "")
-    if [[ "$lb_ip" != "$TRAEFIK_LOADBALANCER_IP" ]]; then
-        log_error "Traefik LoadBalancer IP not assigned correctly. Expected: $TRAEFIK_LOADBALANCER_IP, Got: $lb_ip"
+    if ! [[ "$lb_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log_error "Traefik LoadBalancer IP not assigned. Got: $lb_ip"
         kubectl describe svc traefik -n traefik-system
         return 1
     fi
+    
+    log_success "LoadBalancer IP assigned: $lb_ip"
     
     # Test HTTP connectivity
     if curl -s -o /dev/null -w "%{http_code}" "http://$lb_ip:8080/ping" | grep -q "200"; then

@@ -196,10 +196,6 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-scheme: https
 spec:
   ingressClassName: traefik
-  tls:
-  - hosts:
-    - argocd.$DOMAIN
-    secretName: argocd-server-tls
   rules:
   - host: argocd.$DOMAIN
     http:

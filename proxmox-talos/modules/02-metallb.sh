@@ -35,8 +35,10 @@ fi
 
 source "$CONFIG_FILE"
 
-# Set MetalLB IP range to control plane IP
-METALLB_IP_RANGE="$control_plane_ip"
+# Set MetalLB IP range from config (with defaults if not set)
+METALLB_IP_RANGE_START="${metallb_ip_range_start:-10.10.21.200}"
+METALLB_IP_RANGE_END="${metallb_ip_range_end:-10.10.21.210}"
+METALLB_IP_RANGE="${METALLB_IP_RANGE_START}-${METALLB_IP_RANGE_END}"
 
 # =============================================================================
 # Helper Functions
@@ -135,25 +137,25 @@ install_metallb() {
 configure_metallb() {
     log_info "Configuring MetalLB with control plane IP ($METALLB_IP_RANGE)..."
     
-    # Create IP address pool configuration using single control plane IP
+    # Create IP address pool configuration
     cat > /tmp/metallb-config.yaml << EOF
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: control-plane-pool
+  name: default-pool
   namespace: metallb-system
 spec:
   addresses:
-  - ${METALLB_IP_RANGE}-${METALLB_IP_RANGE}
+  - ${METALLB_IP_RANGE}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-  name: control-plane-l2
+  name: default
   namespace: metallb-system
 spec:
   ipAddressPools:
-  - control-plane-pool
+  - default-pool
   nodeSelectors:
   - matchLabels:
       node-role.kubernetes.io/control-plane: ""
@@ -178,12 +180,12 @@ verify_deployment() {
     fi
     
     # Check IP pool configuration
-    if ! kubectl get ipaddresspool control-plane-pool -n metallb-system &> /dev/null; then
+    if ! kubectl get ipaddresspool default-pool -n metallb-system &> /dev/null; then
         log_error "MetalLB IP address pool not found"
         return 1
     fi
     
-    if ! kubectl get l2advertisement control-plane-l2 -n metallb-system &> /dev/null; then
+    if ! kubectl get l2advertisement default -n metallb-system &> /dev/null; then
         log_error "MetalLB L2 advertisement not found"
         return 1
     fi
@@ -443,7 +445,14 @@ main() {
         log_info "MetalLB already installed, skipping installation"
     else
         install_metallb
+    fi
+    
+    # Always configure MetalLB if configuration is missing
+    if ! kubectl get ipaddresspool default-pool -n metallb-system &> /dev/null; then
+        log_info "MetalLB configuration not found, applying configuration..."
         configure_metallb
+    else
+        log_info "MetalLB configuration already exists, skipping configuration"
     fi
     
     verify_deployment

@@ -63,6 +63,7 @@ log_error() {
 
 show_header() {
     echo -e "${BLUE}${BOLD}🏗️  Module: $MODULE_NAME v$MODULE_VERSION${NC}"
+    echo -e "${BLUE}VM Specifications: $VM_CORES cores, 1 socket, ${VM_MEMORY}MB RAM, ${VM_DISK_SIZE}GB disk${NC}"
     echo ""
 }
 
@@ -83,6 +84,14 @@ check_prerequisites() {
         exit 1
     fi
     
+    # Show configuration summary
+    log_info "Deployment Configuration:"
+    log_info "  Cluster: $cluster_name"
+    log_info "  Control Plane: $control_plane_ip"
+    log_info "  Workers: $worker_node_01_ip, $worker_node_02_ip"
+    log_info "  VM Specs: $VM_CORES cores, 1 socket, ${VM_MEMORY}MB RAM, ${VM_DISK_SIZE}GB disk"
+    log_info "  Proxmox Node: $proxmox_node"
+    
     log_success "Prerequisites check passed"
 }
 
@@ -95,14 +104,15 @@ cleanup_existing_vms() {
     for vm_id in "${all_vm_ids[@]}"; do
         log_info "Checking VM $vm_id..."
         
-        # Check if VM exists
-        local vm_info=$(curl -k -s -H "Authorization: PVEAPIToken=$proxmox_api_token_id=$proxmox_api_token_secret" \
-            "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id" 2>/dev/null)
+        # Check if VM exists by getting its status
+        local vm_status_response=$(curl -k -s -H "Authorization: PVEAPIToken=$proxmox_api_token_id=$proxmox_api_token_secret" \
+            "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id/status/current" 2>/dev/null)
         
-        if echo "$vm_info" | jq -e '.data' > /dev/null 2>&1; then
+        # Only proceed if VM actually exists (data contains status info, not an error)
+        if echo "$vm_status_response" | jq -e '.data.status' > /dev/null 2>&1; then
             vms_found=true
-            local vm_name=$(echo "$vm_info" | jq -r '.data.name // "unknown"' 2>/dev/null || echo "unknown")
-            local vm_status=$(echo "$vm_info" | jq -r '.data.status // "unknown"' 2>/dev/null || echo "unknown")
+            local vm_name=$(echo "$vm_status_response" | jq -r '.data.name // "unknown"')
+            local vm_status=$(echo "$vm_status_response" | jq -r '.data.status')
             
             log_warning "Found existing VM $vm_id ($vm_name) with status: $vm_status"
             
@@ -200,6 +210,28 @@ create_vm() {
     log_success "VM $vm_id started with Talos ISO"
 }
 
+add_storage_to_worker() {
+    local vm_id=$1
+    local vm_name=$2
+    
+    log_info "Adding shared storage mount to $vm_name (VM $vm_id)..."
+    
+    # Add mount point for shared storage
+    local mp_config="mp0=/mnt/pve/Ugreen_NFS_VM/containers/paperless,mp=/var/mnt/paperless"
+    
+    local response=$(curl -k -s -X PUT \
+        -H "Authorization: PVEAPIToken=$proxmox_api_token_id=$proxmox_api_token_secret" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "$mp_config" \
+        "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id/config")
+    
+    if echo "$response" | jq -e '.data' > /dev/null 2>&1; then
+        log_success "Storage mount added to $vm_name"
+    else
+        log_warning "Could not add storage mount to $vm_name - may need manual configuration"
+    fi
+}
+
 deploy_vms() {
     log_info "Deploying Proxmox VMs..."
     
@@ -209,6 +241,10 @@ deploy_vms() {
     # Create worker VMs
     create_vm ${WORKER_VM_IDS[0]} "talos-worker-01" "$worker_node_01_ip" "$worker_01_mac"
     create_vm ${WORKER_VM_IDS[1]} "talos-worker-02" "$worker_node_02_ip" "$worker_02_mac"
+    
+    # Add shared storage to worker VMs
+    add_storage_to_worker ${WORKER_VM_IDS[0]} "talos-worker-01"
+    add_storage_to_worker ${WORKER_VM_IDS[1]} "talos-worker-02"
     
     log_info "Waiting for VMs to fully boot with Talos ISO..."
     log_info "This may take 2-3 minutes for Talos to initialize and start API..."
@@ -284,6 +320,15 @@ EOF
 
     cat > talos-configs/worker-01-patch.yaml << EOF
 machine:
+  kubelet:
+    extraMounts:
+      - destination: /var/mnt/paperless
+        type: bind
+        source: /var/mnt/paperless
+        options:
+          - bind
+          - rshared
+          - rw
   network:
     interfaces:
       - interface: eth0
@@ -301,6 +346,15 @@ EOF
 
     cat > talos-configs/worker-02-patch.yaml << EOF
 machine:
+  kubelet:
+    extraMounts:
+      - destination: /var/mnt/paperless
+        type: bind
+        source: /var/mnt/paperless
+        options:
+          - bind
+          - rshared
+          - rw
   network:
     interfaces:
       - interface: eth0

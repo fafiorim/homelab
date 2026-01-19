@@ -174,8 +174,12 @@ wait_for_applications() {
                 local sync_status=$(echo "$app_status" | jq -r ".items[] | select(.metadata.name==\"$app_name\") | .status.sync.status" 2>/dev/null)
                 local health_status=$(echo "$app_status" | jq -r ".items[] | select(.metadata.name==\"$app_name\") | .status.health.status" 2>/dev/null)
                 
-                if [ "$sync_status" != "Synced" ] || ([ "$health_status" != "Healthy" ] && [ "$health_status" != "Progressing" ]); then
-                    log_info "Application $app_name: sync=$sync_status, health=$health_status"
+                # Accept both Healthy and Progressing as valid states
+                if [ "$sync_status" != "Synced" ]; then
+                    log_info "Application $app_name: sync=$sync_status, health=$health_status (waiting for sync)"
+                    all_healthy=false
+                elif [ "$health_status" != "Healthy" ] && [ "$health_status" != "Progressing" ]; then
+                    log_info "Application $app_name: sync=$sync_status, health=$health_status (waiting for health)"
                     all_healthy=false
                 fi
             done
@@ -321,11 +325,6 @@ display_summary() {
 main() {
     log_module
     echo ""
-    
-    check_prerequisites
-    deploy_applications
-    wait_for_applications
-    verify_services
     
     check_prerequisites
     deploy_applications

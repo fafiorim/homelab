@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - storage.yaml
+  - storage-hostpath.yaml
   - redis.yaml
   - postgresql.yaml
   - paperless.yaml

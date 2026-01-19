@@ -1,0 +1,10 @@
+# Storage configuration using hostPath
+# Storage is mounted from Proxmox at /var/mnt/paperless on worker nodes
+# which maps to: /mnt/pve/Ugreen_NFS_VM/containers/paperless on Proxmox
+#
+# Note: This requires:
+# 1. Proxmox mp0 mount configured on worker VMs
+# 2. Talos kubelet extraMounts configured (done in worker-XX-patch.yaml)
+---
+# No PersistentVolumes or PersistentVolumeClaims needed
+# Volumes are defined directly in deployments using hostPath
