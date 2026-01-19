@@ -1,4 +1,10 @@
 ---
+# Paperless NFS Storage Configuration
+# NFS Server: 10.10.21.11 (actual NFS server, not Proxmox firefly)
+# Base Path: /volume4/VM/containers/paperless/
+# Required directories: data, media, consume, export, postgres
+# Permissions: Run on Proxmox: chmod -R 777 /mnt/pve/Ugreen_NFS_VM/containers/paperless/
+---
 # PersistentVolume for Paperless Data
 apiVersion: v1
 kind: PersistentVolume
