@@ -94,21 +94,17 @@ spec:
           timeoutSeconds: 5
       volumes:
       - name: data
-        hostPath:
-          path: /var/mnt/paperless/data
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: paperless-data-pvc
       - name: media
-        hostPath:
-          path: /var/mnt/paperless/media
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: paperless-media-pvc
       - name: consume
-        hostPath:
-          path: /var/mnt/paperless/consume
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: paperless-consume-pvc
       - name: export
-        hostPath:
-          path: /var/mnt/paperless/export
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: paperless-export-pvc
 ---
 apiVersion: v1
 kind: Service
