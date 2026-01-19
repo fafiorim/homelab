@@ -1,0 +1,195 @@
+---
+# PersistentVolume for Paperless Data
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-data-pv
+  labels:
+    app: paperless
+    volume: data
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.31  # Proxmox firefly IP
+    path: /mnt/pve/Ugreen_NFS_VM/paperless/data
+---
+# PersistentVolumeClaim for Paperless Data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-data-pvc
+  namespace: paperless
+  labels:
+    app: paperless
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      app: paperless
+      volume: data
+---
+# PersistentVolume for Paperless Media
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-media-pv
+  labels:
+    app: paperless
+    volume: media
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.31
+    path: /mnt/pve/Ugreen_NFS_VM/paperless/media
+---
+# PersistentVolumeClaim for Paperless Media
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-media-pvc
+  namespace: paperless
+  labels:
+    app: paperless
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 50Gi
+  selector:
+    matchLabels:
+      app: paperless
+      volume: media
+---
+# PersistentVolume for Paperless Consume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-consume-pv
+  labels:
+    app: paperless
+    volume: consume
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.31
+    path: /mnt/pve/Ugreen_NFS_VM/paperless/consume
+---
+# PersistentVolumeClaim for Paperless Consume
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-consume-pvc
+  namespace: paperless
+  labels:
+    app: paperless
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      app: paperless
+      volume: consume
+---
+# PersistentVolume for Paperless Export
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-export-pv
+  labels:
+    app: paperless
+    volume: export
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.31
+    path: /mnt/pve/Ugreen_NFS_VM/paperless/export
+---
+# PersistentVolumeClaim for Paperless Export
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-export-pvc
+  namespace: paperless
+  labels:
+    app: paperless
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 20Gi
+  selector:
+    matchLabels:
+      app: paperless
+      volume: export
+---
+# PersistentVolume for PostgreSQL Data
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-postgres-pv
+  labels:
+    app: postgresql
+    volume: data
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.31
+    path: /mnt/pve/Ugreen_NFS_VM/paperless/postgres
+---
+# PersistentVolumeClaim for PostgreSQL Data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-postgres-pvc
+  namespace: paperless
+  labels:
+    app: postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      app: postgresql
+      volume: data

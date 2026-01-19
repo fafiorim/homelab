@@ -94,13 +94,17 @@ spec:
           timeoutSeconds: 5
       volumes:
       - name: data
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: paperless-data-pvc
       - name: media
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: paperless-media-pvc
       - name: consume
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: paperless-consume-pvc
       - name: export
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: paperless-export-pvc
 ---
 apiVersion: v1
 kind: Service
