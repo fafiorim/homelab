@@ -1,0 +1,33 @@
+# Credentials and sensitive files
+CREDENTIALS.md
+*.secret
+*.key
+*.pem
+
+# Proxmox credentials
+proxmox-talos/cluster.conf
+
+# Local configs
+.talosconfig
+.kubeconfig
+talosconfig
+kubeconfig
+
+# Service credentials
+service-credentials.txt
+.argocd-admin-password
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
