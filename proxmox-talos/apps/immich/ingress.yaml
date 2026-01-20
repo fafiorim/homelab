@@ -5,13 +5,10 @@ metadata:
   namespace: immich
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    cert-manager.io/cluster-issuer: letsencrypt
-    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+  labels:
+    app.kubernetes.io/part-of: immich-stack
 spec:
-  tls:
-  - hosts:
-    - immich.botocudo.net
-    secretName: immich-botocudo-net-tls
+  ingressClassName: traefik
   rules:
   - host: immich.botocudo.net
     http:
