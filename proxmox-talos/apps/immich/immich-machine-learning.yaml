@@ -43,20 +43,12 @@ spec:
           mountPath: /usr/src/app/upload
         - name: cache
           mountPath: /cache
-        - name: dri
-          mountPath: /dev/dri
-        securityContext:
-          privileged: true
       volumes:
       - name: upload
         persistentVolumeClaim:
           claimName: immich-upload-pvc
       - name: cache
         emptyDir: {}
-      - name: dri
-        hostPath:
-          path: /dev/dri
-          type: Directory
 ---
 apiVersion: v1
 kind: Service
