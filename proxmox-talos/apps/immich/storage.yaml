@@ -1,0 +1,79 @@
+---
+# Immich NFS Storage Configuration
+# NFS Server: 10.10.21.11 (actual NFS server)
+# Base Path: /volume4/VM/containers/immich/
+# Required directories: upload, library, profile, video, photo, thumbs, encoded-video
+---
+# PersistentVolume for Immich Upload
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-upload-pv
+  labels:
+    app: immich
+    volume: upload
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.11
+    path: /volume4/VM/containers/immich/upload
+---
+# PersistentVolumeClaim for Immich Upload
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-upload-pvc
+  namespace: immich
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 100Gi
+  selector:
+    matchLabels:
+      app: immich
+      volume: upload
+---
+# PersistentVolume for Immich Library
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-library-pv
+  labels:
+    app: immich
+    volume: library
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.11
+    path: /volume4/VM/containers/immich/library
+---
+# PersistentVolumeClaim for Immich Library
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-library-pvc
+  namespace: immich
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 500Gi
+  selector:
+    matchLabels:
+      app: immich
+      volume: library

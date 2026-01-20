@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-machine-learning
+  namespace: immich
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich-machine-learning
+  template:
+    metadata:
+      labels:
+        app: immich-machine-learning
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      containers:
+      - name: immich-machine-learning
+        image: ghcr.io/immich-app/immich-machine-learning:release
+        ports:
+        - containerPort: 3003
+        env:
+        - name: DB_HOSTNAME
+          value: "immich-postgres"
+        - name: DB_USERNAME
+          value: "immich"
+        - name: DB_PASSWORD
+          value: "immich"
+        - name: DB_DATABASE_NAME
+          value: "immich"
+        - name: REDIS_HOSTNAME
+          value: "immich-redis"
+        - name: TRANSFORMERS_CACHE
+          value: "/cache"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: upload
+          mountPath: /usr/src/app/upload
+        - name: cache
+          mountPath: /cache
+        - name: dri
+          mountPath: /dev/dri
+        securityContext:
+          privileged: true
+      volumes:
+      - name: upload
+        persistentVolumeClaim:
+          claimName: immich-upload-pvc
+      - name: cache
+        emptyDir: {}
+      - name: dri
+        hostPath:
+          path: /dev/dri
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-machine-learning
+  namespace: immich
+spec:
+  selector:
+    app: immich-machine-learning
+  ports:
+  - port: 3003
+    targetPort: 3003
