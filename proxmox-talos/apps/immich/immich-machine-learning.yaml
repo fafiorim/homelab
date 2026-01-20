@@ -13,8 +13,6 @@ spec:
       labels:
         app: immich-machine-learning
     spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
       containers:
       - name: immich-machine-learning
         image: ghcr.io/immich-app/immich-machine-learning:release
