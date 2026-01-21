@@ -9,6 +9,9 @@ metadata:
     app.kubernetes.io/part-of: immich-stack
 spec:
   ingressClassName: traefik
+  tls:
+  - hosts:
+    - immich.botocudo.net
   rules:
   - host: immich.botocudo.net
     http:
