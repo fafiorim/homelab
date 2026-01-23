@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: immich-redis
+        app.kubernetes.io/part-of: immich-stack
     spec:
       containers:
       - name: redis
