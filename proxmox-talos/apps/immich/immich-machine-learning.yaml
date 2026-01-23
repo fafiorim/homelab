@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: immich-machine-learning
+        app.kubernetes.io/part-of: immich-stack
     spec:
       containers:
       - name: immich-machine-learning
