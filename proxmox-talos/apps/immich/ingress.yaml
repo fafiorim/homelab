@@ -4,8 +4,9 @@ metadata:
   name: immich-ingress
   namespace: immich
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/redirect-scheme: https
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
   labels:
     app.kubernetes.io/part-of: immich-stack
 spec:
@@ -13,6 +14,7 @@ spec:
   tls:
   - hosts:
     - immich.botocudo.net
+    secretName: immich-botocudo-net-tls
   rules:
   - host: immich.botocudo.net
     http:
