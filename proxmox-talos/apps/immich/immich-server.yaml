@@ -34,10 +34,10 @@ spec:
         resources:
           requests:
             memory: "512Mi"
-            cpu: "200m"
+            cpu: "500m"
           limits:
             memory: "2Gi"
-            cpu: "2000m"
+            cpu: "4000m"
         volumeMounts:
         - name: upload
           mountPath: /usr/src/app/upload
