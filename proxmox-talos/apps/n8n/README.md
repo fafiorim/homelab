@@ -92,7 +92,12 @@ Workflows and data survive pod restarts. To change size or path, edit `storage.y
   kubectl get secret n8n-secrets -n n8n -o jsonpath='{.data.encryption-key}' | base64 -d; echo
   ```
 
-**Ingress / 404 or SSL certificate issues**
+**404 when opening https://n8n.botocudo.net**
+
+- The chart is configured with `proxy_hops: 1` and `WEBHOOK_URL` so n8n trusts Traefik’s `X-Forwarded-*` headers and uses the correct public URL. If you still see 404, restart the n8n pod after changing config: `kubectl rollout restart deployment -n n8n n8n`.
+- Confirm the service has endpoints: `kubectl get endpoints -n n8n n8n`.
+
+**Ingress / SSL certificate issues**
 
 - **DNS**: Ensure `n8n.botocudo.net` resolves to the same IP as your other apps (Traefik LoadBalancer). Traefik uses Let's Encrypt DNS-01 (Cloudflare); the name must be in the same zone and correct for the cert to be issued.
 - Check ingress and TLS secret:

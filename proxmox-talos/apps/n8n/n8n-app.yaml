@@ -41,8 +41,12 @@ spec:
             n8n:
               host: n8n.botocudo.net
               protocol: https
+              # Trust X-Forwarded-* from Traefik (fixes 404 when behind reverse proxy)
+              proxy_hops: 1
           # Encryption key from Secret (do not commit secrets; create n8n-secrets in namespace)
           extraEnv:
+            - name: WEBHOOK_URL
+              value: "https://n8n.botocudo.net/"
             - name: N8N_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
