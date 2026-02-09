@@ -39,13 +39,14 @@ spec:
         # Increase Node.js heap limit to avoid OOM errors
         - name: NODE_OPTIONS
           value: "--max-old-space-size=768"
-        # Optional: Gateway token for authentication (create openclaw-secrets if needed)
-        - name: OPENCLAW_GATEWAY_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: openclaw-secrets
-              key: gateway-token
-              optional: true
+        # Disable authentication by not setting OPENCLAW_GATEWAY_TOKEN
+        # To enable auth: create openclaw-secrets and uncomment below
+        # - name: OPENCLAW_GATEWAY_TOKEN
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: openclaw-secrets
+        #       key: gateway-token
+        #       optional: true
         command:
         - node
         - openclaw.mjs
