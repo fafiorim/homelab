@@ -36,6 +36,9 @@ spec:
               value: /home/node
             - name: NODE_ENV
               value: production
+            # Raise Node.js heap limit to avoid "JavaScript heap out of memory" (default ~256MB)
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=768"
             # Bind to all interfaces so Traefik can reach the gateway
             - name: OPENCLAW_GATEWAY_BIND
               value: "0.0.0.0"
@@ -66,11 +69,11 @@ spec:
               mountPath: /home/node/.openclaw
           resources:
             requests:
-              memory: "256Mi"
+              memory: "512Mi"
               cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "1Gi"
+              cpu: "1000m"
           livenessProbe:
             tcpSocket:
               port: gateway
