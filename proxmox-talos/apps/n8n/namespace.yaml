@@ -2,5 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: n8n
+  annotations:
+    homelab/sync-bump: "2026-02-09"
   labels:
     name: n8n

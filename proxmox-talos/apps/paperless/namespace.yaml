@@ -2,5 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: paperless
+  annotations:
+    homelab/sync-bump: "2026-02-09"
   labels:
     name: paperless
