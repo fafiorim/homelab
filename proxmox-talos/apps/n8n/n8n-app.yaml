@@ -84,19 +84,19 @@ spec:
                   mountPath: /home/node/.n8n
               securityContext:
                 runAsUser: 0
-          # Give n8n time to start and bind to 5678 before first probe (avoids connection refused)
+          # Give n8n time to start and bind to 5678 before first probe (avoids Unhealthy events in ArgoCD)
           readinessProbe:
             httpGet:
               path: /healthz
               port: http
-            initialDelaySeconds: 120
+            initialDelaySeconds: 180
             periodSeconds: 10
             failureThreshold: 9
           livenessProbe:
             httpGet:
               path: /healthz
               port: http
-            initialDelaySeconds: 180
+            initialDelaySeconds: 240
             periodSeconds: 15
             failureThreshold: 6
   destination:
