@@ -8,13 +8,13 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: gateway
-      port: 18789
-      targetPort: gateway
-      protocol: TCP
-    - name: bridge
-      port: 18790
-      targetPort: bridge
-      protocol: TCP
+  - name: gateway
+    port: 18789
+    targetPort: gateway
+    protocol: TCP
+  - name: bridge
+    port: 18790
+    targetPort: bridge
+    protocol: TCP
   selector:
     app: openclaw

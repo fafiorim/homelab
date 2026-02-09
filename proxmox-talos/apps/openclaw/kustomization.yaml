@@ -7,9 +7,3 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-
-commonLabels:
-  app.kubernetes.io/name: openclaw
-  app.kubernetes.io/part-of: openclaw
-
-namespace: openclaw
