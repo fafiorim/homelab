@@ -12,7 +12,8 @@ spec:
     path: .
     targetRevision: "2.0.1"
     helm:
-      releaseName: n8n
+      # Use a release name other than "n8n" so K8s does not inject N8N_PORT=tcp://... from the Service (n8n expects a number)
+      releaseName: n8n-app
       valuesObject:
         # Ingress: Traefik (websecure only so TLS cert attaches to single router; HTTP→HTTPS is global in Traefik)
         ingress:
@@ -46,6 +47,8 @@ spec:
           # Encryption key from Secret (do not commit secrets; create n8n-secrets in namespace)
           # Chart expects extraEnv as a map (key = env name), not a list
           extraEnv:
+            N8N_PORT:
+              value: "5678"
             WEBHOOK_URL:
               value: "https://n8n.botocudo.net/"
             N8N_EDITOR_BASE_URL:
@@ -55,6 +58,17 @@ spec:
                 secretKeyRef:
                   name: n8n-secrets
                   key: encryption-key
+            N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:
+              value: "true"
+            # Deprecation / future defaults (see n8n docs)
+            DB_SQLITE_POOL_SIZE:
+              value: "1"
+            N8N_RUNNERS_ENABLED:
+              value: "true"
+            N8N_BLOCK_ENV_ACCESS_IN_NODE:
+              value: "false"
+            N8N_GIT_NODE_DISABLE_BARE_REPOS:
+              value: "true"
           # Ensure NFS data dir is writable by n8n (UID 1000); avoids exit 1 from permission denied
           initContainers:
             - name: fix-data-permissions
@@ -65,19 +79,19 @@ spec:
                   mountPath: /home/node/.n8n
               securityContext:
                 runAsUser: 0
-          # Give n8n time to start before probes (avoids BackOff / connection refused on :5678)
+          # Give n8n time to start and bind to 5678 before first probe (avoids connection refused)
           readinessProbe:
             httpGet:
               path: /healthz
               port: http
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
             failureThreshold: 6
           livenessProbe:
             httpGet:
               path: /healthz
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 120
             periodSeconds: 15
             failureThreshold: 6
   destination:

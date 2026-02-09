@@ -99,6 +99,17 @@ Workflows and data survive pod restarts. To change size or path, edit `storage.y
   ```
 - If logs show permission denied on `/home/node/.n8n`, the init container should fix NFS ownership (chown 1000:1000). Ensure the NFS directory exists and the pod can mount it (see “NFS path missing” above).
 
+**"Mismatching encryption keys" / encryption key in config does not match N8N_ENCRYPTION_KEY**
+
+- The persisted config at `/home/node/.n8n/config` (on NFS) was created with a different encryption key than the one in the `n8n-secrets` secret. You must either:
+  1. **Use the same key as the existing config** (keeps workflows): Get the key from the volume and update the secret to match, then restart the pod.
+  2. **Start fresh** (loses existing workflows/settings): Delete the config on the NFS volume so n8n creates a new one with the current secret. Example on NFS server: `rm -f /volume4/VM/containers/n8n/data/config`. Then: `kubectl delete pod -n n8n -l app.kubernetes.io/name=n8n`.
+- Do not recreate the secret with a new random key if you already have data on the volume unless you are OK wiping the config (option 2).
+
+**Invalid N8N_PORT (e.g. "tcp://...:80")**
+
+- Kubernetes injects env vars from Services; a Service named `n8n` causes `N8N_PORT=tcp://ip:80`. We use Helm `releaseName: n8n-app` so the Service is named `n8n-app` and no `N8N_PORT` is injected; we set `N8N_PORT=5678` in extraEnv. The Ingress still points at the chart’s Service (e.g. `n8n-app`).
+
 **404 when opening https://n8n.botocudo.net**
 
 - The chart sets `proxy_hops: 1`, `WEBHOOK_URL`, and `N8N_EDITOR_BASE_URL` so n8n uses the correct public URL. After any config change: `kubectl rollout restart deployment -n n8n n8n`.
