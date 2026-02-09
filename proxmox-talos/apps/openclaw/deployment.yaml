@@ -36,6 +36,9 @@ spec:
           value: /home/node
         - name: NODE_ENV
           value: production
+        # Increase Node.js heap limit to avoid OOM errors
+        - name: NODE_OPTIONS
+          value: "--max-old-space-size=768"
         # Optional: Gateway token for authentication (create openclaw-secrets if needed)
         - name: OPENCLAW_GATEWAY_TOKEN
           valueFrom:
@@ -48,11 +51,11 @@ spec:
           mountPath: /home/node/.openclaw
         resources:
           requests:
-            memory: "256Mi"
+            memory: "512Mi"
             cpu: "100m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "1Gi"
+            cpu: "1000m"
         livenessProbe:
           tcpSocket:
             port: gateway
