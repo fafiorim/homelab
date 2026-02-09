@@ -1,6 +1,9 @@
 #!/bin/sh
-# Strip Cursor Co-authored-by trailer. Install: cp scripts/git-hooks/commit-msg .git/hooks/ && chmod +x .git/hooks/commit-msg
+# NEVER keep Co-authored-by: Cursor in this repo. Install: cp scripts/git-hooks/commit-msg .git/hooks/ && chmod +x .git/hooks/commit-msg
 FILE="$1"
-[ -f "$FILE" ] || exit 0
-tmp=$(mktemp) && grep -v 'Co-authored-by: Cursor <cursoragent@cursor.com>' "$FILE" > "$tmp" && mv "$tmp" "$FILE"
+[ -n "$FILE" ] && [ -f "$FILE" ] || exit 0
+tmp=$(mktemp 2>/dev/null || echo /tmp/commit-msg.$$)
+grep -v 'Co-authored-by: Cursor <cursoragent@cursor.com>' "$FILE" > "$tmp"
+[ -s "$tmp" ] && mv "$tmp" "$FILE"
+rm -f "$tmp" 2>/dev/null
 exit 0

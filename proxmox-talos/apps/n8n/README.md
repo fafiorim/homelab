@@ -85,12 +85,19 @@ Workflows and data survive pod restarts. To change size or path, edit `storage.y
   ```
   Then delete the n8n pod so it is recreated and can mount: `kubectl delete pod -n n8n -l app.kubernetes.io/name=n8n`
 
-**Pod not starting / CrashLoopBackOff**
+**Pod not starting / CrashLoopBackOff (exit code 1)**
 
-- Ensure `n8n-secrets` exists and has key `encryption-key`:
+- **Get the actual error** (always do this first):
+  ```bash
+  kubectl logs -n n8n -l app.kubernetes.io/name=n8n --tail=100
+  # or for the specific pod:
+  kubectl logs -n n8n deploy/n8n --tail=100
+  ```
+- Ensure `n8n-secrets` exists and has key `encryption-key` (required; missing key → exit 1):
   ```bash
   kubectl get secret n8n-secrets -n n8n -o jsonpath='{.data.encryption-key}' | base64 -d; echo
   ```
+- If logs show permission denied on `/home/node/.n8n`, the init container should fix NFS ownership (chown 1000:1000). Ensure the NFS directory exists and the pod can mount it (see “NFS path missing” above).
 
 **404 when opening https://n8n.botocudo.net**
 
