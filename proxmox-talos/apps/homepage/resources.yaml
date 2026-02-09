@@ -215,10 +215,6 @@ spec:
                       href: https://argocd.botocudo.net/
                       description: GitOps Continuous Delivery
                       icon: https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/logo.png
-                  - Paperless:
-                      href: https://paperless.botocudo.net/
-                      description: Document Management
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/paperless-ngx.svg
 
               - Monitoring:
                   - Grafana:
@@ -235,6 +231,10 @@ spec:
                       href: http://10.10.21.11:8899/web/index.html
                       description: Media Server
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
+                  - Paperless:
+                      href: https://paperless.botocudo.net/
+                      description: Document Management
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/paperless-ngx.svg
                   - Immich:
                       href: https://immich.botocudo.net/
                       description: Photo and Video Backup
