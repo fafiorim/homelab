@@ -143,9 +143,9 @@ spec:
                 kubernetes:
                   mode: cluster
                 openmeteo:
-                  latitude: -15.7975
-                  longitude: -47.8919
-                  timezone: America/Sao_Paulo
+                  latitude: 38.9586
+                  longitude: -77.3570
+                  timezone: America/New_York
               
               layout:
                 Infrastructure:
@@ -180,9 +180,9 @@ spec:
                     memory: true
                     showLabel: true
               - openmeteo:
-                  latitude: -15.7975
-                  longitude: -47.8919
-                  timezone: America/Sao_Paulo
+                  latitude: 38.9586
+                  longitude: -77.3570
+                  timezone: America/New_York
                   provider: openmeteo
               EOF
               

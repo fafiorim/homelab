@@ -69,6 +69,11 @@ spec:
               value: "false"
             N8N_GIT_NODE_DISABLE_BARE_REPOS:
               value: "true"
+          # Force N8N_PORT=5678 so K8s-injected N8N_PORT=tcp://... (from Service "n8n") is overridden at runtime
+          command:
+            - /bin/sh
+            - -c
+            - "export N8N_PORT=5678; exec /docker-entrypoint.sh"
           # Ensure NFS data dir is writable by n8n (UID 1000); avoids exit 1 from permission denied
           initContainers:
             - name: fix-data-permissions
@@ -84,14 +89,14 @@ spec:
             httpGet:
               path: /healthz
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 120
             periodSeconds: 10
-            failureThreshold: 6
+            failureThreshold: 9
           livenessProbe:
             httpGet:
               path: /healthz
               port: http
-            initialDelaySeconds: 120
+            initialDelaySeconds: 180
             periodSeconds: 15
             failureThreshold: 6
   destination:
