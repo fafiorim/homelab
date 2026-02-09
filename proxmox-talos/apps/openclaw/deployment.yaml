@@ -39,9 +39,9 @@ spec:
             # Raise Node.js heap limit to avoid "JavaScript heap out of memory" (default ~256MB)
             - name: NODE_OPTIONS
               value: "--max-old-space-size=768"
-            # Bind to all interfaces so Traefik can reach the gateway
+            # Bind on LAN so Traefik can reach the gateway (valid: loopback, lan, tailnet, auto, custom)
             - name: OPENCLAW_GATEWAY_BIND
-              value: "0.0.0.0"
+              value: "lan"
             # Token/password from secret (required for auth; create openclaw-secrets)
             - name: OPENCLAW_GATEWAY_TOKEN
               valueFrom:
@@ -61,7 +61,7 @@ spec:
             - gateway
             - --allow-unconfigured
             - --bind
-            - "0.0.0.0"
+            - lan
             - --port
             - "18789"
           volumeMounts:
