@@ -197,10 +197,6 @@ spec:
                       href: https://10.10.21.11:9443/desktop/
                       description: Network Attached Storage
                       icon: https://cdn.shopify.com/s/files/1/0630/9416/1602/files/1_ac289c67-fb47-437f-892d-49fae6245dc8.png
-                  - TrueNAS:
-                      href: https://10.10.21.14/ui/signin
-                      description: TrueNAS Storage System
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/truenas.svg
                   - PiHole:
                       href: https://10.10.21.11:18443/admin/
                       description: DNS Ad Blocker
@@ -215,6 +211,10 @@ spec:
                       href: https://argocd.botocudo.net/
                       description: GitOps Continuous Delivery
                       icon: https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/logo.png
+                  - n8n:
+                      href: https://n8n.botocudo.net/
+                      description: Workflow Automation
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/n8n.svg
 
               - Monitoring:
                   - Grafana:
@@ -227,10 +227,6 @@ spec:
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/prometheus.svg
 
               - Media & Services:
-                  - OctoPrint:
-                      href: http://10.10.21.4
-                      description: 3D Printer Management
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/octoprint.svg
                   - Jellyfin:
                       href: http://10.10.21.11:8899/web/index.html
                       description: Media Server
