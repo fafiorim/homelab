@@ -92,13 +92,16 @@ Workflows and data survive pod restarts. To change size or path, edit `storage.y
   kubectl get secret n8n-secrets -n n8n -o jsonpath='{.data.encryption-key}' | base64 -d; echo
   ```
 
-**Ingress / 404 or no TLS**
+**Ingress / 404 or SSL certificate issues**
 
-- Check Traefik and ingress:
+- **DNS**: Ensure `n8n.botocudo.net` resolves to the same IP as your other apps (Traefik LoadBalancer). Traefik uses Let's Encrypt DNS-01 (Cloudflare); the name must be in the same zone and correct for the cert to be issued.
+- Check ingress and TLS secret:
   ```bash
   kubectl get ingress -n n8n
   kubectl describe ingress -n n8n
+  kubectl get secret n8n-botocudo-net-tls -n n8n -o jsonpath='{.data.tls\\.crt}' | base64 -d | openssl x509 -noout -dates 2>/dev/null || echo "Secret missing or invalid"
   ```
+- If the secret is missing or expired, delete it so Traefik requests a new cert: `kubectl delete secret n8n-botocudo-net-tls -n n8n`
 
 **Logs**
 
