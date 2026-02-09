@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: oci://8gears.container-registry.com/library/n8n
+    path: .
+    targetRevision: "2.0.1"
+    helm:
+      releaseName: n8n
+      valuesObject:
+        # Ingress: Traefik, same annotations as paperless/immich
+        ingress:
+          enabled: true
+          className: traefik
+          annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+            traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+            traefik.ingress.kubernetes.io/redirect-scheme: https
+          hosts:
+            - host: n8n.botocudo.net
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - hosts:
+                - n8n.botocudo.net
+              secretName: n8n-botocudo-net-tls
+        # Persistence: NFS PVC at /volume4/VM/containers/n8n/data (see storage.yaml)
+        main:
+          persistence:
+            enabled: true
+            type: existing
+            existingClaim: n8n-data-pvc
+          config:
+            n8n:
+              host: n8n.botocudo.net
+              protocol: https
+          # Encryption key from Secret (do not commit secrets; create n8n-secrets in namespace)
+          extraEnv:
+            - name: N8N_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secrets
+                  key: encryption-key
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: n8n
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

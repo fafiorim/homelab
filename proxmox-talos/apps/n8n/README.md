@@ -1,0 +1,103 @@
+# n8n - Workflow Automation
+
+n8n is a fair-code workflow automation platform with native AI capabilities. This deployment uses the [8gears Helm chart](https://github.com/8gears/n8n-helm-chart) on the Kubernetes cluster (firefly).
+
+## Deployment
+
+- **Helm chart**: 8gears/n8n (OCI)
+- **Domain**: https://n8n.botocudo.net
+- **Ingress**: Traefik with entrypoints web/websecure, Let's Encrypt (letsencrypt), HTTPS redirect
+- **Persistence**: NFS at `/volume4/VM/containers/n8n/data` (same pattern as paperless/immich; 10Gi PVC)
+- **Secrets**: Not committed; create Kubernetes Secret as below before or after first sync
+
+## Prerequisites
+
+1. **Create the NFS directory** (same as paperless/immich). On the NFS server or Proxmox (with NFS mounted, e.g. `Ugreen_NFS_VM`):
+   ```bash
+   mkdir -p /volume4/VM/containers/n8n/data
+   chmod -R 777 /volume4/VM/containers/n8n
+   ```
+   If using Proxmox with NFS mount: `mkdir -p /mnt/pve/Ugreen_NFS_VM/containers/n8n/data` and set permissions as needed.
+
+2. **Create the encryption key secret** (required for n8n). Do not commit this secret.
+
+   ```bash
+   kubectl create namespace n8n
+   kubectl create secret generic n8n-secrets \
+     --namespace n8n \
+     --from-literal=encryption-key="$(openssl rand -hex 32)"
+   ```
+
+   Or with a specific key:
+
+   ```bash
+   kubectl create secret generic n8n-secrets \
+     --namespace n8n \
+     --from-literal=encryption-key="YOUR_MINIMUM_32_CHAR_SECRET_KEY"
+   ```
+
+3. Ensure DNS for `n8n.botocudo.net` points to your Traefik LoadBalancer / ingress.
+
+## Deploy via ArgoCD
+
+**ArgoCD syncs n8n from Git** (app-of-apps). The bootstrap Application `homelab-apps` points to `proxmox-talos/apps/bootstrap`; when ArgoCD syncs it, it creates/updates **n8n-storage** and **n8n** (and all other apps). You do **not** need to run a deploy script or `kubectl apply` for n8n—push to Git and ArgoCD syncs.
+
+Ensure you have run the bootstrap once (e.g. `./deploy-homelab.sh 05-applications` or `kubectl apply -f apps/bootstrap/app-of-apps.yaml`). Then n8n and n8n-storage are created and synced by ArgoCD. Sync **n8n-storage** first so the PVC exists before the n8n Helm release creates pods (ArgoCD may sync both; if n8n pods wait for PVC, they will start after n8n-storage syncs).
+
+Optional one-off (if you are not using the app-of-apps and want to register only n8n):
+
+```bash
+./apps/n8n/deploy-n8n.sh
+# or: kubectl apply -f apps/n8n/n8n-storage-app.yaml && kubectl apply -f apps/n8n/n8n-app.yaml
+```
+
+Ensure the `n8n-secrets` secret exists in the `n8n` namespace before or shortly after the first sync, or the n8n pod may fail until the secret is created.
+
+## Access
+
+- **URL**: https://n8n.botocudo.net
+- **First run**: Create an owner account in the UI.
+
+## Persistence
+
+This setup uses **NFS persistent storage** at `/volume4/VM/containers/n8n/data` (same method as paperless and immich):
+
+- **PV**: `n8n-data-pv` (NFS server 10.10.21.11, path `/volume4/VM/containers/n8n/data`, 10Gi, ReadWriteMany)
+- **PVC**: `n8n-data-pvc` in namespace `n8n`, used by the Helm chart via `main.persistence.existingClaim`
+
+Workflows and data survive pod restarts. To change size or path, edit `storage.yaml` and the NFS export.
+
+## Configuration
+
+- **Chart values** are set in `n8n-app.yaml` under `spec.source.helm.valuesObject` (ingress, persistence, main.config, main.extraEnv).
+- **Secrets**: Only references are in Git; actual values live in the `n8n-secrets` Secret (non-committed).
+- To change domain, TLS, or ingress annotations, edit `n8n-app.yaml` and push; ArgoCD will sync.
+
+## Troubleshooting
+
+**Pod not starting / CrashLoopBackOff**
+
+- Ensure `n8n-secrets` exists and has key `encryption-key`:
+  ```bash
+  kubectl get secret n8n-secrets -n n8n -o jsonpath='{.data.encryption-key}' | base64 -d; echo
+  ```
+
+**Ingress / 404 or no TLS**
+
+- Check Traefik and ingress:
+  ```bash
+  kubectl get ingress -n n8n
+  kubectl describe ingress -n n8n
+  ```
+
+**Logs**
+
+```bash
+kubectl logs -n n8n -l app.kubernetes.io/name=n8n -f
+```
+
+## Resources
+
+- [n8n docs](https://docs.n8n.io/)
+- [8gears n8n Helm chart](https://github.com/8gears/n8n-helm-chart)
+- [n8n environment variables](https://docs.n8n.io/hosting/configuration/environment-variables/)

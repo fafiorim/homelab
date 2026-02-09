@@ -101,16 +101,23 @@ get_application_files() {
     log_info "Discovering application files..." >&2
     
     local app_files=()
+    local apps_dir="apps"
+    # Prefer app-of-apps: one bootstrap Application; ArgoCD syncs from Git and creates all child apps
+    if [ -f "${apps_dir}/bootstrap/app-of-apps.yaml" ]; then
+        log_info "Using app-of-apps (ArgoCD will sync all apps from Git)" >&2
+        app_files+=("${apps_dir}/bootstrap/app-of-apps.yaml")
+        echo "${app_files[@]}"
+        return
+    fi
     
-    # Find all *-app.yaml files in the apps directory (primary pattern)
+    # Fallback: find all *-app.yaml files in the apps directory
     while IFS= read -r -d '' file; do
         app_files+=("$file")
-    done < <(find apps/ -name "*-app.yaml" -print0 2>/dev/null)
+    done < <(find "$apps_dir"/ -name "*-app.yaml" -print0 2>/dev/null)
     
-    # Also find application.yaml files as fallback
     while IFS= read -r -d '' file; do
         app_files+=("$file")
-    done < <(find apps/ -name "application.yaml" -print0 2>/dev/null)
+    done < <(find "$apps_dir"/ -name "application.yaml" -print0 2>/dev/null)
     
     if [ ${#app_files[@]} -eq 0 ]; then
         log_error "No application files found in apps directory" >&2

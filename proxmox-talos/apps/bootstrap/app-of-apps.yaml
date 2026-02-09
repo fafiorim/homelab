@@ -1,0 +1,23 @@
+# Bootstrap: apply this once (e.g. kubectl apply -f apps/bootstrap/app-of-apps.yaml)
+# or run deploy-homelab.sh 05-applications. ArgoCD then syncs from Git and
+# creates/updates all child Applications (paperless, immich, n8n, etc.).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homelab-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/fafiorim/homelab
+    targetRevision: main
+    path: proxmox-talos/apps/bootstrap
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -3,6 +3,9 @@ CREDENTIALS.md
 *.secret
 *.key
 *.pem
+# App-specific secret values (e.g. n8n values with encryption keys)
+**/values.*secret*.yaml
+**/values-secret.yaml
 
 # Proxmox credentials
 proxmox-talos/cluster.conf

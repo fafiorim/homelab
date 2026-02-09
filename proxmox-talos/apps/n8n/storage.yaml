@@ -1,0 +1,43 @@
+---
+# n8n NFS Storage (same pattern as paperless/immich)
+# NFS Server: 10.10.21.11
+# Base Path: /volume4/VM/containers/n8n/
+# Create on NFS host: mkdir -p /volume4/VM/containers/n8n/data
+# Permissions: chmod -R 777 /volume4/VM/containers/n8n (or equivalent on Proxmox mount)
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: n8n-data-pv
+  labels:
+    app: n8n
+    volume: data
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.11
+    path: /volume4/VM/containers/n8n/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-data-pvc
+  namespace: n8n
+  labels:
+    app: n8n
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      app: n8n
+      volume: data

@@ -1,0 +1,15 @@
+# App-of-apps: ArgoCD syncs this from Git and creates/updates all child Applications.
+# Add new *-app.yaml here when you add a new app; no manual kubectl apply needed.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../metallb/metallb-app.yaml
+  - ../traefik/traefik-app.yaml
+  - ../metrics-server/metrics-server-app.yaml
+  - ../monitoring/monitoring-app.yaml
+  - ../homepage/homepage-app.yaml
+  - ../paperless/paperless-app.yaml
+  - ../immich/immich-app.yaml
+  - ../n8n/n8n-storage-app.yaml
+  - ../n8n/n8n-app.yaml
