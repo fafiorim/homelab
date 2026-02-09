@@ -47,6 +47,8 @@ spec:
           extraEnv:
             - name: WEBHOOK_URL
               value: "https://n8n.botocudo.net/"
+            - name: N8N_EDITOR_BASE_URL
+              value: "https://n8n.botocudo.net"
             - name: N8N_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:

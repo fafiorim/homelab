@@ -1,0 +1,6 @@
+#!/bin/sh
+# Strip Cursor Co-authored-by trailer. Install: cp scripts/git-hooks/commit-msg .git/hooks/ && chmod +x .git/hooks/commit-msg
+FILE="$1"
+[ -f "$FILE" ] || exit 0
+tmp=$(mktemp) && grep -v 'Co-authored-by: Cursor <cursoragent@cursor.com>' "$FILE" > "$tmp" && mv "$tmp" "$FILE"
+exit 0

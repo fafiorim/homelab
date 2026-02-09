@@ -1,0 +1,11 @@
+---
+description: Do not add Cursor co-author to commits
+globs: 
+alwaysApply: true
+---
+
+# Commits: no Co-authored-by
+
+- **Never** add `Co-authored-by: Cursor <cursoragent@cursor.com>` (or any Cursor co-author) to commit messages.
+- **Never** use `git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"` or similar.
+- When committing in this repo, use plain `git commit -m "message"` with no co-author trailer.

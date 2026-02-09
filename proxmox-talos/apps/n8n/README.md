@@ -94,8 +94,9 @@ Workflows and data survive pod restarts. To change size or path, edit `storage.y
 
 **404 when opening https://n8n.botocudo.net**
 
-- The chart is configured with `proxy_hops: 1` and `WEBHOOK_URL` so n8n trusts Traefik’s `X-Forwarded-*` headers and uses the correct public URL. If you still see 404, restart the n8n pod after changing config: `kubectl rollout restart deployment -n n8n n8n`.
-- Confirm the service has endpoints: `kubectl get endpoints -n n8n n8n`.
+- The chart sets `proxy_hops: 1`, `WEBHOOK_URL`, and `N8N_EDITOR_BASE_URL` so n8n uses the correct public URL. After any config change: `kubectl rollout restart deployment -n n8n n8n`.
+- **Test backend directly** (from a pod in the cluster): `kubectl run -it --rm curl --image=curlimages/curl --restart=Never -- curl -s -o /dev/null -w "%{http_code}" http://n8n.n8n.svc.cluster.local:80/` — if this is 200, the issue is Traefik/ingress; if 404, n8n is returning it.
+- Confirm endpoints: `kubectl get endpoints -n n8n n8n`. Check n8n logs: `kubectl logs -n n8n -l app.kubernetes.io/name=n8n --tail=50`.
 
 **Ingress / SSL certificate issues**
 
