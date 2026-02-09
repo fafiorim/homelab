@@ -75,6 +75,16 @@ Workflows and data survive pod restarts. To change size or path, edit `storage.y
 
 ## Troubleshooting
 
+**Degraded / pod stuck in ContainerCreating**
+
+- **NFS path missing**: If events show `mount.nfs: ... No such file or directory`, create the directory on the NFS server (10.10.21.11):
+  ```bash
+  ssh 10.10.21.11  # or log in to the NFS host
+  sudo mkdir -p /volume4/VM/containers/n8n/data
+  sudo chmod -R 777 /volume4/VM/containers/n8n
+  ```
+  Then delete the n8n pod so it is recreated and can mount: `kubectl delete pod -n n8n -l app.kubernetes.io/name=n8n`
+
 **Pod not starting / CrashLoopBackOff**
 
 - Ensure `n8n-secrets` exists and has key `encryption-key`:
