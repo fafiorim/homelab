@@ -205,6 +205,10 @@ spec:
                       href: https://n8n.botocudo.net/
                       description: Workflow Automation
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/n8n.svg
+                  - OpenClaw:
+                      href: https://openclaw.botocudo.net/
+                      description: Personal AI Assistant
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/robot.svg
 
               - K8s Cluster:
                   - Kubernetes Dashboard:

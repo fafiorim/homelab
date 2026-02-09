@@ -1,0 +1,42 @@
+---
+# OpenClaw NFS Storage (config + workspace)
+# NFS Server: 10.10.21.11
+# Create on NFS host: mkdir -p /volume4/VM/containers/openclaw/data
+# Permissions: chmod -R 777 /volume4/VM/containers/openclaw
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: openclaw-data-pv
+  labels:
+    app: openclaw
+    volume: data
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.11
+    path: /volume4/VM/containers/openclaw/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openclaw-data-pvc
+  namespace: openclaw
+  labels:
+    app: openclaw
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      app: openclaw
+      volume: data
