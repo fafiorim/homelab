@@ -51,6 +51,8 @@ spec:
         - openclaw.mjs
         - gateway
         - --allow-unconfigured
+        - --bind
+        - "0.0.0.0"
         - --port
         - "18789"
         volumeMounts:
