@@ -14,6 +14,16 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: immich
+  # Ignore immutable fields: PVC volumeName (set when bound), Deployment selector (immutable)
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      jqPathExpressions:
+        - .spec.volumeName
+    - group: apps
+      kind: Deployment
+      jqPathExpressions:
+        - .spec.selector
   syncPolicy:
     automated:
       prune: true
