@@ -54,6 +54,21 @@ spec:
                 secretKeyRef:
                   name: n8n-secrets
                   key: encryption-key
+          # Give n8n time to start before probes (avoids BackOff / connection refused on :5678)
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 6
   destination:
     server: https://kubernetes.default.svc
     namespace: n8n
