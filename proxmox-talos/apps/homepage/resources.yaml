@@ -183,7 +183,6 @@ spec:
                   latitude: 38.9586
                   longitude: -77.3570
                   timezone: America/New_York
-                  provider: openmeteo
               EOF
               
               cat > /app/config/services.yaml << 'EOF'
