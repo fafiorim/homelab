@@ -13,4 +13,3 @@ resources:
   - ../immich/immich-app.yaml
   - ../n8n/n8n-storage-app.yaml
   - ../n8n/n8n-app.yaml
-  - ../openclaw/openclaw-app.yaml
