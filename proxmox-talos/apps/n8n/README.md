@@ -36,6 +36,20 @@ n8n is a fair-code workflow automation platform with native AI capabilities. Thi
      --from-literal=encryption-key="YOUR_MINIMUM_32_CHAR_SECRET_KEY"
    ```
 
+   **Important**: After creating the secret, back it up locally (not in git):
+   ```bash
+   # Create secure backup directory (one time)
+   mkdir -p ~/.kube/secrets/homelab
+   chmod 700 ~/.kube/secrets/homelab
+
+   # Backup the secret
+   kubectl get secret n8n-secrets -n n8n -o yaml \
+     > ~/.kube/secrets/homelab/n8n-secrets.yaml
+   chmod 600 ~/.kube/secrets/homelab/n8n-secrets.yaml
+   ```
+
+   See [SECRETS.md](../../../SECRETS.md) for detailed secret management documentation.
+
 3. Ensure DNS for `n8n.botocudo.net` points to your Traefik LoadBalancer / ingress.
 
 ## Deploy via ArgoCD

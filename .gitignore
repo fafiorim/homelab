@@ -34,3 +34,6 @@ service-credentials.txt
 *.swp
 *.swo
 *~
+# Kubernetes secrets backup (local only, never commit)
+*-secrets.yaml
+secrets/
