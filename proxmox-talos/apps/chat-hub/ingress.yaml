@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-hub-ingress
+  namespace: chat-hub
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+  labels:
+    app: chat-hub
+    app.kubernetes.io/name: chat-hub
+    app.kubernetes.io/part-of: chat-hub-stack
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - chat-hub.botocudo.net
+    secretName: chat-hub-botocudo-net-tls
+  rules:
+  - host: chat-hub.botocudo.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chat-hub
+            port:
+              number: 3000

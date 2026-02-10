@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-hub
+  namespace: chat-hub
+  labels:
+    app: chat-hub
+    app.kubernetes.io/name: chat-hub
+    app.kubernetes.io/part-of: chat-hub-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-hub
+  template:
+    metadata:
+      labels:
+        app: chat-hub
+        app.kubernetes.io/part-of: chat-hub-stack
+    spec:
+      containers:
+      - name: chat-hub
+        image: yidadaa/chatgpt-next-web:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: OPENAI_API_KEY
+          value: "sk-placeholder"
+        - name: CODE
+          value: ""
+        - name: BASE_URL
+          value: "https://api.openai.com"
+        - name: CUSTOM_MODELS
+          value: "+llama3.2,+qwen2.5,+mistral"
+        - name: ENABLE_BALANCE_QUERY
+          value: "false"
+        - name: DISABLE_GPT4
+          value: "false"
+        - name: HIDE_USER_API_KEY
+          value: "false"
+        - name: HIDE_BALANCE_QUERY
+          value: "true"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: chat-hub-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-hub
+  namespace: chat-hub
+  labels:
+    app: chat-hub
+    app.kubernetes.io/name: chat-hub
+    app.kubernetes.io/part-of: chat-hub-stack
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: chat-hub

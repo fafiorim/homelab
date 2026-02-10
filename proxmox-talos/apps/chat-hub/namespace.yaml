@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chat-hub
+  annotations:
+    homelab/sync-bump: "2026-02-10"
+  labels:
+    app.kubernetes.io/name: chat-hub
+    app.kubernetes.io/part-of: chat-hub-stack
