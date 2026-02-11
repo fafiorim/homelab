@@ -371,7 +371,12 @@ async function sendMessage() {
         if (!response.ok) {
             const error = await response.json();
             if (error.aiGuardBlocked) {
-                throw new Error(`🛡️ AI Guard: ${error.error}`);
+                // Create an error with AI Guard results attached
+                const guardError = new Error(`🛡️ AI Guard: ${error.error}`);
+                guardError.aiGuardBlocked = true;
+                guardError.aiGuardResults = error.aiGuardResults;
+                guardError.reasons = error.reasons;
+                throw guardError;
             }
             throw new Error(error.error || 'Request failed');
         }
@@ -414,12 +419,35 @@ async function sendMessage() {
     } catch (error) {
         console.error('Error sending message:', error);
         removeThinkingIndicator(thinkingId);
+        const endTime = Date.now();
+        const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+
         // Don't prefix AI Guard blocks with "Error:" since they're security protections
         const displayMessage = error.message.startsWith('🛡️ AI Guard:')
             ? error.message
             : 'Error: ' + error.message;
         appendMessage('error', displayMessage);
         setStatus(displayMessage, 'error');
+
+        // Record scan even when AI Guard blocks
+        if (error.aiGuardBlocked && error.aiGuardResults) {
+            recordScan({
+                timestamp: new Date().toISOString(),
+                provider: config.provider,
+                model: config.model,
+                aiGuardEnabled: config.aiGuard.enabled,
+                aiGuardResults: error.aiGuardResults,
+                prompt: text,
+                response: '', // No response since it was blocked
+                blocked: true,
+                blockReason: error.message,
+                metrics: {
+                    responseTime,
+                    estimatedTokens: 0,
+                    tokensPerSecond: 0
+                }
+            });
+        }
     } finally {
         chatInput.disabled = false;
         sendButton.disabled = false;
@@ -467,12 +495,21 @@ function appendMessage(type, content, model = null, metrics = null) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
 
+    // Add timestamp to all messages
+    const timestamp = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+    const header = document.createElement('div');
+    header.className = 'message-header';
     if (type !== 'error' && model) {
-        const header = document.createElement('div');
-        header.className = 'message-header';
-        header.textContent = model;
-        messageDiv.appendChild(header);
+        header.textContent = `${model} • ${timestamp}`;
+    } else {
+        header.textContent = timestamp;
     }
+    messageDiv.appendChild(header);
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -562,7 +599,7 @@ function renderScans() {
                     </div>
                     <div class="scan-section">
                         <div class="scan-section-title">Model Response</div>
-                        <div class="scan-section-content">${escapeHtml(scan.response)}</div>
+                        <div class="scan-section-content">${scan.blocked ? `❌ Blocked - ${escapeHtml(scan.blockReason || 'Content blocked by AI Guard')}` : escapeHtml(scan.response)}</div>
                     </div>
                     ${scan.aiGuardResults ? `
                         <div class="scan-section">
