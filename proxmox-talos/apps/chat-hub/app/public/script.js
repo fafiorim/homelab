@@ -3,7 +3,13 @@ let config = {
     provider: 'ollama',
     endpoint: 'http://10.10.21.6:11434',
     apiKey: '',
-    model: ''
+    model: '',
+    aiGuard: {
+        enabled: false,
+        apiKey: '',
+        region: 'us',
+        appName: 'chat-hub'
+    }
 };
 
 // Chat history
@@ -19,10 +25,26 @@ const refreshModelsBtn = document.getElementById('refreshModels');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendButton = document.getElementById('sendButton');
-const statusDiv = document.getElementById('status');
+const chatStatusDiv = document.getElementById('chatStatus');
 const metricsDiv = document.getElementById('metrics');
 const metricsText = document.getElementById('metricsText');
 const themeToggle = document.getElementById('themeToggle');
+
+// AI Guard elements
+const aiGuardEnabled = document.getElementById('aiGuardEnabled');
+const aiGuardConfig = document.getElementById('aiGuardConfig');
+const aiGuardApiKey = document.getElementById('aiGuardApiKey');
+const aiGuardRegion = document.getElementById('aiGuardRegion');
+const aiGuardAppName = document.getElementById('aiGuardAppName');
+const aiGuardStatus = document.getElementById('aiGuardStatus');
+
+// Settings elements
+const saveSettingsBtn = document.getElementById('saveSettings');
+const saveStatus = document.getElementById('saveStatus');
+
+// Badge elements
+const currentProvider = document.getElementById('currentProvider');
+const currentModel = document.getElementById('currentModel');
 
 // Provider configurations
 const providers = {
@@ -45,7 +67,10 @@ function init() {
     loadConfig();
     loadTheme();
     setupEventListeners();
+    setupTabs();
     updateProviderUI();
+    updateAIGuardUI();
+    updateBadges();
     loadModels();
 }
 
@@ -53,10 +78,21 @@ function init() {
 function loadConfig() {
     const saved = localStorage.getItem('chat-hub-config');
     if (saved) {
-        config = { ...config, ...JSON.parse(saved) };
+        const savedConfig = JSON.parse(saved);
+        config = {
+            ...config,
+            ...savedConfig,
+            aiGuard: { ...config.aiGuard, ...(savedConfig.aiGuard || {}) }
+        };
         providerSelect.value = config.provider;
         endpointInput.value = config.endpoint;
         apiKeyInput.value = config.apiKey;
+
+        // Load AI Guard settings
+        aiGuardEnabled.checked = config.aiGuard.enabled;
+        aiGuardApiKey.value = config.aiGuard.apiKey;
+        aiGuardRegion.value = config.aiGuard.region;
+        aiGuardAppName.value = config.aiGuard.appName;
     }
 }
 
@@ -72,23 +108,19 @@ function setupEventListeners() {
         config.endpoint = providers[config.provider].endpoint;
         endpointInput.value = config.endpoint;
         updateProviderUI();
-        saveConfig();
-        loadModels();
     });
 
     endpointInput.addEventListener('change', () => {
         config.endpoint = endpointInput.value;
-        saveConfig();
     });
 
     apiKeyInput.addEventListener('change', () => {
         config.apiKey = apiKeyInput.value;
-        saveConfig();
     });
 
     modelSelect.addEventListener('change', () => {
         config.model = modelSelect.value;
-        saveConfig();
+        updateBadges();
     });
 
     refreshModelsBtn.addEventListener('click', loadModels);
@@ -103,6 +135,73 @@ function setupEventListeners() {
     });
 
     themeToggle.addEventListener('click', toggleTheme);
+
+    // AI Guard event listeners
+    aiGuardEnabled.addEventListener('change', () => {
+        config.aiGuard.enabled = aiGuardEnabled.checked;
+        updateAIGuardUI();
+    });
+
+    aiGuardApiKey.addEventListener('change', () => {
+        config.aiGuard.apiKey = aiGuardApiKey.value;
+    });
+
+    aiGuardRegion.addEventListener('change', () => {
+        config.aiGuard.region = aiGuardRegion.value;
+    });
+
+    aiGuardAppName.addEventListener('change', () => {
+        config.aiGuard.appName = aiGuardAppName.value;
+    });
+
+    // Save settings button
+    saveSettingsBtn.addEventListener('click', () => {
+        saveConfig();
+        updateBadges();
+        loadModels();
+        saveStatus.textContent = 'Settings saved!';
+        saveStatus.style.color = 'var(--success)';
+        setTimeout(() => {
+            saveStatus.textContent = '';
+        }, 3000);
+    });
+}
+
+// Tab management
+function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.getAttribute('data-tab');
+
+            // Update active states
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            button.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        });
+    });
+}
+
+// Update AI Guard UI
+function updateAIGuardUI() {
+    aiGuardConfig.style.display = aiGuardEnabled.checked ? 'block' : 'none';
+    aiGuardStatus.style.display = aiGuardEnabled.checked && config.aiGuard.apiKey ? 'inline-block' : 'none';
+}
+
+// Update badges in chat header
+function updateBadges() {
+    const providerNames = {
+        'ollama': 'Ollama',
+        'openai': 'OpenAI',
+        'anthropic': 'Anthropic'
+    };
+    currentProvider.textContent = providerNames[config.provider] || config.provider;
+    currentModel.textContent = config.model || 'No model selected';
+    aiGuardStatus.style.display = config.aiGuard.enabled && config.aiGuard.apiKey ? 'inline-block' : 'none';
 }
 
 // Theme management
@@ -217,12 +316,16 @@ async function sendMessage() {
                 endpoint: config.endpoint,
                 apiKey: config.apiKey,
                 model: config.model,
-                messages: messages
+                messages: messages,
+                aiGuard: config.aiGuard.enabled ? config.aiGuard : null
             })
         });
 
         if (!response.ok) {
             const error = await response.json();
+            if (error.aiGuardBlocked) {
+                throw new Error(`🛡️ AI Guard: ${error.error}`);
+            }
             throw new Error(error.error || 'Request failed');
         }
 
@@ -323,8 +426,8 @@ function appendMessage(type, content, model = null, metrics = null) {
 
 // Set status
 function setStatus(text, type = 'info') {
-    statusDiv.textContent = text;
-    statusDiv.style.color = type === 'error' ? 'var(--error)' : type === 'success' ? 'var(--success)' : 'var(--text-secondary)';
+    chatStatusDiv.textContent = text;
+    chatStatusDiv.style.color = type === 'error' ? 'var(--error)' : type === 'success' ? 'var(--success)' : 'var(--text-secondary)';
 }
 
 // Start the app

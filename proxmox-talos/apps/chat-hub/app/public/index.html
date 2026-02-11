@@ -18,11 +18,56 @@
                     <span class="theme-icon">🌙</span>
                 </button>
             </div>
+            <nav class="tabs">
+                <button class="tab-button active" data-tab="chat">Chat</button>
+                <button class="tab-button" data-tab="settings">Settings</button>
+            </nav>
         </header>
 
-        <div class="main-content">
-            <aside class="sidebar">
-                <div class="config-section">
+        <!-- Chat Tab -->
+        <div id="chatTab" class="tab-content active">
+            <div class="chat-header">
+                <div class="chat-info">
+                    <span id="currentProvider" class="provider-badge">Ollama</span>
+                    <span id="currentModel" class="model-badge">No model selected</span>
+                    <span id="aiGuardStatus" class="guard-badge" style="display: none;">🛡️ AI Guard</span>
+                </div>
+                <div id="chatStatus" class="status-inline">Ready</div>
+            </div>
+
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="welcome-message">
+                        <h2>Welcome to Chat Hub!</h2>
+                        <p>Go to Settings to configure your provider and start chatting.</p>
+                        <ul>
+                            <li><strong>Ollama:</strong> Use local models</li>
+                            <li><strong>OpenAI:</strong> GPT models (requires API key)</li>
+                            <li><strong>Anthropic:</strong> Claude models (requires API key)</li>
+                            <li><strong>AI Guard:</strong> Optional content moderation (requires Trend Micro API key)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <textarea
+                        id="chatInput"
+                        placeholder="Type your message... (Shift+Enter for new line, Enter to send)"
+                        rows="3"
+                    ></textarea>
+                    <button id="sendButton" class="btn-primary">Send</button>
+                </div>
+            </div>
+
+            <div id="metrics" class="metrics" style="display: none;">
+                <small id="metricsText"></small>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="tab-content">
+            <div class="settings-container">
+                <section class="settings-section">
                     <h3>Provider Configuration</h3>
 
                     <div class="form-group">
@@ -51,39 +96,53 @@
                         </select>
                         <button id="refreshModels" class="btn-secondary">Refresh Models</button>
                     </div>
-                </div>
+                </section>
 
-                <div class="info-section">
-                    <h4>Status</h4>
-                    <div id="status" class="status">Ready</div>
-                    <div id="metrics" class="metrics" style="display: none;">
-                        <small id="metricsText"></small>
+                <section class="settings-section">
+                    <h3>AI Guard (Content Moderation)</h3>
+                    <p class="section-description">
+                        Trend Micro AI Guard validates prompts and responses for harmful content, policy violations, and security risks.
+                    </p>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="aiGuardEnabled">
+                            <span>Enable AI Guard</span>
+                        </label>
                     </div>
-                </div>
-            </aside>
 
-            <main class="chat-container">
-                <div id="chatMessages" class="chat-messages">
-                    <div class="welcome-message">
-                        <h2>Welcome to Chat Hub!</h2>
-                        <p>Configure your provider on the left and start chatting.</p>
-                        <ul>
-                            <li><strong>Ollama:</strong> Use local models</li>
-                            <li><strong>OpenAI:</strong> GPT models (requires API key)</li>
-                            <li><strong>Anthropic:</strong> Claude models (requires API key)</li>
-                        </ul>
+                    <div id="aiGuardConfig" style="display: none;">
+                        <div class="form-group">
+                            <label for="aiGuardApiKey">AI Guard API Key</label>
+                            <input type="password" id="aiGuardApiKey" placeholder="Your Trend Micro API token">
+                            <small class="field-hint">Get your API key from Trend Vision One console</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="aiGuardRegion">Region</label>
+                            <select id="aiGuardRegion">
+                                <option value="us">United States</option>
+                                <option value="eu">Europe</option>
+                                <option value="au">Australia</option>
+                                <option value="in">India</option>
+                                <option value="sg">Singapore</option>
+                                <option value="jp">Japan</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="aiGuardAppName">Application Name</label>
+                            <input type="text" id="aiGuardAppName" placeholder="chat-hub" maxlength="64">
+                            <small class="field-hint">Alphanumeric, hyphens, and underscores only (max 64 chars)</small>
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="chat-input-container">
-                    <textarea
-                        id="chatInput"
-                        placeholder="Type your message... (Shift+Enter for new line, Enter to send)"
-                        rows="3"
-                    ></textarea>
-                    <button id="sendButton" class="btn-primary">Send</button>
+                <div class="settings-actions">
+                    <button id="saveSettings" class="btn-primary">Save Settings</button>
+                    <div id="saveStatus" class="save-status"></div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
 

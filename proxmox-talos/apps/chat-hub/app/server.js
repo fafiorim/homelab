@@ -13,11 +13,73 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
-// Chat endpoint - proxy to various LLM providers
-app.post('/api/chat', async (req, res) => {
-  const { provider, endpoint, apiKey, model, messages } = req.body;
+// AI Guard validation function
+async function validateWithAIGuard(content, aiGuardConfig, requestType = 'SimpleRequestGuardrails') {
+  if (!aiGuardConfig || !aiGuardConfig.enabled || !aiGuardConfig.apiKey) {
+    return { allowed: true }; // Skip if AI Guard not configured
+  }
+
+  const { apiKey, region, appName } = aiGuardConfig;
+  const endpoint = `https://api.${region}.xdr.trendmicro.com/v3.0/aiSecurity/applyGuardrails`;
 
   try {
+    const response = await axios.post(
+      endpoint,
+      { content },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'TMV1-Application-Name': appName,
+          'TMV1-Request-Type': requestType,
+          'Prefer': 'return=minimal',
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const action = response.data.action;
+    const reasons = response.data.reasons || [];
+
+    if (action === 'Block') {
+      return {
+        allowed: false,
+        reasons: reasons,
+        message: `AI Guard blocked this content: ${reasons.join(', ')}`
+      };
+    }
+
+    return { allowed: true };
+
+  } catch (error) {
+    console.error('AI Guard Error:', error.response?.data || error.message);
+    // On AI Guard error, allow the request to proceed but log the error
+    return {
+      allowed: true,
+      warning: 'AI Guard validation failed - proceeding without validation'
+    };
+  }
+}
+
+// Chat endpoint - proxy to various LLM providers
+app.post('/api/chat', async (req, res) => {
+  const { provider, endpoint, apiKey, model, messages, aiGuard } = req.body;
+
+  try {
+    // Step 1: Validate user input with AI Guard (if enabled)
+    if (aiGuard && aiGuard.enabled) {
+      const userMessage = messages[messages.length - 1].content;
+      const inputValidation = await validateWithAIGuard(userMessage, aiGuard);
+
+      if (!inputValidation.allowed) {
+        return res.status(400).json({
+          error: inputValidation.message,
+          aiGuardBlocked: true,
+          reasons: inputValidation.reasons
+        });
+      }
+    }
+
+    // Step 2: Call LLM provider
     let response;
 
     if (provider === 'ollama') {
@@ -27,9 +89,26 @@ app.post('/api/chat', async (req, res) => {
         messages: messages,
         stream: false
       });
+
+      const content = response.data.message.content;
+      const modelName = response.data.model;
+
+      // Step 3: Validate LLM output with AI Guard (if enabled)
+      if (aiGuard && aiGuard.enabled) {
+        const outputValidation = await validateWithAIGuard(content, aiGuard);
+
+        if (!outputValidation.allowed) {
+          return res.status(400).json({
+            error: outputValidation.message,
+            aiGuardBlocked: true,
+            reasons: outputValidation.reasons
+          });
+        }
+      }
+
       res.json({
-        message: response.data.message.content,
-        model: response.data.model
+        message: content,
+        model: modelName
       });
 
     } else if (provider === 'openai' || provider === 'anthropic') {
@@ -60,9 +139,24 @@ app.post('/api/chat', async (req, res) => {
         ? response.data.content[0].text
         : response.data.choices[0].message.content;
 
+      const modelName = response.data.model;
+
+      // Step 3: Validate LLM output with AI Guard (if enabled)
+      if (aiGuard && aiGuard.enabled) {
+        const outputValidation = await validateWithAIGuard(content, aiGuard);
+
+        if (!outputValidation.allowed) {
+          return res.status(400).json({
+            error: outputValidation.message,
+            aiGuardBlocked: true,
+            reasons: outputValidation.reasons
+          });
+        }
+      }
+
       res.json({
         message: content,
-        model: response.data.model
+        model: modelName
       });
 
     } else {
