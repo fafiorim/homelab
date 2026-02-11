@@ -20,52 +20,39 @@ spec:
     spec:
       containers:
       - name: chat-hub
-        image: yidadaa/chatgpt-next-web:latest
+        image: ghcr.io/fafiorim/chat-hub:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
           name: http
         env:
-        - name: OPENAI_API_KEY
-          value: "sk-placeholder"
-        - name: CODE
-          value: ""
-        - name: BASE_URL
-          value: "https://api.openai.com"
-        - name: CUSTOM_MODELS
-          value: "+llama3.2,+qwen2.5,+mistral"
-        - name: ENABLE_BALANCE_QUERY
-          value: "false"
-        - name: DISABLE_GPT4
-          value: "false"
-        - name: HIDE_USER_API_KEY
-          value: "false"
-        - name: HIDE_BALANCE_QUERY
-          value: "true"
+        - name: PORT
+          value: "3000"
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "128Mi"
+            cpu: "50m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "250m"
         volumeMounts:
         - name: data
           mountPath: /app/data
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 3000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 15
           periodSeconds: 10
-          timeoutSeconds: 5
+          timeoutSeconds: 3
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 3000
-          initialDelaySeconds: 10
+          initialDelaySeconds: 5
           periodSeconds: 5
-          timeoutSeconds: 3
+          timeoutSeconds: 2
           failureThreshold: 3
       volumes:
       - name: data

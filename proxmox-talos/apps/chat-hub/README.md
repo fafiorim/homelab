@@ -1,6 +1,6 @@
 # Chat Hub
 
-A lightweight, multi-provider AI chat interface for your homelab.
+A lightweight, custom-built multi-provider AI chat interface for your homelab.
 
 ## Overview
 
@@ -8,69 +8,72 @@ Chat Hub is a simple web-based chat interface that supports multiple LLM provide
 - **Local LLMs** via Ollama
 - **OpenAI** (ChatGPT models)
 - **Anthropic** (Claude models)
-- **Google** (Gemini models)
-- **Azure OpenAI**
-- **Custom OpenAI-compatible endpoints**
 
-Built on [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web), it provides a clean, responsive interface for interacting with various AI models from a single application.
+Built with Node.js/Express backend and vanilla JavaScript frontend, inspired by the [FinGuard](https://github.com/fafiorim/finguard) design pattern.
 
 ## Features
 
 - Multi-provider support (local and cloud)
 - Model selection per conversation
 - Custom endpoint configuration
-- Persistent chat history
-- Mobile-responsive design
-- No account required (optional access code)
+- Client-side configuration (stored in browser localStorage)
+- Clean, responsive interface
+- No authentication required
+- Minimal resource footprint
 
 ## Access
 
 - **URL**: https://chat-hub.botocudo.net
 - **Namespace**: `chat-hub`
 
+## Application Structure
+
+```
+app/
+├── server.js           # Express backend with API proxy
+├── package.json        # Node.js dependencies
+├── Dockerfile          # Container image definition
+├── build.sh            # Build script
+└── public/
+    ├── index.html      # Main chat interface
+    ├── styles.css      # Styling
+    └── script.js       # Frontend logic
+```
+
+## Building the Container Image
+
+The app is containerized using Docker. To build and deploy:
+
+```bash
+cd app/
+
+# Build the image (customize registry/tag as needed)
+./build.sh ghcr.io/fafiorim/chat-hub:latest
+
+# Push to registry
+docker push ghcr.io/fafiorim/chat-hub:latest
+
+# Update the image in chat-hub.yaml if using a different tag
+```
+
 ## Configuration
 
-The deployment is configured via environment variables in [chat-hub.yaml](./chat-hub.yaml):
+All configuration is done through the web UI - no Kubernetes configuration needed!
 
-### API Keys
+1. **Select Provider**: Choose between Ollama, OpenAI, or Anthropic
+2. **Set Endpoint**: API endpoint URL (auto-filled based on provider)
+3. **API Key**: Required for OpenAI and Anthropic (optional for Ollama)
+4. **Select Model**: Auto-loaded from the provider
 
-To use cloud providers, update the environment variables:
+Configuration is saved to browser localStorage and persists across sessions.
 
-```yaml
-env:
-  - name: OPENAI_API_KEY
-    value: "sk-your-openai-key"
-  - name: ANTHROPIC_API_KEY
-    value: "sk-ant-your-anthropic-key"
-  - name: GOOGLE_API_KEY
-    value: "your-google-key"
+### Default Ollama Configuration
+
 ```
-
-### Ollama Integration
-
-To use local Ollama models, set the base URL:
-
-```yaml
-env:
-  - name: OPENAI_API_KEY
-    value: "sk-placeholder"
-  - name: BASE_URL
-    value: "http://10.10.21.6:11434/v1"  # Your Ollama server
-  - name: CUSTOM_MODELS
-    value: "+llama3.2,+qwen2.5,+mistral"
+Provider: Ollama
+Endpoint: http://10.10.21.6:11434
+API Key: (not required)
 ```
-
-### Access Control
-
-To require an access code:
-
-```yaml
-env:
-  - name: CODE
-    value: "your-secret-code"
-```
-
-Leave empty for open access.
 
 ## Storage
 
@@ -78,19 +81,27 @@ Leave empty for open access.
 - **Path**: `/volume4/VM/containers/chat-hub/data`
 - **Server**: 10.10.21.11
 
-Chat history and settings are persisted to NFS storage.
+Used for persistent data (future enhancement).
 
 ## Deployment
 
 This app is managed by ArgoCD and will auto-sync from Git.
 
-### Manual Deployment
+### Create NFS Directory
+
+Before deploying, create the NFS directory:
 
 ```bash
-# Apply via kubectl
-kubectl apply -k .
+ssh admin@10.10.21.11
+mkdir -p /volume4/VM/containers/chat-hub/data
+chmod 777 /volume4/VM/containers/chat-hub/data
+```
 
-# Or sync via ArgoCD
+### Deploy via ArgoCD
+
+```bash
+# The app is already registered via bootstrap
+# Force sync to deploy
 kubectl annotate application chat-hub -n argocd argocd.argoproj.io/refresh=hard --overwrite
 ```
 
@@ -101,82 +112,110 @@ kubectl annotate application chat-hub -n argocd argocd.argoproj.io/refresh=hard 
 kubectl get pods -n chat-hub
 
 # Check logs
-kubectl logs -n chat-hub deployment/chat-hub
+kubectl logs -n chat-hub deployment/chat-hub -f
 
 # Check ingress
 kubectl get ingress -n chat-hub
 ```
 
-## Usage Examples
+## Usage
+
+1. Open https://chat-hub.botocudo.net
+2. Configure your provider in the left sidebar
+3. Select a model
+4. Start chatting!
 
 ### Using with Local Ollama
 
-1. Set `BASE_URL` to your Ollama endpoint
-2. Add your models to `CUSTOM_MODELS`
-3. In the UI, select your model from the dropdown
-4. Start chatting
+1. Select "Ollama (Local)" as provider
+2. Endpoint auto-fills to `http://10.10.21.6:11434`
+3. Click "Refresh Models" to load available models
+4. Select a model and start chatting
 
 ### Using with OpenAI
 
-1. Set `OPENAI_API_KEY` in the deployment
-2. Set `BASE_URL` to `https://api.openai.com`
-3. Select GPT models from the UI
-4. Start chatting
+1. Select "OpenAI" as provider
+2. Enter your OpenAI API key
+3. Click "Refresh Models" to load GPT models
+4. Select a model and start chatting
 
 ### Using with Anthropic Claude
 
-1. Set `ANTHROPIC_API_KEY` in the deployment
-2. The app will automatically detect Claude models
-3. Select Claude models from the UI
+1. Select "Anthropic (Claude)" as provider
+2. Enter your Anthropic API key
+3. Select a Claude model from the dropdown
 4. Start chatting
 
 ## Troubleshooting
 
 ### Pod not starting
 
-Check if the NFS directory exists:
+Check pod status and logs:
+```bash
+kubectl describe pod -n chat-hub -l app=chat-hub
+kubectl logs -n chat-hub -l app=chat-hub --tail=50
+```
+
+### NFS directory issues
+
+Verify NFS directory exists:
 ```bash
 ssh admin@10.10.21.11
-ls -la /volume4/VM/containers/chat-hub/
+ls -la /volume4/VM/containers/chat-hub/data
 ```
 
-Create if missing:
+### Image pull errors
+
+Ensure the image is pushed to the registry:
 ```bash
-mkdir -p /volume4/VM/containers/chat-hub/data
-chmod 777 /volume4/VM/containers/chat-hub/data
+docker push ghcr.io/fafiorim/chat-hub:latest
 ```
 
-### API Key not working
+### API errors
 
-Verify the key is set correctly:
-```bash
-kubectl get deployment chat-hub -n chat-hub -o yaml | grep -A 5 "env:"
-```
+Check the browser console (F12) for detailed error messages. Common issues:
+- Invalid API key
+- Incorrect endpoint URL
+- Model not available
 
 ### TLS Certificate Issues
 
 Check certificate status:
 ```bash
-kubectl get certificate -n chat-hub
-kubectl describe certificate chat-hub-botocudo-net-tls -n chat-hub
+kubectl get ingress -n chat-hub
+kubectl describe ingress chat-hub-ingress -n chat-hub
 ```
 
-## Environment Variables Reference
+Wait 1-2 minutes for Let's Encrypt certificate issuance.
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API key | `sk-...` |
-| `ANTHROPIC_API_KEY` | Anthropic API key | `sk-ant-...` |
-| `GOOGLE_API_KEY` | Google API key | `AIza...` |
-| `BASE_URL` | API endpoint URL | `https://api.openai.com` |
-| `CUSTOM_MODELS` | Custom model list | `+llama3.2,+qwen2.5` |
-| `CODE` | Access password | `secret123` |
-| `HIDE_USER_API_KEY` | Hide API key input | `false` |
-| `DISABLE_GPT4` | Disable GPT-4 models | `false` |
+## Development
+
+To run locally for development:
+
+```bash
+cd app/
+
+# Install dependencies
+npm install
+
+# Start server
+npm start
+
+# Access at http://localhost:3000
+```
+
+## Technology Stack
+
+- **Backend**: Node.js 18 + Express
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Container**: Docker (Alpine-based)
+- **Orchestration**: Kubernetes + ArgoCD
+- **Ingress**: Traefik with Let's Encrypt
+- **Storage**: NFS persistent volumes
 
 ## Links
 
-- [ChatGPT-Next-Web Documentation](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web)
+- [FinGuard](https://github.com/fafiorim/finguard) - Design inspiration
 - [Ollama Documentation](https://ollama.ai/docs)
 - [OpenAI API Documentation](https://platform.openai.com/docs)
 - [Anthropic API Documentation](https://docs.anthropic.com)
