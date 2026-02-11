@@ -180,9 +180,9 @@
 
                     <div class="form-group">
                         <label for="modelToPull">Download Model</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="modelToPull" placeholder="e.g., llama3.2, mistral, gemma2:2b" style="flex: 1;">
-                            <button id="pullModelButton" class="btn-secondary">Download</button>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="modelToPull" placeholder="e.g., llama3.2, mistral, gemma2:2b" style="flex: 1; min-width: 250px;">
+                            <button id="pullModelButton" class="btn-secondary" style="flex-shrink: 0;">Download</button>
                         </div>
                         <small class="field-hint">Enter model name from <a href="https://ollama.com/library" target="_blank">Ollama Library</a></small>
                         <div id="pullProgress" style="display: none; margin-top: 10px;">
@@ -195,11 +195,11 @@
 
                     <div class="form-group">
                         <label for="modelToLoad">Load Model</label>
-                        <div style="display: flex; gap: 10px;">
-                            <select id="modelToLoad" style="flex: 1;">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <select id="modelToLoad" style="flex: 1; min-width: 250px;">
                                 <option value="">Select model to load...</option>
                             </select>
-                            <button id="loadModelButton" class="btn-secondary">Load Model</button>
+                            <button id="loadModelButton" class="btn-secondary" style="flex-shrink: 0;">Load Model</button>
                         </div>
                         <small class="field-hint">Select a model to load it into memory</small>
                     </div>
