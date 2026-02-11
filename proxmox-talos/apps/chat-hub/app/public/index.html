@@ -175,10 +175,22 @@
                 <section class="settings-section" id="ollamaManagementSection" style="display: none;">
                     <h3>Model Management (Ollama)</h3>
                     <p class="section-description">
-                        View and manage models currently loaded in memory. Unload models to free VRAM resources.
+                        Load models into memory or unload them to free VRAM resources.
                     </p>
 
                     <div class="form-group">
+                        <label for="modelToLoad">Load Model</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="modelToLoad" style="flex: 1;">
+                                <option value="">Select model to load...</option>
+                            </select>
+                            <button id="loadModelButton" class="btn-secondary">Load Model</button>
+                        </div>
+                        <small class="field-hint">Select a model to load it into memory</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Loaded Models</label>
                         <button id="refreshLoadedModels" class="btn-secondary">Refresh Loaded Models</button>
                     </div>
 

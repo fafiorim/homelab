@@ -218,10 +218,15 @@ function setupEventListeners() {
         URL.revokeObjectURL(url);
     });
 
-    // Model management button
+    // Model management buttons
     const refreshLoadedModelsBtn = document.getElementById('refreshLoadedModels');
     if (refreshLoadedModelsBtn) {
         refreshLoadedModelsBtn.addEventListener('click', loadLoadedModels);
+    }
+
+    const loadModelButton = document.getElementById('loadModelButton');
+    if (loadModelButton) {
+        loadModelButton.addEventListener('click', handleLoadModel);
     }
 }
 
@@ -338,6 +343,18 @@ async function loadModels() {
                 option2.textContent = model;
                 modelSelectChat.appendChild(option2);
             });
+
+            // Populate modelToLoad dropdown for Ollama
+            const modelToLoadSelect = document.getElementById('modelToLoad');
+            if (modelToLoadSelect && config.provider === 'ollama') {
+                modelToLoadSelect.innerHTML = '<option value="">Select model to load...</option>';
+                data.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelToLoadSelect.appendChild(option);
+                });
+            }
 
             if (config.model && data.models.includes(config.model)) {
                 modelSelect.value = config.model;
@@ -1023,6 +1040,59 @@ async function unloadModel(modelName) {
         alert(`Error unloading model: ${error.message}`);
         // Re-enable buttons on error
         unloadButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+// Load a specific model
+async function handleLoadModel() {
+    const modelToLoadSelect = document.getElementById('modelToLoad');
+    const modelName = modelToLoadSelect.value;
+
+    if (!modelName) {
+        alert('Please select a model to load');
+        return;
+    }
+
+    const loadModelButton = document.getElementById('loadModelButton');
+    const originalText = loadModelButton.textContent;
+
+    // Disable button and show loading state
+    loadModelButton.disabled = true;
+    loadModelButton.textContent = 'Loading...';
+
+    try {
+        const response = await fetch('/api/ollama/load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint,
+                model: modelName
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Wait a moment for Ollama to fully load the model
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Refresh the loaded models list
+            await loadLoadedModels();
+
+            // Reset the dropdown
+            modelToLoadSelect.value = '';
+
+            alert(`Successfully loaded ${modelName}`);
+        } else {
+            alert(`Failed to load ${modelName}: ${data.error || data.message || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error loading model:', error);
+        alert(`Error loading model: ${error.message}`);
+    } finally {
+        // Re-enable button and restore text
+        loadModelButton.disabled = false;
+        loadModelButton.textContent = originalText;
     }
 }
 

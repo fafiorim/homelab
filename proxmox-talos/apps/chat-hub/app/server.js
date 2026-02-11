@@ -486,6 +486,36 @@ app.post('/api/ollama/unload', async (req, res) => {
   }
 });
 
+// Load a specific model (Ollama only)
+app.post('/api/ollama/load', async (req, res) => {
+  const { endpoint, model } = req.body;
+
+  if (!model) {
+    return res.status(400).json({ error: 'Model name is required' });
+  }
+
+  try {
+    // Load the model by making a minimal chat request with keep_alive
+    const response = await axios.post(`${endpoint}/api/chat`, {
+      model: model,
+      messages: [{ role: 'user', content: 'ping' }],
+      stream: false,
+      keep_alive: '5m'
+    });
+
+    res.json({
+      success: true,
+      message: `Successfully loaded ${model}`,
+      model: response.data.model
+    });
+  } catch (error) {
+    console.error('Load Model API Error:', error.message);
+    res.status(500).json({
+      error: error.response?.data?.error || error.message
+    });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Chat Hub server running on port ${PORT}`);
 });
