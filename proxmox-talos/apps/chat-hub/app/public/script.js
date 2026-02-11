@@ -990,6 +990,10 @@ async function unloadModel(modelName) {
         return;
     }
 
+    // Disable all unload buttons during the operation
+    const unloadButtons = document.querySelectorAll('.btn-unload');
+    unloadButtons.forEach(btn => btn.disabled = true);
+
     try {
         const response = await fetch('/api/ollama/unload', {
             method: 'POST',
@@ -1003,15 +1007,22 @@ async function unloadModel(modelName) {
         const data = await response.json();
 
         if (data.success) {
+            // Wait a moment for Ollama to fully unload the model
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             // Refresh the list
             await loadLoadedModels();
             alert(`Successfully unloaded ${modelName}`);
         } else {
             alert(`Failed to unload ${modelName}: ${data.message || 'Unknown error'}`);
+            // Re-enable buttons on failure
+            unloadButtons.forEach(btn => btn.disabled = false);
         }
     } catch (error) {
         console.error('Error unloading model:', error);
         alert(`Error unloading model: ${error.message}`);
+        // Re-enable buttons on error
+        unloadButtons.forEach(btn => btn.disabled = false);
     }
 }
 
