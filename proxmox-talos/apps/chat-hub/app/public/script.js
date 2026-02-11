@@ -228,6 +228,11 @@ function setupEventListeners() {
     if (loadModelButton) {
         loadModelButton.addEventListener('click', handleLoadModel);
     }
+
+    const pullModelButton = document.getElementById('pullModelButton');
+    if (pullModelButton) {
+        pullModelButton.addEventListener('click', handlePullModel);
+    }
 }
 
 // Tab management
@@ -1093,6 +1098,109 @@ async function handleLoadModel() {
         // Re-enable button and restore text
         loadModelButton.disabled = false;
         loadModelButton.textContent = originalText;
+    }
+}
+
+// Pull/Download a model
+async function handlePullModel() {
+    const modelToPullInput = document.getElementById('modelToPull');
+    const modelName = modelToPullInput.value.trim();
+
+    if (!modelName) {
+        alert('Please enter a model name to download');
+        return;
+    }
+
+    const pullModelButton = document.getElementById('pullModelButton');
+    const pullProgress = document.getElementById('pullProgress');
+    const pullProgressBar = document.getElementById('pullProgressBar');
+    const pullStatus = document.getElementById('pullStatus');
+    const originalText = pullModelButton.textContent;
+
+    // Disable button and show progress
+    pullModelButton.disabled = true;
+    pullModelButton.textContent = 'Downloading...';
+    pullProgress.style.display = 'block';
+    pullProgressBar.style.width = '0%';
+    pullStatus.textContent = 'Initializing download...';
+
+    try {
+        const response = await fetch('/api/ollama/pull', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint,
+                model: modelName
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to start download');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(line.slice(6));
+
+                        if (data.status === 'complete') {
+                            pullProgressBar.style.width = '100%';
+                            pullStatus.textContent = 'Download complete!';
+
+                            // Refresh models list
+                            await loadModels();
+
+                            // Clear input and hide progress after a delay
+                            setTimeout(() => {
+                                modelToPullInput.value = '';
+                                pullProgress.style.display = 'none';
+                                alert(`Successfully downloaded ${modelName}`);
+                            }, 1500);
+
+                            break;
+                        } else if (data.status === 'error') {
+                            throw new Error(data.error || 'Download failed');
+                        } else if (data.status) {
+                            // Update progress
+                            const status = data.status;
+                            let percentage = 0;
+
+                            if (data.completed && data.total) {
+                                percentage = Math.round((data.completed / data.total) * 100);
+                                pullProgressBar.style.width = percentage + '%';
+                                pullProgressBar.textContent = percentage + '%';
+                            }
+
+                            pullStatus.textContent = status + (data.digest ? ` (${data.digest.slice(0, 12)}...)` : '');
+                        }
+                    } catch (e) {
+                        console.error('Error parsing SSE data:', e);
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error pulling model:', error);
+        pullStatus.textContent = 'Error: ' + error.message;
+        pullProgressBar.style.width = '0%';
+        alert(`Error downloading model: ${error.message}`);
+    } finally {
+        // Re-enable button and restore text
+        pullModelButton.disabled = false;
+        pullModelButton.textContent = originalText;
     }
 }
 

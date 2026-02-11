@@ -175,8 +175,23 @@
                 <section class="settings-section" id="ollamaManagementSection" style="display: none;">
                     <h3>Model Management (Ollama)</h3>
                     <p class="section-description">
-                        Load models into memory or unload them to free VRAM resources.
+                        Download new models, load them into memory, or unload them to free VRAM resources.
                     </p>
+
+                    <div class="form-group">
+                        <label for="modelToPull">Download Model</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="modelToPull" placeholder="e.g., llama3.2, mistral, gemma2:2b" style="flex: 1;">
+                            <button id="pullModelButton" class="btn-secondary">Download</button>
+                        </div>
+                        <small class="field-hint">Enter model name from <a href="https://ollama.com/library" target="_blank">Ollama Library</a></small>
+                        <div id="pullProgress" style="display: none; margin-top: 10px;">
+                            <div class="progress-bar">
+                                <div id="pullProgressBar" class="progress-fill"></div>
+                            </div>
+                            <div id="pullStatus" style="margin-top: 5px; font-size: 12px;"></div>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="modelToLoad">Load Model</label>

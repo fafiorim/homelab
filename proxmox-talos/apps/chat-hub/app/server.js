@@ -516,6 +516,57 @@ app.post('/api/ollama/load', async (req, res) => {
   }
 });
 
+// Pull/Download a model (Ollama only)
+app.post('/api/ollama/pull', async (req, res) => {
+  const { endpoint, model } = req.body;
+
+  if (!model) {
+    return res.status(400).json({ error: 'Model name is required' });
+  }
+
+  try {
+    // Set headers for SSE-like streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Make streaming request to Ollama
+    const response = await axios.post(
+      `${endpoint}/api/pull`,
+      { name: model, stream: true },
+      { responseType: 'stream' }
+    );
+
+    // Forward the stream to the client
+    response.data.on('data', (chunk) => {
+      try {
+        const data = JSON.parse(chunk.toString());
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      } catch (e) {
+        // Handle incomplete JSON chunks
+        console.error('Error parsing chunk:', e);
+      }
+    });
+
+    response.data.on('end', () => {
+      res.write('data: {"status":"complete"}\n\n');
+      res.end();
+    });
+
+    response.data.on('error', (error) => {
+      console.error('Stream error:', error);
+      res.write(`data: {"status":"error","error":"${error.message}"}\n\n`);
+      res.end();
+    });
+
+  } catch (error) {
+    console.error('Pull Model API Error:', error.message);
+    res.status(500).json({
+      error: error.response?.data?.error || error.message
+    });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Chat Hub server running on port ${PORT}`);
 });
