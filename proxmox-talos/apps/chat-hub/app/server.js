@@ -64,17 +64,31 @@ async function validateWithAIGuard(content, aiGuardConfig, requestType = 'Simple
 app.post('/api/chat', async (req, res) => {
   const { provider, endpoint, apiKey, model, messages, aiGuard } = req.body;
 
+  // Track AI Guard validation results
+  const aiGuardResults = {
+    enabled: aiGuard && aiGuard.enabled,
+    inputValidation: null,
+    outputValidation: null
+  };
+
   try {
     // Step 1: Validate user input with AI Guard (if enabled)
     if (aiGuard && aiGuard.enabled) {
       const userMessage = messages[messages.length - 1].content;
       const inputValidation = await validateWithAIGuard(userMessage, aiGuard);
 
+      aiGuardResults.inputValidation = {
+        action: inputValidation.allowed ? 'Allow' : 'Block',
+        reasons: inputValidation.reasons || [],
+        warning: inputValidation.warning
+      };
+
       if (!inputValidation.allowed) {
         return res.status(400).json({
           error: inputValidation.message,
           aiGuardBlocked: true,
-          reasons: inputValidation.reasons
+          reasons: inputValidation.reasons,
+          aiGuardResults
         });
       }
     }
@@ -97,18 +111,26 @@ app.post('/api/chat', async (req, res) => {
       if (aiGuard && aiGuard.enabled) {
         const outputValidation = await validateWithAIGuard(content, aiGuard);
 
+        aiGuardResults.outputValidation = {
+          action: outputValidation.allowed ? 'Allow' : 'Block',
+          reasons: outputValidation.reasons || [],
+          warning: outputValidation.warning
+        };
+
         if (!outputValidation.allowed) {
           return res.status(400).json({
             error: outputValidation.message,
             aiGuardBlocked: true,
-            reasons: outputValidation.reasons
+            reasons: outputValidation.reasons,
+            aiGuardResults
           });
         }
       }
 
       res.json({
         message: content,
-        model: modelName
+        model: modelName,
+        aiGuardResults
       });
 
     } else if (provider === 'openai' || provider === 'anthropic') {
@@ -145,18 +167,26 @@ app.post('/api/chat', async (req, res) => {
       if (aiGuard && aiGuard.enabled) {
         const outputValidation = await validateWithAIGuard(content, aiGuard);
 
+        aiGuardResults.outputValidation = {
+          action: outputValidation.allowed ? 'Allow' : 'Block',
+          reasons: outputValidation.reasons || [],
+          warning: outputValidation.warning
+        };
+
         if (!outputValidation.allowed) {
           return res.status(400).json({
             error: outputValidation.message,
             aiGuardBlocked: true,
-            reasons: outputValidation.reasons
+            reasons: outputValidation.reasons,
+            aiGuardResults
           });
         }
       }
 
       res.json({
         message: content,
-        model: modelName
+        model: modelName,
+        aiGuardResults
       });
 
     } else {

@@ -399,6 +399,7 @@ async function sendMessage() {
             provider: config.provider,
             model: config.model,
             aiGuardEnabled: config.aiGuard.enabled,
+            aiGuardResults: data.aiGuardResults || null,
             prompt: text,
             response: data.message,
             metrics: {
@@ -559,6 +560,45 @@ function renderScans() {
                         <div class="scan-section-title">Model Response</div>
                         <div class="scan-section-content">${escapeHtml(scan.response)}</div>
                     </div>
+                    ${scan.aiGuardResults ? `
+                        <div class="scan-section">
+                            <div class="scan-section-title">AI Guard Validation</div>
+                            <div class="aiguard-validation">
+                                ${scan.aiGuardResults.inputValidation ? `
+                                    <div class="validation-item">
+                                        <div class="validation-label">Input Validation:</div>
+                                        <div class="validation-result ${scan.aiGuardResults.inputValidation.action === 'Allow' ? 'allowed' : 'blocked'}">
+                                            ${scan.aiGuardResults.inputValidation.action === 'Allow' ? '✅ Allowed' : '❌ Blocked'}
+                                        </div>
+                                        ${scan.aiGuardResults.inputValidation.reasons && scan.aiGuardResults.inputValidation.reasons.length > 0 ? `
+                                            <div class="validation-reasons">
+                                                <strong>Reasons:</strong> ${scan.aiGuardResults.inputValidation.reasons.join(', ')}
+                                            </div>
+                                        ` : ''}
+                                        ${scan.aiGuardResults.inputValidation.warning ? `
+                                            <div class="validation-warning">⚠️ ${scan.aiGuardResults.inputValidation.warning}</div>
+                                        ` : ''}
+                                    </div>
+                                ` : '<div class="validation-item">Input: Not validated</div>'}
+                                ${scan.aiGuardResults.outputValidation ? `
+                                    <div class="validation-item">
+                                        <div class="validation-label">Output Validation:</div>
+                                        <div class="validation-result ${scan.aiGuardResults.outputValidation.action === 'Allow' ? 'allowed' : 'blocked'}">
+                                            ${scan.aiGuardResults.outputValidation.action === 'Allow' ? '✅ Allowed' : '❌ Blocked'}
+                                        </div>
+                                        ${scan.aiGuardResults.outputValidation.reasons && scan.aiGuardResults.outputValidation.reasons.length > 0 ? `
+                                            <div class="validation-reasons">
+                                                <strong>Reasons:</strong> ${scan.aiGuardResults.outputValidation.reasons.join(', ')}
+                                            </div>
+                                        ` : ''}
+                                        ${scan.aiGuardResults.outputValidation.warning ? `
+                                            <div class="validation-warning">⚠️ ${scan.aiGuardResults.outputValidation.warning}</div>
+                                        ` : ''}
+                                    </div>
+                                ` : '<div class="validation-item">Output: Not validated</div>'}
+                            </div>
+                        </div>
+                    ` : ''}
                     ${scan.metrics ? `
                         <div class="scan-section">
                             <div class="scan-section-title">Metrics</div>

@@ -354,6 +354,68 @@ header p {
     gap: 5px;
 }
 
+.aiguard-validation {
+    padding: 12px;
+    background: var(--background);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.validation-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.validation-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.validation-result {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.validation-result.allowed {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.validation-result.blocked {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+.validation-reasons {
+    padding: 8px 12px;
+    background: rgba(239, 68, 68, 0.05);
+    border-left: 3px solid var(--error);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.validation-warning {
+    padding: 8px 12px;
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid var(--warning);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--warning);
+}
+
 /* Settings Tab */
 .settings-container {
     max-width: 800px;
