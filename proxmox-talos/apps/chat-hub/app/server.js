@@ -20,7 +20,10 @@ async function validateWithAIGuard(content, aiGuardConfig, requestType = 'Simple
   }
 
   const { apiKey, region, appName } = aiGuardConfig;
-  const endpoint = `https://api.${region}.xdr.trendmicro.com/v3.0/aiSecurity/applyGuardrails`;
+
+  // US region doesn't use region prefix, other regions do
+  const regionPrefix = region === 'us' ? '' : `.${region}`;
+  const endpoint = `https://api${regionPrefix}.xdr.trendmicro.com/v3.0/aiSecurity/applyGuardrails`;
 
   try {
     const response = await axios.post(
