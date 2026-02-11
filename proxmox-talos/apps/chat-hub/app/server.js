@@ -38,18 +38,33 @@ async function validateWithAIGuard(content, aiGuardConfig, requestType = 'Simple
       }
     );
 
+    // Log full response for analysis
+    console.log('AI Guard Full Response:', JSON.stringify(response.data, null, 2));
+
     const action = response.data.action;
     const reasons = response.data.reasons || [];
+    const resultId = response.data.resultId || response.data.id || null;
+    const riskScore = response.data.riskScore || null;
+    const categories = response.data.categories || [];
 
     if (action === 'Block') {
       return {
         allowed: false,
         reasons: reasons,
+        resultId: resultId,
+        riskScore: riskScore,
+        categories: categories,
+        fullResponse: response.data,
         message: `AI Guard blocked this content: ${reasons.join(', ')}`
       };
     }
 
-    return { allowed: true };
+    return {
+      allowed: true,
+      resultId: resultId,
+      riskScore: riskScore,
+      fullResponse: response.data
+    };
 
   } catch (error) {
     console.error('AI Guard Error:', error.response?.data || error.message);
@@ -81,6 +96,9 @@ app.post('/api/chat', async (req, res) => {
       aiGuardResults.inputValidation = {
         action: inputValidation.allowed ? 'Allow' : 'Block',
         reasons: inputValidation.reasons || [],
+        resultId: inputValidation.resultId,
+        riskScore: inputValidation.riskScore,
+        categories: inputValidation.categories || [],
         warning: inputValidation.warning
       };
 
@@ -115,6 +133,9 @@ app.post('/api/chat', async (req, res) => {
         aiGuardResults.outputValidation = {
           action: outputValidation.allowed ? 'Allow' : 'Block',
           reasons: outputValidation.reasons || [],
+          resultId: outputValidation.resultId,
+          riskScore: outputValidation.riskScore,
+          categories: outputValidation.categories || [],
           warning: outputValidation.warning
         };
 
@@ -171,6 +192,9 @@ app.post('/api/chat', async (req, res) => {
         aiGuardResults.outputValidation = {
           action: outputValidation.allowed ? 'Allow' : 'Block',
           reasons: outputValidation.reasons || [],
+          resultId: outputValidation.resultId,
+          riskScore: outputValidation.riskScore,
+          categories: outputValidation.categories || [],
           warning: outputValidation.warning
         };
 

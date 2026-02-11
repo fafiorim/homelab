@@ -611,6 +611,21 @@ function renderScans() {
                                         <div class="validation-result ${scan.aiGuardResults.inputValidation.action === 'Allow' ? 'allowed' : 'blocked'}">
                                             ${scan.aiGuardResults.inputValidation.action === 'Allow' ? '✅ Allowed' : '❌ Blocked'}
                                         </div>
+                                        ${scan.aiGuardResults.inputValidation.resultId ? `
+                                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+                                                Result ID: ${scan.aiGuardResults.inputValidation.resultId}
+                                            </div>
+                                        ` : ''}
+                                        ${scan.aiGuardResults.inputValidation.riskScore !== null && scan.aiGuardResults.inputValidation.riskScore !== undefined ? `
+                                            <div style="font-size: 0.8rem; margin-top: 4px;">
+                                                Risk Score: <strong>${scan.aiGuardResults.inputValidation.riskScore}</strong>
+                                            </div>
+                                        ` : ''}
+                                        ${scan.aiGuardResults.inputValidation.categories && scan.aiGuardResults.inputValidation.categories.length > 0 ? `
+                                            <div style="font-size: 0.8rem; margin-top: 4px;">
+                                                Categories: ${scan.aiGuardResults.inputValidation.categories.join(', ')}
+                                            </div>
+                                        ` : ''}
                                         ${scan.aiGuardResults.inputValidation.reasons && scan.aiGuardResults.inputValidation.reasons.length > 0 ? `
                                             <div class="validation-reasons">
                                                 <strong>Reasons:</strong> ${scan.aiGuardResults.inputValidation.reasons.join(', ')}
@@ -627,6 +642,21 @@ function renderScans() {
                                         <div class="validation-result ${scan.aiGuardResults.outputValidation.action === 'Allow' ? 'allowed' : 'blocked'}">
                                             ${scan.aiGuardResults.outputValidation.action === 'Allow' ? '✅ Allowed' : '❌ Blocked'}
                                         </div>
+                                        ${scan.aiGuardResults.outputValidation.resultId ? `
+                                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+                                                Result ID: ${scan.aiGuardResults.outputValidation.resultId}
+                                            </div>
+                                        ` : ''}
+                                        ${scan.aiGuardResults.outputValidation.riskScore !== null && scan.aiGuardResults.outputValidation.riskScore !== undefined ? `
+                                            <div style="font-size: 0.8rem; margin-top: 4px;">
+                                                Risk Score: <strong>${scan.aiGuardResults.outputValidation.riskScore}</strong>
+                                            </div>
+                                        ` : ''}
+                                        ${scan.aiGuardResults.outputValidation.categories && scan.aiGuardResults.outputValidation.categories.length > 0 ? `
+                                            <div style="font-size: 0.8rem; margin-top: 4px;">
+                                                Categories: ${scan.aiGuardResults.outputValidation.categories.join(', ')}
+                                            </div>
+                                        ` : ''}
                                         ${scan.aiGuardResults.outputValidation.reasons && scan.aiGuardResults.outputValidation.reasons.length > 0 ? `
                                             <div class="validation-reasons">
                                                 <strong>Reasons:</strong> ${scan.aiGuardResults.outputValidation.reasons.join(', ')}
