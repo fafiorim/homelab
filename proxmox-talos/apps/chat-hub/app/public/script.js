@@ -20,6 +20,9 @@ const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendButton = document.getElementById('sendButton');
 const statusDiv = document.getElementById('status');
+const metricsDiv = document.getElementById('metrics');
+const metricsText = document.getElementById('metricsText');
+const themeToggle = document.getElementById('themeToggle');
 
 // Provider configurations
 const providers = {
@@ -40,6 +43,7 @@ const providers = {
 // Initialize
 function init() {
     loadConfig();
+    loadTheme();
     setupEventListeners();
     updateProviderUI();
     loadModels();
@@ -97,6 +101,28 @@ function setupEventListeners() {
             sendMessage();
         }
     });
+
+    themeToggle.addEventListener('click', toggleTheme);
+}
+
+// Theme management
+function loadTheme() {
+    const savedTheme = localStorage.getItem('chat-hub-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('chat-hub-theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const icon = themeToggle.querySelector('.theme-icon');
+    icon.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 // Update UI based on provider
@@ -178,6 +204,10 @@ async function sendMessage() {
     sendButton.innerHTML = '<span class="loading"></span> Sending...';
     setStatus('Sending...', 'loading');
 
+    // Add thinking indicator
+    const thinkingId = addThinkingIndicator();
+    const startTime = Date.now();
+
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -197,11 +227,27 @@ async function sendMessage() {
         }
 
         const data = await response.json();
+        const endTime = Date.now();
+        const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+
+        // Estimate tokens (very rough: ~4 chars per token)
+        const estimatedTokens = Math.round(data.message.length / 4);
+        const tokensPerSecond = (estimatedTokens / parseFloat(responseTime)).toFixed(1);
+
+        removeThinkingIndicator(thinkingId);
+
         messages.push({ role: 'assistant', content: data.message });
-        appendMessage('assistant', data.message, data.model);
+        appendMessage('assistant', data.message, data.model, {
+            responseTime,
+            estimatedTokens,
+            tokensPerSecond
+        });
+
         setStatus('Ready', 'success');
+        showMetrics(`Last: ${responseTime}s • ~${tokensPerSecond} tok/s`);
     } catch (error) {
         console.error('Error sending message:', error);
+        removeThinkingIndicator(thinkingId);
         appendMessage('error', 'Error: ' + error.message);
         setStatus('Error: ' + error.message, 'error');
     } finally {
@@ -212,8 +258,38 @@ async function sendMessage() {
     }
 }
 
+// Add thinking indicator
+function addThinkingIndicator() {
+    const thinkingDiv = document.createElement('div');
+    thinkingDiv.className = 'thinking-indicator';
+    thinkingDiv.id = 'thinking-' + Date.now();
+    thinkingDiv.innerHTML = `
+        <span>Thinking</span>
+        <div class="thinking-dots">
+            <div class="thinking-dot"></div>
+            <div class="thinking-dot"></div>
+            <div class="thinking-dot"></div>
+        </div>
+    `;
+    chatMessages.appendChild(thinkingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return thinkingDiv.id;
+}
+
+// Remove thinking indicator
+function removeThinkingIndicator(id) {
+    const indicator = document.getElementById(id);
+    if (indicator) indicator.remove();
+}
+
+// Show metrics
+function showMetrics(text) {
+    metricsText.textContent = text;
+    metricsDiv.style.display = 'block';
+}
+
 // Append message to chat
-function appendMessage(type, content, model = null) {
+function appendMessage(type, content, model = null, metrics = null) {
     // Remove welcome message if present
     const welcome = chatMessages.querySelector('.welcome-message');
     if (welcome) welcome.remove();
@@ -232,6 +308,14 @@ function appendMessage(type, content, model = null) {
     contentDiv.className = 'message-content';
     contentDiv.textContent = content;
     messageDiv.appendChild(contentDiv);
+
+    // Add metrics if available
+    if (metrics && type === 'assistant') {
+        const metricsDiv = document.createElement('div');
+        metricsDiv.className = 'message-metrics';
+        metricsDiv.textContent = `⏱️ ${metrics.responseTime}s • 📊 ~${metrics.estimatedTokens} tokens • ⚡ ${metrics.tokensPerSecond} tok/s`;
+        messageDiv.appendChild(metricsDiv);
+    }
 
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
