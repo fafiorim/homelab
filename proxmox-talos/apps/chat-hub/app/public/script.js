@@ -414,8 +414,12 @@ async function sendMessage() {
     } catch (error) {
         console.error('Error sending message:', error);
         removeThinkingIndicator(thinkingId);
-        appendMessage('error', 'Error: ' + error.message);
-        setStatus('Error: ' + error.message, 'error');
+        // Don't prefix AI Guard blocks with "Error:" since they're security protections
+        const displayMessage = error.message.startsWith('🛡️ AI Guard:')
+            ? error.message
+            : 'Error: ' + error.message;
+        appendMessage('error', displayMessage);
+        setStatus(displayMessage, 'error');
     } finally {
         chatInput.disabled = false;
         sendButton.disabled = false;
