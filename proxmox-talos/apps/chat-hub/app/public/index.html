@@ -20,6 +20,7 @@
             </div>
             <nav class="tabs">
                 <button class="tab-button active" data-tab="chat">Chat</button>
+                <button class="tab-button" data-tab="scans">Scans</button>
                 <button class="tab-button" data-tab="settings">Settings</button>
             </nav>
         </header>
@@ -28,11 +29,15 @@
         <div id="chatTab" class="tab-content active">
             <div class="chat-header">
                 <div class="chat-info">
-                    <span id="currentProvider" class="provider-badge">Ollama</span>
-                    <span id="currentModel" class="model-badge">No model selected</span>
+                    <span id="currentProvider" class="provider-badge">Ollama (Local)</span>
                     <span id="aiGuardStatus" class="guard-badge" style="display: none;">🛡️ AI Guard</span>
                 </div>
-                <div id="chatStatus" class="status-inline">Ready</div>
+                <div class="chat-controls">
+                    <select id="modelSelectChat" class="model-select-chat">
+                        <option value="">Select model...</option>
+                    </select>
+                    <div id="chatStatus" class="status-inline">Ready</div>
+                </div>
             </div>
 
             <div class="chat-container">
@@ -61,6 +66,26 @@
 
             <div id="metrics" class="metrics" style="display: none;">
                 <small id="metricsText"></small>
+            </div>
+        </div>
+
+        <!-- Scans Tab -->
+        <div id="scansTab" class="tab-content">
+            <div class="scans-container">
+                <div class="scans-header">
+                    <h2>Interaction History</h2>
+                    <p class="scans-description">Track all prompts, responses, and AI Guard validations</p>
+                    <div class="scans-actions">
+                        <button id="clearScans" class="btn-secondary">Clear History</button>
+                        <button id="exportScans" class="btn-secondary">Export to JSON</button>
+                    </div>
+                </div>
+
+                <div id="scansList" class="scans-list">
+                    <div class="empty-scans">
+                        <p>No interactions yet. Start chatting to see your conversation history here.</p>
+                    </div>
+                </div>
             </div>
         </div>
 

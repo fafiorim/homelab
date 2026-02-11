@@ -14,6 +14,7 @@ let config = {
 
 // Chat history
 let messages = [];
+let scans = [];
 
 // DOM Elements
 const providerSelect = document.getElementById('provider');
@@ -21,6 +22,7 @@ const endpointInput = document.getElementById('endpoint');
 const apiKeyInput = document.getElementById('apiKey');
 const apiKeyGroup = document.getElementById('api-key-group');
 const modelSelect = document.getElementById('model');
+const modelSelectChat = document.getElementById('modelSelectChat');
 const refreshModelsBtn = document.getElementById('refreshModels');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
@@ -42,9 +44,13 @@ const aiGuardStatus = document.getElementById('aiGuardStatus');
 const saveSettingsBtn = document.getElementById('saveSettings');
 const saveStatus = document.getElementById('saveStatus');
 
+// Scans elements
+const scansList = document.getElementById('scansList');
+const clearScansBtn = document.getElementById('clearScans');
+const exportScansBtn = document.getElementById('exportScans');
+
 // Badge elements
 const currentProvider = document.getElementById('currentProvider');
-const currentModel = document.getElementById('currentModel');
 
 // Provider configurations
 const providers = {
@@ -66,6 +72,7 @@ const providers = {
 function init() {
     loadConfig();
     loadTheme();
+    loadScans();
     setupEventListeners();
     setupTabs();
     updateProviderUI();
@@ -120,6 +127,14 @@ function setupEventListeners() {
 
     modelSelect.addEventListener('change', () => {
         config.model = modelSelect.value;
+        modelSelectChat.value = modelSelect.value;
+        updateBadges();
+    });
+
+    modelSelectChat.addEventListener('change', () => {
+        config.model = modelSelectChat.value;
+        modelSelect.value = modelSelectChat.value;
+        saveConfig();
         updateBadges();
     });
 
@@ -165,6 +180,26 @@ function setupEventListeners() {
             saveStatus.textContent = '';
         }, 3000);
     });
+
+    // Scans buttons
+    clearScansBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear all scan history?')) {
+            scans = [];
+            saveScans();
+            renderScans();
+        }
+    });
+
+    exportScansBtn.addEventListener('click', () => {
+        const dataStr = JSON.stringify(scans, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `chat-hub-scans-${new Date().toISOString()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    });
 }
 
 // Tab management
@@ -195,12 +230,11 @@ function updateAIGuardUI() {
 // Update badges in chat header
 function updateBadges() {
     const providerNames = {
-        'ollama': 'Ollama',
+        'ollama': 'Ollama (Local)',
         'openai': 'OpenAI',
         'anthropic': 'Anthropic'
     };
     currentProvider.textContent = providerNames[config.provider] || config.provider;
-    currentModel.textContent = config.model || 'No model selected';
     aiGuardStatus.style.display = config.aiGuard.enabled && config.aiGuard.apiKey ? 'inline-block' : 'none';
 }
 
@@ -233,7 +267,9 @@ function updateProviderUI() {
 async function loadModels() {
     setStatus('Loading models...', 'loading');
     modelSelect.innerHTML = '<option value="">Loading...</option>';
+    modelSelectChat.innerHTML = '<option value="">Loading...</option>';
     modelSelect.disabled = true;
+    modelSelectChat.disabled = true;
 
     try {
         const response = await fetch('/api/models', {
@@ -250,31 +286,42 @@ async function loadModels() {
 
         const data = await response.json();
         modelSelect.innerHTML = '';
+        modelSelectChat.innerHTML = '<option value="">Select model...</option>';
 
         if (data.models.length === 0) {
             modelSelect.innerHTML = '<option value="">No models available</option>';
+            modelSelectChat.innerHTML = '<option value="">No models available</option>';
             setStatus('No models found', 'error');
         } else {
             data.models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model;
-                modelSelect.appendChild(option);
+                const option1 = document.createElement('option');
+                option1.value = model;
+                option1.textContent = model;
+                modelSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = model;
+                option2.textContent = model;
+                modelSelectChat.appendChild(option2);
             });
 
             if (config.model && data.models.includes(config.model)) {
                 modelSelect.value = config.model;
+                modelSelectChat.value = config.model;
             } else {
                 config.model = data.models[0];
                 modelSelect.value = config.model;
+                modelSelectChat.value = config.model;
             }
 
             modelSelect.disabled = false;
+            modelSelectChat.disabled = false;
             setStatus('Ready', 'success');
         }
     } catch (error) {
         console.error('Error loading models:', error);
         modelSelect.innerHTML = '<option value="">Error loading models</option>';
+        modelSelectChat.innerHTML = '<option value="">Error loading models</option>';
         setStatus('Error: ' + error.message, 'error');
     }
 }
@@ -344,6 +391,21 @@ async function sendMessage() {
             responseTime,
             estimatedTokens,
             tokensPerSecond
+        });
+
+        // Record scan
+        recordScan({
+            timestamp: new Date().toISOString(),
+            provider: config.provider,
+            model: config.model,
+            aiGuardEnabled: config.aiGuard.enabled,
+            prompt: text,
+            response: data.message,
+            metrics: {
+                responseTime,
+                estimatedTokens,
+                tokensPerSecond
+            }
         });
 
         setStatus('Ready', 'success');
@@ -428,6 +490,105 @@ function appendMessage(type, content, model = null, metrics = null) {
 function setStatus(text, type = 'info') {
     chatStatusDiv.textContent = text;
     chatStatusDiv.style.color = type === 'error' ? 'var(--error)' : type === 'success' ? 'var(--success)' : 'var(--text-secondary)';
+}
+
+// Load scans from localStorage
+function loadScans() {
+    const saved = localStorage.getItem('chat-hub-scans');
+    if (saved) {
+        scans = JSON.parse(saved);
+        renderScans();
+    }
+}
+
+// Save scans to localStorage
+function saveScans() {
+    localStorage.setItem('chat-hub-scans', JSON.stringify(scans));
+}
+
+// Record a new scan
+function recordScan(scan) {
+    scans.unshift(scan); // Add to beginning
+    // Keep only last 100 scans
+    if (scans.length > 100) {
+        scans = scans.slice(0, 100);
+    }
+    saveScans();
+    renderScans();
+}
+
+// Render scans list
+function renderScans() {
+    if (scans.length === 0) {
+        scansList.innerHTML = `
+            <div class="empty-scans">
+                <p>No interactions yet. Start chatting to see your conversation history here.</p>
+            </div>
+        `;
+        return;
+    }
+
+    scansList.innerHTML = scans.map((scan, index) => {
+        const date = new Date(scan.timestamp);
+        const formattedDate = date.toLocaleString();
+
+        const providerNames = {
+            'ollama': 'Ollama (Local)',
+            'openai': 'OpenAI',
+            'anthropic': 'Anthropic'
+        };
+
+        return `
+            <div class="scan-item">
+                <div class="scan-header">
+                    <div class="scan-meta">
+                        <span class="scan-timestamp">${formattedDate}</span>
+                        <span class="scan-badge provider">${providerNames[scan.provider] || scan.provider}</span>
+                        <span class="scan-badge model">${scan.model}</span>
+                        <span class="scan-badge ${scan.aiGuardEnabled ? 'guard-enabled' : 'guard-disabled'}">
+                            ${scan.aiGuardEnabled ? '🛡️ AI Guard ON' : 'AI Guard OFF'}
+                        </span>
+                    </div>
+                </div>
+                <div class="scan-content">
+                    <div class="scan-section">
+                        <div class="scan-section-title">User Prompt</div>
+                        <div class="scan-section-content">${escapeHtml(scan.prompt)}</div>
+                    </div>
+                    <div class="scan-section">
+                        <div class="scan-section-title">Model Response</div>
+                        <div class="scan-section-content">${escapeHtml(scan.response)}</div>
+                    </div>
+                    ${scan.metrics ? `
+                        <div class="scan-section">
+                            <div class="scan-section-title">Metrics</div>
+                            <div class="scan-metrics">
+                                <div class="scan-metric">
+                                    <span>⏱️</span>
+                                    <span>${scan.metrics.responseTime}s</span>
+                                </div>
+                                <div class="scan-metric">
+                                    <span>📊</span>
+                                    <span>~${scan.metrics.estimatedTokens} tokens</span>
+                                </div>
+                                <div class="scan-metric">
+                                    <span>⚡</span>
+                                    <span>${scan.metrics.tokensPerSecond} tok/s</span>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Start the app
