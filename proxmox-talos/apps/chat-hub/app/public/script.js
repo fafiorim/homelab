@@ -442,14 +442,22 @@ async function sendMessage() {
         return;
     }
 
+    // Add thinking indicator
+    const thinkingId = addThinkingIndicator();
+    const startTime = Date.now();
+
     // Read files as base64
     let filesData = [];
     if (hasFiles) {
         try {
             setStatus('Reading files...', 'loading');
+            updateThinkingStatus(thinkingId, `Reading ${selectedFiles.length} file(s)...`, 'info');
             filesData = await Promise.all(selectedFiles.map(file => readFileAsBase64(file)));
+            updateThinkingStatus(thinkingId, `Successfully read ${filesData.length} file(s)`, 'success');
         } catch (error) {
             console.error('Error reading files:', error);
+            updateThinkingStatus(thinkingId, 'Error reading files', 'error');
+            removeThinkingIndicator(thinkingId);
             setStatus('Error reading files', 'error');
             alert('Error reading files. Please try again.');
             return;
@@ -478,11 +486,14 @@ async function sendMessage() {
     sendButton.innerHTML = '<span class="loading"></span> Sending...';
     setStatus('Sending...', 'loading');
 
-    // Add thinking indicator
-    const thinkingId = addThinkingIndicator();
-    const startTime = Date.now();
-
     try {
+        // Update status for AI Guard validation
+        if (config.aiGuard.enabled && config.aiGuard.apiKey) {
+            updateThinkingStatus(thinkingId, 'AI Guard: Validating input...', 'info');
+        }
+
+        updateThinkingStatus(thinkingId, `Sending request to ${config.provider} (${config.model})...`, 'info');
+
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -497,9 +508,12 @@ async function sendMessage() {
             })
         });
 
+        updateThinkingStatus(thinkingId, 'Received response from LLM', 'success');
+
         if (!response.ok) {
             const error = await response.json();
             if (error.aiGuardBlocked) {
+                updateThinkingStatus(thinkingId, 'AI Guard blocked this request', 'error');
                 // Create an error with AI Guard results attached
                 const guardError = new Error(`🛡️ AI Guard: ${error.error}`);
                 guardError.aiGuardBlocked = true;
@@ -507,6 +521,7 @@ async function sendMessage() {
                 guardError.reasons = error.reasons;
                 throw guardError;
             }
+            updateThinkingStatus(thinkingId, `Request failed: ${error.error || 'Unknown error'}`, 'error');
             throw new Error(error.error || 'Request failed');
         }
 
@@ -517,6 +532,15 @@ async function sendMessage() {
         // Estimate tokens (very rough: ~4 chars per token)
         const estimatedTokens = Math.round(data.message.length / 4);
         const tokensPerSecond = (estimatedTokens / parseFloat(responseTime)).toFixed(1);
+
+        // Update status for AI Guard output validation
+        if (config.aiGuard.enabled && config.aiGuard.apiKey && data.aiGuardResults?.outputValidation) {
+            const outputStatus = data.aiGuardResults.outputValidation.action === 'Allow' ? 'passed' : 'blocked';
+            updateThinkingStatus(thinkingId, `AI Guard: Output validation ${outputStatus}`,
+                outputStatus === 'passed' ? 'success' : 'error');
+        }
+
+        updateThinkingStatus(thinkingId, `Completed in ${responseTime}s (~${tokensPerSecond} tok/s)`, 'success');
 
         removeThinkingIndicator(thinkingId);
 
@@ -592,16 +616,72 @@ function addThinkingIndicator() {
     thinkingDiv.className = 'thinking-indicator';
     thinkingDiv.id = 'thinking-' + Date.now();
     thinkingDiv.innerHTML = `
-        <span>Thinking</span>
-        <div class="thinking-dots">
-            <div class="thinking-dot"></div>
-            <div class="thinking-dot"></div>
-            <div class="thinking-dot"></div>
+        <div class="thinking-header" onclick="toggleThinkingDetails('${thinkingDiv.id}')">
+            <div class="thinking-main">
+                <span>Processing</span>
+                <div class="thinking-dots">
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                </div>
+            </div>
+            <span class="thinking-toggle">▼</span>
+        </div>
+        <div class="thinking-details" id="${thinkingDiv.id}-details">
+            <div class="thinking-status-log"></div>
         </div>
     `;
     chatMessages.appendChild(thinkingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return thinkingDiv.id;
+}
+
+// Toggle thinking details
+function toggleThinkingDetails(id) {
+    const indicator = document.getElementById(id);
+    if (!indicator) return;
+
+    const details = indicator.querySelector('.thinking-details');
+    const toggle = indicator.querySelector('.thinking-toggle');
+
+    if (details.style.display === 'none' || !details.style.display) {
+        details.style.display = 'block';
+        toggle.textContent = '▲';
+    } else {
+        details.style.display = 'none';
+        toggle.textContent = '▼';
+    }
+}
+
+// Update thinking status
+function updateThinkingStatus(id, status, type = 'info') {
+    const indicator = document.getElementById(id);
+    if (!indicator) return;
+
+    const statusLog = indicator.querySelector('.thinking-status-log');
+    if (!statusLog) return;
+
+    const timestamp = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+
+    const statusEntry = document.createElement('div');
+    statusEntry.className = `thinking-status-entry ${type}`;
+
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '🔄';
+    statusEntry.innerHTML = `
+        <span class="status-time">${timestamp}</span>
+        <span class="status-icon">${icon}</span>
+        <span class="status-text">${escapeHtml(status)}</span>
+    `;
+
+    statusLog.appendChild(statusEntry);
+
+    // Auto-scroll status log
+    statusLog.scrollTop = statusLog.scrollHeight;
 }
 
 // Remove thinking indicator
@@ -831,6 +911,10 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// Make functions globally accessible for onclick handlers
+window.toggleThinkingDetails = toggleThinkingDetails;
+window.removeFile = removeFile;
 
 // Start the app
 init();
