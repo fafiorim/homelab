@@ -28,13 +28,11 @@ async function validateWithAIGuard(content, aiGuardConfig, requestType = 'Simple
   try {
     const response = await axios.post(
       endpoint,
-      { content },
+      { prompt: content },
       {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'TMV1-Application-Name': appName,
-          'TMV1-Request-Type': requestType,
-          'Prefer': 'return=minimal',
           'Content-Type': 'application/json'
         }
       }
