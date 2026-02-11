@@ -172,6 +172,21 @@
                     </div>
                 </section>
 
+                <section class="settings-section" id="ollamaManagementSection" style="display: none;">
+                    <h3>Model Management (Ollama)</h3>
+                    <p class="section-description">
+                        View and manage models currently loaded in memory. Unload models to free VRAM resources.
+                    </p>
+
+                    <div class="form-group">
+                        <button id="refreshLoadedModels" class="btn-secondary">Refresh Loaded Models</button>
+                    </div>
+
+                    <div id="loadedModelsContainer">
+                        <div id="loadedModelsList"></div>
+                    </div>
+                </section>
+
                 <div class="settings-actions">
                     <button id="saveSettings" class="btn-primary">Save Settings</button>
                     <div id="saveStatus" class="save-status"></div>

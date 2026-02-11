@@ -422,6 +422,70 @@ app.post('/api/models', async (req, res) => {
   }
 });
 
+// Get loaded models (Ollama only)
+app.post('/api/ollama/loaded', async (req, res) => {
+  const { endpoint } = req.body;
+
+  try {
+    const response = await axios.get(`${endpoint}/api/ps`);
+    const loadedModels = response.data.models || [];
+
+    // Format the response with useful information
+    const formattedModels = loadedModels.map(model => ({
+      name: model.name,
+      size_vram: model.size_vram,
+      size_vram_gb: (model.size_vram / 1024 / 1024 / 1024).toFixed(2),
+      expires_at: model.expires_at,
+      digest: model.digest
+    }));
+
+    // Calculate total VRAM
+    const totalVram = loadedModels.reduce((sum, m) => sum + (m.size_vram || 0), 0);
+    const totalVramGb = (totalVram / 1024 / 1024 / 1024).toFixed(2);
+
+    res.json({
+      models: formattedModels,
+      count: formattedModels.length,
+      totalVramGb: totalVramGb
+    });
+  } catch (error) {
+    console.error('Loaded Models API Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Unload a specific model (Ollama only)
+app.post('/api/ollama/unload', async (req, res) => {
+  const { endpoint, model } = req.body;
+
+  if (!model) {
+    return res.status(400).json({ error: 'Model name is required' });
+  }
+
+  try {
+    const response = await axios.post(`${endpoint}/api/generate`, {
+      model: model,
+      keep_alive: 0
+    });
+
+    if (response.data.done_reason === 'unload') {
+      res.json({
+        success: true,
+        message: `Successfully unloaded ${model}`
+      });
+    } else {
+      res.json({
+        success: false,
+        message: 'Model may not have been unloaded',
+        response: response.data
+      });
+    }
+  } catch (error) {
+    console.error('Unload Model API Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Chat Hub server running on port ${PORT}`);
 });

@@ -521,6 +521,99 @@ header p {
     opacity: 0.9;
 }
 
+/* Loaded Models Management */
+#loadedModelsContainer {
+    margin-top: 15px;
+}
+
+#loadedModelsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.loaded-model-item {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.loaded-model-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.loaded-model-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.loaded-model-details {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.loaded-model-vram {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-unload {
+    padding: 6px 16px;
+    background: var(--error);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.btn-unload:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-unload:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loaded-models-summary {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--surface);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.loaded-models-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    background: var(--background);
+    border-radius: 6px;
+    border: 1px dashed var(--border);
+}
+
 .chat-container {
     background: var(--surface);
     border-radius: 10px;

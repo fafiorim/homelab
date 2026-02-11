@@ -217,6 +217,12 @@ function setupEventListeners() {
         link.click();
         URL.revokeObjectURL(url);
     });
+
+    // Model management button
+    const refreshLoadedModelsBtn = document.getElementById('refreshLoadedModels');
+    if (refreshLoadedModelsBtn) {
+        refreshLoadedModelsBtn.addEventListener('click', loadLoadedModels);
+    }
 }
 
 // Tab management
@@ -278,6 +284,17 @@ function updateThemeIcon(theme) {
 // Update UI based on provider
 function updateProviderUI() {
     apiKeyGroup.style.display = providers[config.provider].requiresApiKey ? 'block' : 'none';
+
+    // Show/hide Ollama model management section
+    const ollamaManagementSection = document.getElementById('ollamaManagementSection');
+    if (ollamaManagementSection) {
+        ollamaManagementSection.style.display = config.provider === 'ollama' ? 'block' : 'none';
+
+        // Load loaded models if Ollama is selected
+        if (config.provider === 'ollama') {
+            loadLoadedModels();
+        }
+    }
 }
 
 // Load available models
@@ -912,9 +929,96 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Load loaded models (Ollama only)
+async function loadLoadedModels() {
+    if (config.provider !== 'ollama') {
+        return;
+    }
+
+    const loadedModelsList = document.getElementById('loadedModelsList');
+    if (!loadedModelsList) return;
+
+    loadedModelsList.innerHTML = '<div class="loaded-models-empty">Loading...</div>';
+
+    try {
+        const response = await fetch('/api/ollama/loaded', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to load models');
+
+        const data = await response.json();
+
+        if (data.count === 0) {
+            loadedModelsList.innerHTML = '<div class="loaded-models-empty">No models currently loaded in memory</div>';
+        } else {
+            loadedModelsList.innerHTML = data.models.map(model => `
+                <div class="loaded-model-item">
+                    <div class="loaded-model-info">
+                        <div class="loaded-model-name">${escapeHtml(model.name)}</div>
+                        <div class="loaded-model-details">
+                            <span class="loaded-model-vram">💾 ${model.size_vram_gb} GB VRAM</span>
+                            <span>⏱️ Expires: ${new Date(model.expires_at).toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                    <button class="btn-unload" onclick="unloadModel('${escapeHtml(model.name)}')">Unload</button>
+                </div>
+            `).join('');
+
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'loaded-models-summary';
+            summary.innerHTML = `
+                <span><strong>Total Models:</strong> ${data.count}</span>
+                <span><strong>Total VRAM:</strong> ${data.totalVramGb} GB</span>
+            `;
+            loadedModelsList.appendChild(summary);
+        }
+    } catch (error) {
+        console.error('Error loading models:', error);
+        loadedModelsList.innerHTML = '<div class="loaded-models-empty">Error loading models: ' + escapeHtml(error.message) + '</div>';
+    }
+}
+
+// Unload a specific model
+async function unloadModel(modelName) {
+    if (!confirm(`Are you sure you want to unload ${modelName}?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/ollama/unload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint,
+                model: modelName
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Refresh the list
+            await loadLoadedModels();
+            alert(`Successfully unloaded ${modelName}`);
+        } else {
+            alert(`Failed to unload ${modelName}: ${data.message || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error unloading model:', error);
+        alert(`Error unloading model: ${error.message}`);
+    }
+}
+
 // Make functions globally accessible for onclick handlers
 window.toggleThinkingDetails = toggleThinkingDetails;
 window.removeFile = removeFile;
+window.unloadModel = unloadModel;
 
 // Start the app
 init();
