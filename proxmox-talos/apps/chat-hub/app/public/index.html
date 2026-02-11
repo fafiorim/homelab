@@ -55,12 +55,21 @@
                 </div>
 
                 <div class="chat-input-container">
-                    <textarea
-                        id="chatInput"
-                        placeholder="Type your message... (Shift+Enter for new line, Enter to send)"
-                        rows="3"
-                    ></textarea>
-                    <button id="sendButton" class="btn-primary">Send</button>
+                    <div class="input-wrapper">
+                        <div id="selectedFiles" class="selected-files"></div>
+                        <textarea
+                            id="chatInput"
+                            placeholder="Type your message... (Shift+Enter for new line, Enter to send)"
+                            rows="3"
+                        ></textarea>
+                    </div>
+                    <div class="input-actions">
+                        <input type="file" id="fileInput" multiple accept="image/*,.pdf,.txt,.doc,.docx" style="display: none;">
+                        <button id="attachButton" class="btn-icon" title="Attach files">
+                            📎
+                        </button>
+                        <button id="sendButton" class="btn-primary">Send</button>
+                    </div>
                 </div>
             </div>
 

@@ -5,7 +5,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+// Increase body size limit for file uploads (default is 100kb)
+// 50mb should be enough for base64-encoded files (max 20MB file = ~27MB base64)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static('public'));
 
 // Health check endpoint
@@ -76,9 +79,100 @@ async function validateWithAIGuard(content, aiGuardConfig, requestType = 'Simple
   }
 }
 
+// Format messages with files for different providers
+function formatMessagesWithFiles(provider, messages, files) {
+  if (!files || files.length === 0) {
+    return messages;
+  }
+
+  // For Anthropic Claude, format with content array
+  if (provider === 'anthropic') {
+    const lastMessage = messages[messages.length - 1];
+    const formattedLastMessage = {
+      role: lastMessage.role,
+      content: []
+    };
+
+    // Add text content if present
+    const textContent = lastMessage.content.replace(/\[Attached:.*?\]/g, '').trim();
+    if (textContent) {
+      formattedLastMessage.content.push({
+        type: 'text',
+        text: textContent
+      });
+    }
+
+    // Add file content
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        formattedLastMessage.content.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: file.type,
+            data: file.data
+          }
+        });
+      } else if (file.type === 'application/pdf') {
+        formattedLastMessage.content.push({
+          type: 'document',
+          source: {
+            type: 'base64',
+            media_type: 'application/pdf',
+            data: file.data
+          }
+        });
+      }
+    });
+
+    return [...messages.slice(0, -1), formattedLastMessage];
+  }
+
+  // For OpenAI (GPT-4 Vision), format with content array
+  if (provider === 'openai') {
+    const lastMessage = messages[messages.length - 1];
+    const formattedLastMessage = {
+      role: lastMessage.role,
+      content: []
+    };
+
+    // Add text content if present
+    const textContent = lastMessage.content.replace(/\[Attached:.*?\]/g, '').trim();
+    if (textContent) {
+      formattedLastMessage.content.push({
+        type: 'text',
+        text: textContent
+      });
+    }
+
+    // Add image content (OpenAI only supports images in vision models)
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        formattedLastMessage.content.push({
+          type: 'image_url',
+          image_url: {
+            url: `data:${file.type};base64,${file.data}`
+          }
+        });
+      }
+    });
+
+    return [...messages.slice(0, -1), formattedLastMessage];
+  }
+
+  // For Ollama with vision models, format with images array
+  if (provider === 'ollama') {
+    // Ollama vision models use a separate images array
+    // We'll handle this in the Ollama-specific code
+    return messages;
+  }
+
+  return messages;
+}
+
 // Chat endpoint - proxy to various LLM providers
 app.post('/api/chat', async (req, res) => {
-  const { provider, endpoint, apiKey, model, messages, aiGuard } = req.body;
+  const { provider, endpoint, apiKey, model, messages, files, aiGuard } = req.body;
 
   // Track AI Guard validation results
   const aiGuardResults = {
@@ -117,11 +211,25 @@ app.post('/api/chat', async (req, res) => {
 
     if (provider === 'ollama') {
       // Ollama format
-      response = await axios.post(`${endpoint}/api/chat`, {
+      const payload = {
         model: model,
         messages: messages,
         stream: false
-      });
+      };
+
+      // Add images array for vision/OCR models (llava, bakllava, etc.)
+      // Some OCR models can accept PDFs directly in the images array
+      if (files && files.length > 0) {
+        const images = files
+          .filter(f => f.type.startsWith('image/') || f.type === 'application/pdf')
+          .map(f => f.data);
+
+        if (images.length > 0) {
+          payload.images = images;
+        }
+      }
+
+      response = await axios.post(`${endpoint}/api/chat`, payload);
 
       const content = response.data.message.content;
       const modelName = response.data.model;
@@ -166,22 +274,34 @@ app.post('/api/chat', async (req, res) => {
         headers['anthropic-version'] = '2023-06-01';
       }
 
+      // Format messages with files if present
+      const formattedMessages = formatMessagesWithFiles(provider, messages, files);
+
       const payload = provider === 'anthropic'
         ? {
             model: model,
-            messages: messages,
+            messages: formattedMessages,
             max_tokens: 4096
           }
         : {
             model: model,
-            messages: messages
+            messages: formattedMessages
           };
 
       response = await axios.post(endpoint, payload, { headers });
 
-      const content = provider === 'anthropic'
-        ? response.data.content[0].text
-        : response.data.choices[0].message.content;
+      // Extract content from response
+      let content;
+      if (provider === 'anthropic') {
+        // Anthropic returns content as an array, extract text blocks
+        content = response.data.content
+          .filter(block => block.type === 'text')
+          .map(block => block.text)
+          .join('\n');
+      } else {
+        // OpenAI returns content as string or null
+        content = response.data.choices[0].message.content || '';
+      }
 
       const modelName = response.data.model;
 

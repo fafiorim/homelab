@@ -15,6 +15,7 @@ let config = {
 // Chat history
 let messages = [];
 let scans = [];
+let selectedFiles = [];
 
 // DOM Elements
 const providerSelect = document.getElementById('provider');
@@ -31,6 +32,9 @@ const chatStatusDiv = document.getElementById('chatStatus');
 const metricsDiv = document.getElementById('metrics');
 const metricsText = document.getElementById('metricsText');
 const themeToggle = document.getElementById('themeToggle');
+const fileInput = document.getElementById('fileInput');
+const attachButton = document.getElementById('attachButton');
+const selectedFilesDiv = document.getElementById('selectedFiles');
 
 // AI Guard elements
 const aiGuardEnabled = document.getElementById('aiGuardEnabled');
@@ -151,22 +155,35 @@ function setupEventListeners() {
 
     themeToggle.addEventListener('click', toggleTheme);
 
+    // File upload event listeners
+    attachButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
     // AI Guard event listeners
     aiGuardEnabled.addEventListener('change', () => {
         config.aiGuard.enabled = aiGuardEnabled.checked;
         updateAIGuardUI();
+        saveConfig();
+        updateBadges();
     });
 
     aiGuardApiKey.addEventListener('change', () => {
         config.aiGuard.apiKey = aiGuardApiKey.value;
+        saveConfig();
+        updateBadges();
     });
 
     aiGuardRegion.addEventListener('change', () => {
         config.aiGuard.region = aiGuardRegion.value;
+        saveConfig();
     });
 
     aiGuardAppName.addEventListener('change', () => {
         config.aiGuard.appName = aiGuardAppName.value;
+        saveConfig();
     });
 
     // Save settings button
@@ -326,10 +343,94 @@ async function loadModels() {
     }
 }
 
+// Handle file selection
+function handleFileSelect(event) {
+    const files = Array.from(event.target.files);
+
+    files.forEach(file => {
+        // Check file size (max 20MB)
+        if (file.size > 20 * 1024 * 1024) {
+            alert(`File "${file.name}" is too large. Maximum size is 20MB.`);
+            return;
+        }
+
+        selectedFiles.push(file);
+    });
+
+    renderSelectedFiles();
+    fileInput.value = ''; // Clear input for next selection
+}
+
+// Render selected files
+function renderSelectedFiles() {
+    if (selectedFiles.length === 0) {
+        selectedFilesDiv.innerHTML = '';
+        return;
+    }
+
+    selectedFilesDiv.innerHTML = selectedFiles.map((file, index) => {
+        const icon = getFileIcon(file.type);
+        const size = formatFileSize(file.size);
+
+        return `
+            <div class="file-chip">
+                <span class="file-chip-icon">${icon}</span>
+                <span class="file-chip-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+                <span class="file-chip-size">${size}</span>
+                <button class="file-chip-remove" onclick="removeFile(${index})" title="Remove file">×</button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Remove file from selection
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderSelectedFiles();
+}
+
+// Get file icon based on type
+function getFileIcon(type) {
+    if (type.startsWith('image/')) return '🖼️';
+    if (type === 'application/pdf') return '📄';
+    if (type.includes('word') || type.includes('document')) return '📝';
+    if (type.includes('text')) return '📃';
+    return '📎';
+}
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// Read file as base64
+async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve({
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                data: base64
+            });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 // Send message
 async function sendMessage() {
     const text = chatInput.value.trim();
-    if (!text) return;
+    const hasFiles = selectedFiles.length > 0;
+
+    if (!text && !hasFiles) return;
 
     if (!config.model) {
         setStatus('Please select a model first', 'error');
@@ -341,12 +442,39 @@ async function sendMessage() {
         return;
     }
 
+    // Read files as base64
+    let filesData = [];
+    if (hasFiles) {
+        try {
+            setStatus('Reading files...', 'loading');
+            filesData = await Promise.all(selectedFiles.map(file => readFileAsBase64(file)));
+        } catch (error) {
+            console.error('Error reading files:', error);
+            setStatus('Error reading files', 'error');
+            alert('Error reading files. Please try again.');
+            return;
+        }
+    }
+
+    // Build message content
+    let messageContent = text;
+    if (hasFiles) {
+        const filesList = filesData.map(f => f.name).join(', ');
+        messageContent = text ? `${text}\n\n[Attached: ${filesList}]` : `[Attached: ${filesList}]`;
+    }
+
     // Add user message
-    messages.push({ role: 'user', content: text });
-    appendMessage('user', text);
+    messages.push({ role: 'user', content: messageContent });
+    appendMessage('user', messageContent);
+
+    // Clear input and files
     chatInput.value = '';
+    selectedFiles = [];
+    renderSelectedFiles();
+
     chatInput.disabled = true;
     sendButton.disabled = true;
+    attachButton.disabled = true;
     sendButton.innerHTML = '<span class="loading"></span> Sending...';
     setStatus('Sending...', 'loading');
 
@@ -364,6 +492,7 @@ async function sendMessage() {
                 apiKey: config.apiKey,
                 model: config.model,
                 messages: messages,
+                files: filesData.length > 0 ? filesData : null,
                 aiGuard: config.aiGuard.enabled ? config.aiGuard : null
             })
         });
@@ -405,7 +534,7 @@ async function sendMessage() {
             model: config.model,
             aiGuardEnabled: config.aiGuard.enabled,
             aiGuardResults: data.aiGuardResults || null,
-            prompt: text,
+            prompt: messageContent,
             response: data.message,
             metrics: {
                 responseTime,
@@ -437,7 +566,7 @@ async function sendMessage() {
                 model: config.model,
                 aiGuardEnabled: config.aiGuard.enabled,
                 aiGuardResults: error.aiGuardResults,
-                prompt: text,
+                prompt: messageContent,
                 response: '', // No response since it was blocked
                 blocked: true,
                 blockReason: error.message,
@@ -451,6 +580,7 @@ async function sendMessage() {
     } finally {
         chatInput.disabled = false;
         sendButton.disabled = false;
+        attachButton.disabled = false;
         sendButton.textContent = 'Send';
         chatInput.focus();
     }
