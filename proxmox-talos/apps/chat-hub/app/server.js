@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
+const pdfParse = require('pdf-parse');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,6 +77,22 @@ async function validateWithAIGuard(content, aiGuardConfig, requestType = 'Simple
       allowed: true,
       warning: 'AI Guard validation failed - proceeding without validation'
     };
+  }
+}
+
+// Extract text from PDF file
+async function extractPdfText(base64Data) {
+  try {
+    // Convert base64 to buffer
+    const pdfBuffer = Buffer.from(base64Data, 'base64');
+
+    // Parse PDF
+    const data = await pdfParse(pdfBuffer);
+
+    return data.text;
+  } catch (error) {
+    console.error('PDF extraction error:', error.message);
+    return null;
   }
 }
 
@@ -182,7 +199,29 @@ app.post('/api/chat', async (req, res) => {
   };
 
   try {
-    // Step 1: Validate user input with AI Guard (if enabled)
+    // Step 1: Extract text from PDF files and append to message
+    if (files && files.length > 0) {
+      const pdfFiles = files.filter(f => f.type === 'application/pdf');
+
+      if (pdfFiles.length > 0) {
+        let extractedTexts = [];
+
+        for (const pdfFile of pdfFiles) {
+          const text = await extractPdfText(pdfFile.data);
+          if (text) {
+            extractedTexts.push(`\n\n--- Content from ${pdfFile.name || 'PDF'} ---\n${text}\n--- End of ${pdfFile.name || 'PDF'} ---\n`);
+          }
+        }
+
+        // Append extracted text to the last message
+        if (extractedTexts.length > 0) {
+          const lastMessage = messages[messages.length - 1];
+          lastMessage.content = lastMessage.content + extractedTexts.join('\n');
+        }
+      }
+    }
+
+    // Step 2: Validate user input with AI Guard (if enabled)
     if (aiGuard && aiGuard.enabled) {
       const userMessage = messages[messages.length - 1].content;
       const inputValidation = await validateWithAIGuard(userMessage, aiGuard);
@@ -206,7 +245,7 @@ app.post('/api/chat', async (req, res) => {
       }
     }
 
-    // Step 2: Call LLM provider
+    // Step 3: Call LLM provider
     let response;
 
     if (provider === 'ollama') {
@@ -234,7 +273,7 @@ app.post('/api/chat', async (req, res) => {
       const content = response.data.message.content;
       const modelName = response.data.model;
 
-      // Step 3: Validate LLM output with AI Guard (if enabled)
+      // Step 4: Validate LLM output with AI Guard (if enabled)
       if (aiGuard && aiGuard.enabled) {
         const outputValidation = await validateWithAIGuard(content, aiGuard);
 
@@ -305,7 +344,7 @@ app.post('/api/chat', async (req, res) => {
 
       const modelName = response.data.model;
 
-      // Step 3: Validate LLM output with AI Guard (if enabled)
+      // Step 4: Validate LLM output with AI Guard (if enabled)
       if (aiGuard && aiGuard.enabled) {
         const outputValidation = await validateWithAIGuard(content, aiGuard);
 
