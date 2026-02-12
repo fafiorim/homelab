@@ -32,3 +32,38 @@ spec:
     matchLabels:
       app: chat-hub
       volume: data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: chat-hub-ollama-models-pv
+  labels:
+    app: chat-hub
+    volume: ollama-models
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    server: 10.10.21.11
+    path: /volume4/VM/open-webui/models
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chat-hub-ollama-models-pvc
+  namespace: chat-hub
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 100Gi
+  selector:
+    matchLabels:
+      app: chat-hub
+      volume: ollama-models

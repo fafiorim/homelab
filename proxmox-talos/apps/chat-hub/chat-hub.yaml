@@ -38,6 +38,9 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /app/data
+        - name: ollama-models
+          mountPath: /app/ollama-models
+          readOnly: true
         livenessProbe:
           httpGet:
             path: /health
@@ -58,6 +61,9 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: chat-hub-data-pvc
+      - name: ollama-models
+        persistentVolumeClaim:
+          claimName: chat-hub-ollama-models-pvc
 ---
 apiVersion: v1
 kind: Service

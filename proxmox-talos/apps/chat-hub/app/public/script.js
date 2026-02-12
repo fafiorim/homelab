@@ -9,6 +9,11 @@ let config = {
         apiKey: '',
         region: 'us',
         appName: 'chat-hub'
+    },
+    tmas: {
+        useSharedKey: false,
+        apiKey: '',
+        region: 'us'
     }
 };
 
@@ -44,6 +49,19 @@ const aiGuardRegion = document.getElementById('aiGuardRegion');
 const aiGuardAppName = document.getElementById('aiGuardAppName');
 const aiGuardStatus = document.getElementById('aiGuardStatus');
 
+// TMAS elements
+const tmasUseSharedKey = document.getElementById('tmasUseSharedKey');
+const tmasApiKeyGroup = document.getElementById('tmasApiKeyGroup');
+const tmasApiKey = document.getElementById('tmasApiKey');
+const tmasRegion = document.getElementById('tmasRegion');
+const tmasModelSelect = document.getElementById('tmasModelSelect');
+const scanModelButton = document.getElementById('scanModelButton');
+const tmasScanProgress = document.getElementById('tmasScanProgress');
+const tmasScanProgressBar = document.getElementById('tmasScanProgressBar');
+const tmasScanStatus = document.getElementById('tmasScanStatus');
+const refreshTmasResults = document.getElementById('refreshTmasResults');
+const tmasResultsList = document.getElementById('tmasResultsList');
+
 // Settings elements
 const saveSettingsBtn = document.getElementById('saveSettings');
 const saveStatus = document.getElementById('saveStatus');
@@ -72,6 +90,222 @@ const providers = {
     }
 };
 
+// ============================================================================
+// TMAS (Trend Micro Artifact Scanner) Functions
+// ============================================================================
+
+// Load TMAS scan results
+async function loadTMASResults() {
+    if (!tmasResultsList) return;
+
+    tmasResultsList.innerHTML = '<div class="tmas-empty-results">Loading...</div>';
+
+    try {
+        const response = await fetch('/api/tmas/results');
+        if (!response.ok) throw new Error('Failed to load results');
+
+        const data = await response.json();
+
+        if (data.scans.length === 0) {
+            tmasResultsList.innerHTML = `
+                <div class="tmas-empty-results">
+                    <p>No scan results yet. Select a model and click "Scan Model" to start.</p>
+                </div>
+            `;
+        } else {
+            renderTMASResults(data.scans);
+        }
+    } catch (error) {
+        console.error('Error loading TMAS results:', error);
+        tmasResultsList.innerHTML = `
+            <div class="tmas-empty-results">
+                <p>Error loading results: ${escapeHtml(error.message)}</p>
+            </div>
+        `;
+    }
+}
+
+// Render TMAS scan results
+function renderTMASResults(scans) {
+    tmasResultsList.innerHTML = scans.map(scan => `
+        <div class="tmas-result-item" data-id="${scan.id}">
+            <div class="tmas-result-header">
+                <div class="tmas-result-info">
+                    <div class="tmas-model-name">${escapeHtml(scan.modelName)}</div>
+                    <div class="tmas-scan-date">${new Date(scan.scanDate).toLocaleString()} • ${scan.scanDuration}</div>
+                </div>
+                <div class="tmas-result-actions">
+                    <span class="tmas-threat-badge ${scan.threatLevel}">${scan.threatLevel.toUpperCase()}</span>
+                    <button class="btn-details" onclick="toggleTMASDetails('${scan.id}')">Details</button>
+                    <button class="btn-rescan" onclick="rescanModel('${escapeHtml(scan.modelName)}')">Re-scan</button>
+                    <button class="btn-delete-scan" onclick="deleteTMASScan('${scan.id}')">Delete</button>
+                </div>
+            </div>
+            <div class="tmas-result-details" id="tmas-details-${scan.id}">
+                <div class="tmas-stats">
+                    <div class="tmas-stat">
+                        <span>Risk Score:</span>
+                        <span class="tmas-stat-value">${scan.riskScore}/100</span>
+                    </div>
+                    <div class="tmas-stat">
+                        <span>Vulnerabilities:</span>
+                        <span class="tmas-stat-value">${scan.vulnerabilities.length}</span>
+                    </div>
+                    <div class="tmas-stat">
+                        <span>Malware:</span>
+                        <span class="tmas-stat-value">${scan.malwareDetected ? 'DETECTED' : 'None'}</span>
+                    </div>
+                </div>
+                <div class="tmas-risk-meter">
+                    <div class="tmas-risk-fill ${getRiskClass(scan.riskScore)}"
+                         style="width: ${scan.riskScore}%"></div>
+                </div>
+                ${scan.vulnerabilities.length > 0 ? `
+                    <div class="tmas-vuln-list">
+                        ${scan.vulnerabilities.map(v => `
+                            <div class="tmas-vuln-item">
+                                <span class="tmas-vuln-id">${escapeHtml(v.id)}</span>
+                                <span class="tmas-vuln-severity ${v.severity}">${v.severity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Get risk class for styling
+function getRiskClass(score) {
+    if (score < 30) return 'low';
+    if (score < 60) return 'medium';
+    return 'high';
+}
+
+// Toggle TMAS details
+function toggleTMASDetails(id) {
+    const details = document.getElementById(`tmas-details-${id}`);
+    if (details) {
+        details.classList.toggle('expanded');
+    }
+}
+
+// Handle TMAS scan
+async function handleTMASScan() {
+    const modelName = tmasModelSelect.value;
+
+    if (!modelName) {
+        alert('Please select a model to scan');
+        return;
+    }
+
+    const effectiveApiKey = getEffectiveTMASApiKey();
+    if (!effectiveApiKey) {
+        alert('Please configure TMAS API key (or enable AI Guard with API key)');
+        return;
+    }
+
+    // Show progress
+    tmasScanProgress.style.display = 'block';
+    tmasScanProgressBar.style.width = '0%';
+    tmasScanStatus.textContent = 'Initializing scan...';
+    scanModelButton.disabled = true;
+    scanModelButton.textContent = 'Scanning...';
+
+    try {
+        tmasScanProgressBar.style.width = '20%';
+        tmasScanStatus.textContent = 'Locating model file...';
+
+        const response = await fetch('/api/tmas/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                modelName: modelName,
+                apiKey: effectiveApiKey,
+                region: config.tmas.region,
+                endpoint: config.endpoint
+            })
+        });
+
+        tmasScanProgressBar.style.width = '80%';
+        tmasScanStatus.textContent = 'Processing results...';
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Scan failed');
+        }
+
+        const data = await response.json();
+
+        tmasScanProgressBar.style.width = '100%';
+        tmasScanStatus.textContent = `Scan complete! Threat level: ${data.result.threatLevel.toUpperCase()}`;
+
+        // Refresh results
+        await loadTMASResults();
+
+        // Hide progress after delay
+        setTimeout(() => {
+            tmasScanProgress.style.display = 'none';
+        }, 3000);
+
+    } catch (error) {
+        console.error('TMAS scan error:', error);
+        tmasScanStatus.textContent = `Error: ${error.message}`;
+        tmasScanProgressBar.style.width = '0%';
+        alert(`Scan failed: ${error.message}`);
+    } finally {
+        scanModelButton.disabled = false;
+        scanModelButton.textContent = 'Scan Model';
+    }
+}
+
+// Re-scan a model
+async function rescanModel(modelName) {
+    if (tmasModelSelect) {
+        tmasModelSelect.value = modelName;
+        await handleTMASScan();
+    }
+}
+
+// Delete TMAS scan result
+async function deleteTMASScan(id) {
+    if (!confirm('Are you sure you want to delete this scan result?')) return;
+
+    try {
+        const response = await fetch(`/api/tmas/result/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Delete failed');
+        }
+
+        await loadTMASResults();
+    } catch (error) {
+        console.error('Error deleting scan:', error);
+        alert(`Failed to delete: ${error.message}`);
+    }
+}
+
+// Update TMAS model select dropdown
+function updateTMASModelSelect(models) {
+    if (!tmasModelSelect) return;
+
+    tmasModelSelect.innerHTML = '<option value="">Select model to scan...</option>';
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = model;
+        tmasModelSelect.appendChild(option);
+    });
+}
+
+// Make TMAS functions globally accessible
+window.toggleTMASDetails = toggleTMASDetails;
+window.rescanModel = rescanModel;
+window.deleteTMASScan = deleteTMASScan;
+
 // Initialize
 function init() {
     loadConfig();
@@ -81,8 +315,10 @@ function init() {
     setupTabs();
     updateProviderUI();
     updateAIGuardUI();
+    updateTMASUI();
     updateBadges();
     loadModels();
+    loadTMASResults();
 }
 
 // Load config from localStorage
@@ -93,7 +329,8 @@ function loadConfig() {
         config = {
             ...config,
             ...savedConfig,
-            aiGuard: { ...config.aiGuard, ...(savedConfig.aiGuard || {}) }
+            aiGuard: { ...config.aiGuard, ...(savedConfig.aiGuard || {}) },
+            tmas: { ...config.tmas, ...(savedConfig.tmas || {}) }
         };
         providerSelect.value = config.provider;
         endpointInput.value = config.endpoint;
@@ -104,6 +341,11 @@ function loadConfig() {
         aiGuardApiKey.value = config.aiGuard.apiKey;
         aiGuardRegion.value = config.aiGuard.region;
         aiGuardAppName.value = config.aiGuard.appName;
+
+        // Load TMAS settings
+        if (tmasUseSharedKey) tmasUseSharedKey.checked = config.tmas.useSharedKey;
+        if (tmasApiKey) tmasApiKey.value = config.tmas.apiKey;
+        if (tmasRegion) tmasRegion.value = config.tmas.region;
     }
 }
 
@@ -186,6 +428,37 @@ function setupEventListeners() {
         saveConfig();
     });
 
+    // TMAS event listeners
+    if (tmasUseSharedKey) {
+        tmasUseSharedKey.addEventListener('change', () => {
+            config.tmas.useSharedKey = tmasUseSharedKey.checked;
+            updateTMASUI();
+            saveConfig();
+        });
+    }
+
+    if (tmasApiKey) {
+        tmasApiKey.addEventListener('change', () => {
+            config.tmas.apiKey = tmasApiKey.value;
+            saveConfig();
+        });
+    }
+
+    if (tmasRegion) {
+        tmasRegion.addEventListener('change', () => {
+            config.tmas.region = tmasRegion.value;
+            saveConfig();
+        });
+    }
+
+    if (scanModelButton) {
+        scanModelButton.addEventListener('click', handleTMASScan);
+    }
+
+    if (refreshTmasResults) {
+        refreshTmasResults.addEventListener('click', loadTMASResults);
+    }
+
     // Save settings button
     saveSettingsBtn.addEventListener('click', () => {
         saveConfig();
@@ -258,6 +531,21 @@ function setupTabs() {
 function updateAIGuardUI() {
     aiGuardConfig.style.display = aiGuardEnabled.checked ? 'block' : 'none';
     aiGuardStatus.style.display = aiGuardEnabled.checked && config.aiGuard.apiKey ? 'inline-block' : 'none';
+}
+
+// Update TMAS UI
+function updateTMASUI() {
+    if (tmasApiKeyGroup) {
+        tmasApiKeyGroup.style.display = config.tmas.useSharedKey ? 'none' : 'block';
+    }
+}
+
+// Get effective TMAS API key (shared or separate)
+function getEffectiveTMASApiKey() {
+    if (config.tmas.useSharedKey) {
+        return config.aiGuard.apiKey;
+    }
+    return config.tmas.apiKey;
 }
 
 // Update badges in chat header
@@ -360,6 +648,9 @@ async function loadModels() {
                     modelToLoadSelect.appendChild(option);
                 });
             }
+
+            // Populate TMAS model select dropdown
+            updateTMASModelSelect(data.models);
 
             if (config.model && data.models.includes(config.model)) {
                 modelSelect.value = config.model;

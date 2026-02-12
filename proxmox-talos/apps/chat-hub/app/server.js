@@ -2,9 +2,15 @@ const express = require('express');
 const axios = require('axios');
 const path = require('path');
 const pdfParse = require('pdf-parse');
+const { spawn } = require('child_process');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// TMAS configuration
+const TMAS_SCANS_FILE = '/app/data/tmas-scans.json';
+const OLLAMA_MODELS_PATH = '/app/ollama-models';
 
 // Increase body size limit for file uploads (default is 100kb)
 // 50mb should be enough for base64-encoded files (max 20MB file = ~27MB base64)
@@ -564,6 +570,326 @@ app.post('/api/ollama/pull', async (req, res) => {
     res.status(500).json({
       error: error.response?.data?.error || error.message
     });
+  }
+});
+
+// ============================================================================
+// TMAS (Trend Micro Artifact Scanner) Integration
+// ============================================================================
+
+// Helper: Generate UUID
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// Helper: Load scan results from file
+function loadScanResults() {
+  try {
+    if (fs.existsSync(TMAS_SCANS_FILE)) {
+      const data = fs.readFileSync(TMAS_SCANS_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error loading scan results:', error);
+  }
+  return { scans: [] };
+}
+
+// Helper: Save scan results to file
+function saveScanResults(results) {
+  try {
+    const dir = path.dirname(TMAS_SCANS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(TMAS_SCANS_FILE, JSON.stringify(results, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving scan results:', error);
+    return false;
+  }
+}
+
+// Helper: Find model file in mounted NFS directory
+async function findModelFile(modelName, endpoint) {
+  try {
+    // Get model info from Ollama to find the digest
+    const response = await axios.post(`${endpoint}/api/show`, { name: modelName });
+    const modelInfo = response.data;
+
+    // The model details contain layer information
+    // Look for the model layer (largest blob, typically)
+    if (modelInfo.details) {
+      const modelSize = modelInfo.details.parameter_size || modelInfo.size;
+
+      // Try to find model file in blobs directory
+      const blobsDir = path.join(OLLAMA_MODELS_PATH, 'blobs');
+
+      if (fs.existsSync(blobsDir)) {
+        // List all blobs and find the largest one (likely the model)
+        const files = fs.readdirSync(blobsDir);
+        let largestFile = null;
+        let largestSize = 0;
+
+        for (const file of files) {
+          if (file.startsWith('sha256-')) {
+            const filePath = path.join(blobsDir, file);
+            const stats = fs.statSync(filePath);
+            if (stats.size > largestSize) {
+              largestSize = stats.size;
+              largestFile = {
+                path: filePath,
+                size: stats.size,
+                digest: file.replace('sha256-', 'sha256:')
+              };
+            }
+          }
+        }
+
+        if (largestFile) {
+          console.log(`Found model file: ${largestFile.path} (${largestFile.size} bytes)`);
+          return largestFile;
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error finding model file:', error);
+    return null;
+  }
+}
+
+// Helper: Run TMAS scan
+async function runTMASScan(modelPath, apiKey, region = 'us') {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+
+    // Set environment variables
+    const env = { ...process.env, TMAS_API_KEY: apiKey };
+
+    // Build TMAS command (scanning with Vision One Malware Scanning)
+    const args = ['scan', modelPath, '-VMS', '--region', region, '--json'];
+
+    console.log(`Running TMAS scan: tmas ${args.join(' ')}`);
+
+    const tmas = spawn('tmas', args, { env });
+
+    let stdout = '';
+    let stderr = '';
+
+    tmas.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    tmas.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    tmas.on('close', (code) => {
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+      if (code === 0 || stdout.length > 0) {
+        try {
+          const result = JSON.parse(stdout);
+          resolve({ success: true, result, duration });
+        } catch (e) {
+          // If JSON parsing fails, return raw output
+          resolve({ success: true, result: { raw: stdout }, duration });
+        }
+      } else {
+        reject(new Error(stderr || `TMAS exited with code ${code}`));
+      }
+    });
+
+    tmas.on('error', (error) => {
+      reject(error);
+    });
+  });
+}
+
+// Helper: Determine threat level from scan results
+function determineThreatLevel(result) {
+  if (!result) return 'unknown';
+
+  // Check for malware or vulnerabilities
+  const vulns = result.vulnerabilities || [];
+  const malware = result.malware || result.malwareDetected || false;
+
+  if (malware || result.malwareDetected) return 'critical';
+  if (vulns.some(v => v.severity === 'CRITICAL')) return 'critical';
+  if (vulns.some(v => v.severity === 'HIGH')) return 'high';
+  if (vulns.some(v => v.severity === 'MEDIUM')) return 'medium';
+  if (vulns.some(v => v.severity === 'LOW')) return 'low';
+
+  return 'clean';
+}
+
+// Helper: Extract vulnerabilities from scan results
+function extractVulnerabilities(result) {
+  if (!result || !result.vulnerabilities) return [];
+
+  return result.vulnerabilities.map(v => ({
+    id: v.id || v.cve || 'N/A',
+    severity: v.severity || 'UNKNOWN',
+    description: v.description || '',
+    package: v.package || v.packageName || '',
+    fixedVersion: v.fixedVersion || v.fix || ''
+  }));
+}
+
+// Helper: Check for malware
+function checkMalware(result) {
+  if (!result) return false;
+  return result.malwareDetected || (result.malware && result.malware.length > 0) || false;
+}
+
+// Helper: Calculate risk score (0-100)
+function calculateRiskScore(result) {
+  if (!result) return 0;
+
+  let score = 0;
+  const vulns = result.vulnerabilities || [];
+  const malware = checkMalware(result);
+
+  if (malware) score += 50;
+  score += vulns.filter(v => v.severity === 'CRITICAL').length * 25;
+  score += vulns.filter(v => v.severity === 'HIGH').length * 15;
+  score += vulns.filter(v => v.severity === 'MEDIUM').length * 8;
+  score += vulns.filter(v => v.severity === 'LOW').length * 2;
+
+  return Math.min(100, score);
+}
+
+// POST /api/tmas/scan - Trigger model scan
+app.post('/api/tmas/scan', async (req, res) => {
+  const { modelName, apiKey, region, endpoint } = req.body;
+
+  // Validate inputs
+  if (!modelName) {
+    return res.status(400).json({ error: 'Model name is required' });
+  }
+
+  if (!apiKey) {
+    return res.status(400).json({ error: 'TMAS API key is required' });
+  }
+
+  // Sanitize model name to prevent path traversal
+  const sanitizedModelName = modelName.replace(/[^a-zA-Z0-9:._-]/g, '');
+  if (sanitizedModelName !== modelName) {
+    return res.status(400).json({ error: 'Invalid model name' });
+  }
+
+  try {
+    // Find the model file
+    const modelFile = await findModelFile(modelName, endpoint || 'http://10.10.21.6:11434');
+
+    if (!modelFile) {
+      return res.status(404).json({
+        error: 'Model file not found. Ensure the model is available and the Ollama models volume is mounted correctly.'
+      });
+    }
+
+    // Run TMAS scan
+    console.log(`Starting TMAS scan for ${modelName} at ${modelFile.path}`);
+    const scanResult = await runTMASScan(modelFile.path, apiKey, region || 'us');
+
+    // Create scan record
+    const scanRecord = {
+      id: generateUUID(),
+      modelName: modelName,
+      modelSize: modelFile.size,
+      modelDigest: modelFile.digest,
+      scanDate: new Date().toISOString(),
+      scanDuration: scanResult.duration + 's',
+      status: 'completed',
+      threatLevel: determineThreatLevel(scanResult.result),
+      vulnerabilities: extractVulnerabilities(scanResult.result),
+      malwareDetected: checkMalware(scanResult.result),
+      riskScore: calculateRiskScore(scanResult.result),
+      fullReport: scanResult.result
+    };
+
+    // Save scan result
+    const allScans = loadScanResults();
+    allScans.scans.unshift(scanRecord);
+
+    // Keep only last 50 scans
+    if (allScans.scans.length > 50) {
+      allScans.scans = allScans.scans.slice(0, 50);
+    }
+
+    saveScanResults(allScans);
+
+    console.log(`TMAS scan completed for ${modelName}: ${scanRecord.threatLevel}`);
+
+    res.json({
+      success: true,
+      scanId: scanRecord.id,
+      result: scanRecord
+    });
+
+  } catch (error) {
+    console.error('TMAS scan error:', error);
+    res.status(500).json({
+      error: error.message || 'Scan failed'
+    });
+  }
+});
+
+// GET /api/tmas/results - List all scan results
+app.get('/api/tmas/results', (req, res) => {
+  try {
+    const results = loadScanResults();
+    res.json(results);
+  } catch (error) {
+    console.error('Error loading TMAS results:', error);
+    res.status(500).json({ error: 'Failed to load scan results' });
+  }
+});
+
+// GET /api/tmas/result/:id - Get specific scan result
+app.get('/api/tmas/result/:id', (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const results = loadScanResults();
+    const scan = results.scans.find(s => s.id === id);
+
+    if (!scan) {
+      return res.status(404).json({ error: 'Scan result not found' });
+    }
+
+    res.json(scan);
+  } catch (error) {
+    console.error('Error loading TMAS result:', error);
+    res.status(500).json({ error: 'Failed to load scan result' });
+  }
+});
+
+// DELETE /api/tmas/result/:id - Delete scan result
+app.delete('/api/tmas/result/:id', (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const results = loadScanResults();
+    const index = results.scans.findIndex(s => s.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({ error: 'Scan result not found' });
+    }
+
+    results.scans.splice(index, 1);
+    saveScanResults(results);
+
+    res.json({ success: true, message: 'Scan result deleted' });
+  } catch (error) {
+    console.error('Error deleting TMAS result:', error);
+    res.status(500).json({ error: 'Failed to delete scan result' });
   }
 });
 

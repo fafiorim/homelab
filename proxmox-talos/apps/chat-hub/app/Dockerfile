@@ -12,6 +12,15 @@ RUN npm install --production
 COPY server.js ./
 COPY public ./public
 
+# Install TMAS (Trend Micro Artifact Scanner) for model security scanning
+RUN apk add --no-cache bash curl gcompat && \
+    curl -sL "https://cli.artifactscan.cloudone.trendmicro.com/tmas-cli/latest/tmas-cli_Linux_x86_64.tar.gz" -o /tmp/tmas.tar.gz && \
+    tar -xzf /tmp/tmas.tar.gz -C /tmp && \
+    mv /tmp/tmas /usr/local/bin/tmas && \
+    chmod +x /usr/local/bin/tmas && \
+    tmas version && \
+    rm -rf /tmp/*
+
 # Expose port
 EXPOSE 3000
 

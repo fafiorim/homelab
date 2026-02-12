@@ -172,6 +172,65 @@
                     </div>
                 </section>
 
+                <section class="settings-section">
+                    <h3>Model Security Scanning (TMAS)</h3>
+                    <p class="section-description">
+                        Trend Micro Artifact Scanner scans AI models for vulnerabilities, malware, and security risks.
+                    </p>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="tmasUseSharedKey">
+                            <span>Use same API key as AI Guard</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" id="tmasApiKeyGroup">
+                        <label for="tmasApiKey">TMAS API Key</label>
+                        <input type="password" id="tmasApiKey" placeholder="Your Trend Vision One API key">
+                        <small class="field-hint">Get your API key from Trend Vision One console</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tmasRegion">Region</label>
+                        <select id="tmasRegion">
+                            <option value="us">United States</option>
+                            <option value="eu">Europe</option>
+                            <option value="au">Australia</option>
+                            <option value="in">India</option>
+                            <option value="sg">Singapore</option>
+                            <option value="jp">Japan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tmasModelSelect">Model to Scan</label>
+                        <select id="tmasModelSelect">
+                            <option value="">Select model...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="scanModelButton" class="btn-primary">Scan Model</button>
+                    </div>
+
+                    <div id="tmasScanProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div id="tmasScanProgressBar" class="progress-fill"></div>
+                        </div>
+                        <div id="tmasScanStatus" style="margin-top: 5px; font-size: 12px;"></div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Scan Results</label>
+                        <button id="refreshTmasResults" class="btn-secondary">Refresh Results</button>
+                    </div>
+
+                    <div id="tmasResultsContainer">
+                        <div id="tmasResultsList"></div>
+                    </div>
+                </section>
+
                 <section class="settings-section" id="ollamaManagementSection" style="display: none;">
                     <h3>Model Management (Ollama)</h3>
                     <p class="section-description">
