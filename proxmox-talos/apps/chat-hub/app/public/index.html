@@ -128,7 +128,10 @@
                         <select id="model">
                             <option value="">Loading...</option>
                         </select>
-                        <button id="refreshModels" class="btn-secondary">Refresh Models</button>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button id="refreshModels" class="btn-secondary">Refresh Models</button>
+                            <button id="deleteModelButton" class="btn-danger" style="background-color: #dc3545;">Delete Model</button>
+                        </div>
                     </div>
                 </section>
 
@@ -194,12 +197,15 @@
                     <div class="form-group">
                         <label for="tmasRegion">Region</label>
                         <select id="tmasRegion">
-                            <option value="us">United States</option>
-                            <option value="eu">Europe</option>
-                            <option value="au">Australia</option>
-                            <option value="in">India</option>
-                            <option value="sg">Singapore</option>
-                            <option value="jp">Japan</option>
+                            <option value="us-east-1">United States</option>
+                            <option value="eu-central-1">Europe (Frankfurt)</option>
+                            <option value="eu-west-2">Europe (London)</option>
+                            <option value="ap-southeast-2">Australia</option>
+                            <option value="ap-south-1">India</option>
+                            <option value="ap-northeast-1">Japan</option>
+                            <option value="ap-southeast-1">Singapore</option>
+                            <option value="ca-central-1">Canada</option>
+                            <option value="me-central-1">Middle East</option>
                         </select>
                     </div>
 
@@ -208,6 +214,7 @@
                         <select id="tmasModelSelect">
                             <option value="">Select model...</option>
                         </select>
+                        <small class="field-hint">TMAS will test the running model for security vulnerabilities, prompt injection, and data leakage risks</small>
                     </div>
 
                     <div class="form-group">
@@ -234,11 +241,11 @@
                 <section class="settings-section" id="ollamaManagementSection" style="display: none;">
                     <h3>Model Management (Ollama)</h3>
                     <p class="section-description">
-                        Download new models, load them into memory, or unload them to free VRAM resources.
+                        Download new models, load them into memory, or delete them. Models in memory use VRAM.
                     </p>
 
                     <div class="form-group">
-                        <label for="modelToPull">Download Model</label>
+                        <label for="modelToPull">Download New Model</label>
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <input type="text" id="modelToPull" placeholder="e.g., llama3.2, mistral, gemma2:2b" style="flex: 1; min-width: 250px;">
                             <button id="pullModelButton" class="btn-secondary" style="flex-shrink: 0; max-width: 110px;">Download</button>
@@ -253,23 +260,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="modelToLoad">Load Model</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <select id="modelToLoad" style="flex: 1; min-width: 250px;">
-                                <option value="">Select model to load...</option>
-                            </select>
-                            <button id="loadModelButton" class="btn-secondary" style="flex-shrink: 0; max-width: 110px;">Load Model</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label style="margin: 0;">All Models</label>
+                            <button id="refreshAllModels" class="btn-secondary">Refresh</button>
                         </div>
-                        <small class="field-hint">Select a model to load it into memory</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Loaded Models</label>
-                        <button id="refreshLoadedModels" class="btn-secondary">Refresh Loaded Models</button>
-                    </div>
-
-                    <div id="loadedModelsContainer">
-                        <div id="loadedModelsList"></div>
+                        <div id="modelsTableContainer">
+                            <div class="models-table-loading">Loading models...</div>
+                        </div>
                     </div>
                 </section>
 

@@ -13,7 +13,7 @@ let config = {
     tmas: {
         useSharedKey: false,
         apiKey: '',
-        region: 'us'
+        region: 'us-east-1'
     }
 };
 
@@ -56,6 +56,7 @@ const tmasApiKey = document.getElementById('tmasApiKey');
 const tmasRegion = document.getElementById('tmasRegion');
 const tmasModelSelect = document.getElementById('tmasModelSelect');
 const scanModelButton = document.getElementById('scanModelButton');
+const deleteModelButton = document.getElementById('deleteModelButton');
 const tmasScanProgress = document.getElementById('tmasScanProgress');
 const tmasScanProgressBar = document.getElementById('tmasScanProgressBar');
 const tmasScanStatus = document.getElementById('tmasScanStatus');
@@ -142,6 +143,31 @@ function renderTMASResults(scans) {
                 </div>
             </div>
             <div class="tmas-result-details" id="tmas-details-${scan.id}">
+                <div class="tmas-metadata-section">
+                    <h4>Scan Metadata</h4>
+                    <div class="tmas-metadata-grid">
+                        <div class="tmas-metadata-item">
+                            <span class="tmas-metadata-label">Model:</span>
+                            <span class="tmas-metadata-value">${escapeHtml(scan.fullReport?.details?.application || scan.modelName)}</span>
+                        </div>
+                        <div class="tmas-metadata-item">
+                            <span class="tmas-metadata-label">Endpoint:</span>
+                            <span class="tmas-metadata-value">${escapeHtml(scan.fullReport?.details?.endpoint || 'N/A')}</span>
+                        </div>
+                        <div class="tmas-metadata-item">
+                            <span class="tmas-metadata-label">Scan Date:</span>
+                            <span class="tmas-metadata-value">${scan.fullReport?.details?.scan_time || new Date(scan.scanDate).toUTCString()}</span>
+                        </div>
+                        <div class="tmas-metadata-item">
+                            <span class="tmas-metadata-label">Duration:</span>
+                            <span class="tmas-metadata-value">${scan.fullReport?.details?.scan_duration || scan.scanDuration}</span>
+                        </div>
+                        <div class="tmas-metadata-item">
+                            <span class="tmas-metadata-label">Scan ID:</span>
+                            <span class="tmas-metadata-value tmas-scan-id">${scan.fullReport?.details?.scan_id || scan.id}</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="tmas-stats">
                     <div class="tmas-stat">
                         <span>Risk Score:</span>
@@ -162,14 +188,49 @@ function renderTMASResults(scans) {
                 </div>
                 ${scan.vulnerabilities.length > 0 ? `
                     <div class="tmas-vuln-list">
-                        ${scan.vulnerabilities.map(v => `
+                        ${scan.vulnerabilities.map((v, idx) => {
+                            console.log('Rendering vulnerability:', v.id, 'attacks:', v.attacks?.length || 0);
+                            return `
                             <div class="tmas-vuln-item">
-                                <span class="tmas-vuln-id">${escapeHtml(v.id)}</span>
-                                <span class="tmas-vuln-severity ${v.severity}">${v.severity}</span>
+                                <div class="tmas-vuln-header" onclick="toggleVulnDetails('${scan.id}', ${idx}, event)">
+                                    <span class="tmas-vuln-id">${escapeHtml(v.id)}</span>
+                                    <span class="tmas-vuln-severity ${v.severity}">${v.severity}</span>
+                                    <span class="tmas-vuln-description">${escapeHtml(v.description)}</span>
+                                    ${v.attacks && v.attacks.length > 0 ? '<span class="tmas-expand-icon">▶</span>' : ''}
+                                </div>
+                                ${v.attacks && v.attacks.length > 0 ? `
+                                    <div class="tmas-vuln-attacks" id="vuln-attacks-${scan.id}-${idx}" style="display: none;">
+                                        <h5>Successful Attack Examples:</h5>
+                                        ${v.attacks.map((attack, attackIdx) => `
+                                            <div class="tmas-attack-example">
+                                                <div class="tmas-attack-number">Attack #${attackIdx + 1}</div>
+                                                <div class="tmas-attack-prompt">
+                                                    <strong>Prompt:</strong>
+                                                    <pre>${escapeHtml(attack.prompt)}</pre>
+                                                </div>
+                                                <div class="tmas-attack-response">
+                                                    <strong>Model Response:</strong>
+                                                    <pre>${escapeHtml(attack.response.substring(0, 500))}${attack.response.length > 500 ? '...' : ''}</pre>
+                                                </div>
+                                                ${attack.evaluation ? `
+                                                    <div class="tmas-attack-evaluation">
+                                                        <strong>Evaluation:</strong>
+                                                        <p>${escapeHtml(attack.evaluation)}</p>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
                             </div>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </div>
                 ` : ''}
+                <div class="tmas-raw-output-section">
+                    <button class="btn-view-raw" onclick="toggleRawOutput('${scan.id}')">View Raw Output</button>
+                    <pre class="tmas-raw-output" id="tmas-raw-${scan.id}" style="display: none;">${escapeHtml(scan.fullReport.raw || JSON.stringify(scan.fullReport, null, 2))}</pre>
+                </div>
             </div>
         </div>
     `).join('');
@@ -190,10 +251,49 @@ function toggleTMASDetails(id) {
     }
 }
 
+// Toggle raw output display
+function toggleRawOutput(id) {
+    const rawOutput = document.getElementById(`tmas-raw-${id}`);
+    if (rawOutput) {
+        if (rawOutput.style.display === 'none') {
+            rawOutput.style.display = 'block';
+        } else {
+            rawOutput.style.display = 'none';
+        }
+    }
+}
+
+// Toggle vulnerability attack details
+function toggleVulnDetails(scanId, vulnIdx, evt) {
+    const attacksDiv = document.getElementById(`vuln-attacks-${scanId}-${vulnIdx}`);
+    const icon = evt?.currentTarget?.querySelector('.tmas-expand-icon');
+
+    console.log('toggleVulnDetails called:', {
+        scanId,
+        vulnIdx,
+        attacksDivFound: !!attacksDiv,
+        iconFound: !!icon,
+        attacksDivId: `vuln-attacks-${scanId}-${vulnIdx}`
+    });
+
+    if (attacksDiv) {
+        if (attacksDiv.style.display === 'none' || attacksDiv.style.display === '') {
+            attacksDiv.style.display = 'block';
+            if (icon) icon.textContent = '▼';
+            console.log('Expanded vulnerability details');
+        } else {
+            attacksDiv.style.display = 'none';
+            if (icon) icon.textContent = '▶';
+            console.log('Collapsed vulnerability details');
+        }
+    } else {
+        console.warn('No attacks div found - vulnerability may not have attack details');
+    }
+}
+
 // Handle TMAS scan
 async function handleTMASScan() {
     const modelName = tmasModelSelect.value;
-
     if (!modelName) {
         alert('Please select a model to scan');
         return;
@@ -208,22 +308,23 @@ async function handleTMASScan() {
     // Show progress
     tmasScanProgress.style.display = 'block';
     tmasScanProgressBar.style.width = '0%';
-    tmasScanStatus.textContent = 'Initializing scan...';
+    tmasScanStatus.textContent = 'Initializing LLM endpoint scan...';
     scanModelButton.disabled = true;
     scanModelButton.textContent = 'Scanning...';
 
     try {
         tmasScanProgressBar.style.width = '20%';
-        tmasScanStatus.textContent = 'Locating model file...';
+        tmasScanStatus.textContent = 'Testing model for security vulnerabilities...';
 
         const response = await fetch('/api/tmas/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 modelName: modelName,
+                endpoint: config.endpoint,
                 apiKey: effectiveApiKey,
                 region: config.tmas.region,
-                endpoint: config.endpoint
+                scanType: 'llm'
             })
         });
 
@@ -256,6 +357,50 @@ async function handleTMASScan() {
     } finally {
         scanModelButton.disabled = false;
         scanModelButton.textContent = 'Scan Model';
+    }
+}
+
+// Handle model deletion
+async function handleDeleteModel() {
+    const modelName = modelSelect.value;
+    if (!modelName) {
+        alert('Please select a model to delete');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the model "${modelName}"?\n\nThis will permanently remove the model from Ollama.`)) {
+        return;
+    }
+
+    deleteModelButton.disabled = true;
+    deleteModelButton.textContent = 'Deleting...';
+
+    try {
+        const response = await fetch('/api/ollama/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                modelName: modelName,
+                endpoint: config.endpoint
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Delete failed');
+        }
+
+        alert(`Model "${modelName}" deleted successfully`);
+
+        // Reload models list
+        await loadModels();
+
+    } catch (error) {
+        console.error('Model delete error:', error);
+        alert(`Delete failed: ${error.message}`);
+    } finally {
+        deleteModelButton.disabled = false;
+        deleteModelButton.textContent = 'Delete Model';
     }
 }
 
@@ -451,8 +596,13 @@ function setupEventListeners() {
         });
     }
 
+
     if (scanModelButton) {
         scanModelButton.addEventListener('click', handleTMASScan);
+    }
+
+    if (deleteModelButton) {
+        deleteModelButton.addEventListener('click', handleDeleteModel);
     }
 
     if (refreshTmasResults) {
@@ -505,6 +655,11 @@ function setupEventListeners() {
     const pullModelButton = document.getElementById('pullModelButton');
     if (pullModelButton) {
         pullModelButton.addEventListener('click', handlePullModel);
+    }
+
+    const refreshAllModelsBtn = document.getElementById('refreshAllModels');
+    if (refreshAllModelsBtn) {
+        refreshAllModelsBtn.addEventListener('click', loadAllModelsTable);
     }
 }
 
@@ -588,9 +743,9 @@ function updateProviderUI() {
     if (ollamaManagementSection) {
         ollamaManagementSection.style.display = config.provider === 'ollama' ? 'block' : 'none';
 
-        // Load loaded models if Ollama is selected
+        // Load all models table if Ollama is selected
         if (config.provider === 'ollama') {
-            loadLoadedModels();
+            loadAllModelsTable();
         }
     }
 }
@@ -1242,7 +1397,258 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Load loaded models (Ollama only)
+// Load all models in a table view (Ollama only)
+async function loadAllModelsTable() {
+    if (config.provider !== 'ollama') {
+        return;
+    }
+
+    const modelsTableContainer = document.getElementById('modelsTableContainer');
+    if (!modelsTableContainer) return;
+
+    modelsTableContainer.innerHTML = '<div class="models-table-loading">Loading models...</div>';
+
+    try {
+        const response = await fetch('/api/ollama/models/all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to load models');
+
+        const data = await response.json();
+
+        if (data.models.length === 0) {
+            modelsTableContainer.innerHTML = '<div class="models-table-empty">No models available. Download a model to get started.</div>';
+        } else {
+            renderModelsTable(data.models, data.stats);
+        }
+    } catch (error) {
+        console.error('Error loading models table:', error);
+        modelsTableContainer.innerHTML = '<div class="models-table-empty">Error loading models: ' + escapeHtml(error.message) + '</div>';
+    }
+}
+
+// Render models table
+function renderModelsTable(models, stats) {
+    const modelsTableContainer = document.getElementById('modelsTableContainer');
+    if (!modelsTableContainer) return;
+
+    modelsTableContainer.innerHTML = `
+        <div class="models-stats">
+            <div class="models-stat-item">
+                <span class="models-stat-label">Total Models:</span>
+                <span class="models-stat-value">${stats.total}</span>
+            </div>
+            <div class="models-stat-item">
+                <span class="models-stat-label">Loaded:</span>
+                <span class="models-stat-value">${stats.loaded}</span>
+            </div>
+            <div class="models-stat-item">
+                <span class="models-stat-label">VRAM Used:</span>
+                <span class="models-stat-value">${stats.totalVramGb} GB</span>
+            </div>
+        </div>
+        <div class="models-table-wrapper">
+            <table class="models-table">
+                <thead>
+                    <tr>
+                        <th>Model Name</th>
+                        <th>Size</th>
+                        <th>Status</th>
+                        <th>VRAM</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${models.map(model => `
+                        <tr class="${model.loaded ? 'model-loaded' : ''}">
+                            <td class="model-name-cell">
+                                <div class="model-name-text">${escapeHtml(model.name)}</div>
+                                <div class="model-digest">${model.digest ? model.digest.substring(0, 12) + '...' : ''}</div>
+                            </td>
+                            <td>${model.size_gb} GB</td>
+                            <td>
+                                ${model.loaded
+                                    ? '<span class="status-badge status-loaded">Loaded</span>'
+                                    : '<span class="status-badge status-available">Available</span>'}
+                            </td>
+                            <td>${model.loaded ? model.loaded_info.size_vram_gb + ' GB' : '-'}</td>
+                            <td class="model-actions-cell">
+                                ${model.loaded
+                                    ? `<button class="btn-table-action btn-unload-table" onclick="unloadModelFromTable('${escapeHtml(model.name)}')">Unload</button>`
+                                    : `<button class="btn-table-action btn-load-table" onclick="loadModelFromTable('${escapeHtml(model.name)}')">Load</button>`
+                                }
+                                <button class="btn-table-action btn-delete-table" onclick="deleteModelFromTable('${escapeHtml(model.name)}')">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Load model from table
+async function loadModelFromTable(modelName) {
+    const row = Array.from(document.querySelectorAll('.models-table tbody tr')).find(
+        tr => tr.querySelector('.model-name-text').textContent === modelName
+    );
+
+    if (row) {
+        const loadBtn = row.querySelector('.btn-load-table');
+        if (loadBtn) {
+            loadBtn.disabled = true;
+            loadBtn.textContent = 'Loading...';
+        }
+    }
+
+    try {
+        const response = await fetch('/api/ollama/load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint,
+                model: modelName
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await loadAllModelsTable();
+        } else {
+            alert(`Failed to load ${modelName}: ${data.error || data.message || 'Unknown error'}`);
+            if (row) {
+                const loadBtn = row.querySelector('.btn-load-table');
+                if (loadBtn) {
+                    loadBtn.disabled = false;
+                    loadBtn.textContent = 'Load';
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error loading model:', error);
+        alert(`Error loading model: ${error.message}`);
+        if (row) {
+            const loadBtn = row.querySelector('.btn-load-table');
+            if (loadBtn) {
+                loadBtn.disabled = false;
+                loadBtn.textContent = 'Load';
+            }
+        }
+    }
+}
+
+// Unload model from table
+async function unloadModelFromTable(modelName) {
+    if (!confirm(`Unload ${modelName} from memory?`)) {
+        return;
+    }
+
+    const row = Array.from(document.querySelectorAll('.models-table tbody tr')).find(
+        tr => tr.querySelector('.model-name-text').textContent === modelName
+    );
+
+    if (row) {
+        const unloadBtn = row.querySelector('.btn-unload-table');
+        if (unloadBtn) {
+            unloadBtn.disabled = true;
+            unloadBtn.textContent = 'Unloading...';
+        }
+    }
+
+    try {
+        const response = await fetch('/api/ollama/unload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: config.endpoint,
+                model: modelName
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await loadAllModelsTable();
+        } else {
+            alert(`Failed to unload ${modelName}: ${data.message || 'Unknown error'}`);
+            if (row) {
+                const unloadBtn = row.querySelector('.btn-unload-table');
+                if (unloadBtn) {
+                    unloadBtn.disabled = false;
+                    unloadBtn.textContent = 'Unload';
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error unloading model:', error);
+        alert(`Error unloading model: ${error.message}`);
+        if (row) {
+            const unloadBtn = row.querySelector('.btn-unload-table');
+            if (unloadBtn) {
+                unloadBtn.disabled = false;
+                unloadBtn.textContent = 'Unload';
+            }
+        }
+    }
+}
+
+// Delete model from table
+async function deleteModelFromTable(modelName) {
+    if (!confirm(`Are you sure you want to permanently delete "${modelName}"?\n\nThis will remove the model from Ollama.`)) {
+        return;
+    }
+
+    const row = Array.from(document.querySelectorAll('.models-table tbody tr')).find(
+        tr => tr.querySelector('.model-name-text').textContent === modelName
+    );
+
+    if (row) {
+        const deleteBtn = row.querySelector('.btn-delete-table');
+        if (deleteBtn) {
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Deleting...';
+        }
+    }
+
+    try {
+        const response = await fetch('/api/ollama/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                modelName: modelName,
+                endpoint: config.endpoint
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Delete failed');
+        }
+
+        await loadAllModelsTable();
+        await loadModels(); // Refresh the model dropdown too
+    } catch (error) {
+        console.error('Model delete error:', error);
+        alert(`Delete failed: ${error.message}`);
+        if (row) {
+            const deleteBtn = row.querySelector('.btn-delete-table');
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = 'Delete';
+            }
+        }
+    }
+}
+
+// Load loaded models (Ollama only) - LEGACY FUNCTION
 async function loadLoadedModels() {
     if (config.provider !== 'ollama') {
         return;
@@ -1499,6 +1905,11 @@ async function handlePullModel() {
 window.toggleThinkingDetails = toggleThinkingDetails;
 window.removeFile = removeFile;
 window.unloadModel = unloadModel;
+window.loadModelFromTable = loadModelFromTable;
+window.unloadModelFromTable = unloadModelFromTable;
+window.deleteModelFromTable = deleteModelFromTable;
+window.toggleVulnDetails = toggleVulnDetails;
+window.toggleRawOutput = toggleRawOutput;
 
 // Start the app
 init();
