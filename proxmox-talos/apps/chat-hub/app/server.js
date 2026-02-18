@@ -274,7 +274,9 @@ app.post('/api/chat', async (req, res) => {
         }
       }
 
-      response = await axios.post(`${endpoint}/api/chat`, payload);
+      response = await axios.post(`${endpoint}/api/chat`, payload, {
+        timeout: 120000 // 2 minute timeout
+      });
 
       const content = response.data.message.content;
       const modelName = response.data.model;
@@ -400,7 +402,8 @@ app.post('/api/models', async (req, res) => {
 
     if (provider === 'ollama') {
       response = await axios.get(`${endpoint}/api/tags`);
-      const models = response.data.models.map(m => m.name);
+      // Strip ollama.com/library/ prefix from model names
+      const models = response.data.models.map(m => m.name.replace(/^ollama\.com\/library\//, ''));
       res.json({ models });
 
     } else if (provider === 'openai') {
@@ -549,9 +552,12 @@ app.post('/api/ollama/models/all', async (req, res) => {
 
     // Combine the data
     const combinedModels = availableModels.map(model => {
-      const loadedInfo = loadedMap.get(model.name);
+      // Strip ollama.com/library/ prefix if present
+      const cleanName = model.name.replace(/^ollama\.com\/library\//, '');
+      const loadedInfo = loadedMap.get(model.name) || loadedMap.get(cleanName);
       return {
-        name: model.name,
+        name: cleanName,
+        originalName: model.name,
         size: model.size,
         size_gb: (model.size / 1024 / 1024 / 1024).toFixed(2),
         modified_at: model.modified_at,
@@ -651,11 +657,34 @@ app.post('/api/ollama/delete', async (req, res) => {
   const ollamaEndpoint = endpoint || 'http://10.10.21.6:11434';
 
   try {
-    const response = await axios.delete(`${ollamaEndpoint}/api/delete`, {
-      data: { name: modelName }
-    });
+    // Try the clean name first, then try with ollama.com/library/ prefix if it fails
+    let deleteSuccess = false;
+    let lastError = null;
 
-    res.json({ success: true, message: `Model ${modelName} deleted successfully` });
+    try {
+      await axios.delete(`${ollamaEndpoint}/api/delete`, {
+        data: { name: modelName }
+      });
+      deleteSuccess = true;
+    } catch (err) {
+      lastError = err;
+      // Try with ollama.com/library/ prefix
+      const prefixedName = `ollama.com/library/${modelName}`;
+      try {
+        await axios.delete(`${ollamaEndpoint}/api/delete`, {
+          data: { name: prefixedName }
+        });
+        deleteSuccess = true;
+      } catch (err2) {
+        lastError = err2;
+      }
+    }
+
+    if (deleteSuccess) {
+      res.json({ success: true, message: `Model ${modelName} deleted successfully` });
+    } else {
+      throw lastError;
+    }
   } catch (error) {
     console.error('Delete Model API Error:', error.message);
     res.status(500).json({
