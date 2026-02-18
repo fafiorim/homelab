@@ -274,9 +274,7 @@ app.post('/api/chat', async (req, res) => {
         }
       }
 
-      response = await axios.post(`${endpoint}/api/chat`, payload, {
-        timeout: 120000 // 2 minute timeout
-      });
+      response = await axios.post(`${endpoint}/api/chat`, payload);
 
       const content = response.data.message.content;
       const modelName = response.data.model;
