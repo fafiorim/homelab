@@ -561,16 +561,26 @@ app.post('/api/ollama/models/all', async (req, res) => {
       };
     });
 
-    // Calculate total VRAM
+    // Calculate memory statistics
     const totalVram = loadedModels.reduce((sum, m) => sum + (m.size_vram || 0), 0);
     const totalVramGb = (totalVram / 1024 / 1024 / 1024).toFixed(2);
+
+    // Calculate total disk space used by all models
+    const totalDiskSpace = availableModels.reduce((sum, m) => sum + (m.size || 0), 0);
+    const totalDiskSpaceGb = (totalDiskSpace / 1024 / 1024 / 1024).toFixed(2);
+
+    // Calculate available memory (models on disk but not loaded)
+    const availableToLoad = totalDiskSpace - totalVram;
+    const availableToLoadGb = (availableToLoad / 1024 / 1024 / 1024).toFixed(2);
 
     res.json({
       models: combinedModels,
       stats: {
         total: combinedModels.length,
         loaded: loadedModels.length,
-        totalVramGb: totalVramGb
+        totalVramGb: totalVramGb,
+        totalMemoryGb: totalDiskSpaceGb,
+        availableMemoryGb: availableToLoadGb
       }
     });
   } catch (error) {

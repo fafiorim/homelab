@@ -1451,6 +1451,14 @@ function renderModelsTable(models, stats) {
                 <span class="models-stat-label">VRAM Used:</span>
                 <span class="models-stat-value">${stats.totalVramGb} GB</span>
             </div>
+            <div class="models-stat-item">
+                <span class="models-stat-label">Total Memory:</span>
+                <span class="models-stat-value">${stats.totalMemoryGb} GB</span>
+            </div>
+            <div class="models-stat-item">
+                <span class="models-stat-label">Available Memory:</span>
+                <span class="models-stat-value">${stats.availableMemoryGb} GB</span>
+            </div>
         </div>
         <div class="models-table-wrapper">
             <table class="models-table">
