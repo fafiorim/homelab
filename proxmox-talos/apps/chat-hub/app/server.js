@@ -542,11 +542,16 @@ app.post('/api/ollama/models/all', async (req, res) => {
     // Create a map of loaded models for quick lookup
     const loadedMap = new Map();
     loadedModels.forEach(model => {
+      // If Ollama reports 0 VRAM (bug), estimate from model size
+      // Loaded models typically use ~50-70% of their file size in VRAM
+      const estimatedVram = model.size_vram > 0 ? model.size_vram : (model.size * 0.6);
+
       loadedMap.set(model.name, {
-        size_vram: model.size_vram,
-        size_vram_gb: (model.size_vram / 1024 / 1024 / 1024).toFixed(2),
+        size_vram: estimatedVram,
+        size_vram_gb: (estimatedVram / 1024 / 1024 / 1024).toFixed(2),
         expires_at: model.expires_at,
-        digest: model.digest
+        digest: model.digest,
+        is_estimated: model.size_vram === 0 // Flag to show it's estimated
       });
     });
 

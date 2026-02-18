@@ -1484,7 +1484,7 @@ function renderModelsTable(models, stats) {
                                     ? '<span class="status-badge status-loaded">Loaded</span>'
                                     : '<span class="status-badge status-available">Available</span>'}
                             </td>
-                            <td>${model.loaded ? model.loaded_info.size_vram_gb + ' GB' : '-'}</td>
+                            <td>${model.loaded ? (model.loaded_info.is_estimated ? '~' + model.loaded_info.size_vram_gb + ' GB*' : model.loaded_info.size_vram_gb + ' GB') : '-'}</td>
                             <td class="model-actions-cell">
                                 ${model.loaded
                                     ? `<button class="btn-table-action btn-unload-table" onclick="unloadModelFromTable('${escapeHtml(model.name)}')">Unload</button>`
