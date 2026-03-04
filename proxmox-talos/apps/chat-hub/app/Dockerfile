@@ -21,6 +21,10 @@ RUN apk add --no-cache bash curl gcompat && \
     tmas version && \
     rm -rf /tmp/*
 
+# Create data directory with proper permissions for node user
+RUN mkdir -p /app/data && \
+    chown -R node:node /app/data
+
 # Expose port
 EXPOSE 3000
 

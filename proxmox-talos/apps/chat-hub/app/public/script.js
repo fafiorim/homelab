@@ -97,30 +97,39 @@ const providers = {
 
 // Load TMAS scan results
 async function loadTMASResults() {
-    if (!tmasResultsList) return;
+    if (!tmasResultsList) {
+        console.error('TMAS: tmasResultsList element not found in DOM');
+        return;
+    }
 
     tmasResultsList.innerHTML = '<div class="tmas-empty-results">Loading...</div>';
 
     try {
+        console.log('TMAS: Fetching scan results from /api/tmas/results');
         const response = await fetch('/api/tmas/results');
-        if (!response.ok) throw new Error('Failed to load results');
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
 
         const data = await response.json();
+        console.log('TMAS: Received data:', { scansCount: data.scans ? data.scans.length : 0 });
 
-        if (data.scans.length === 0) {
+        if (!data.scans || data.scans.length === 0) {
             tmasResultsList.innerHTML = `
                 <div class="tmas-empty-results">
                     <p>No scan results yet. Select a model and click "Scan Model" to start.</p>
                 </div>
             `;
         } else {
+            console.log('TMAS: Rendering', data.scans.length, 'scan results');
             renderTMASResults(data.scans);
         }
     } catch (error) {
-        console.error('Error loading TMAS results:', error);
+        console.error('TMAS: Error loading results:', error);
         tmasResultsList.innerHTML = `
             <div class="tmas-empty-results">
                 <p>Error loading results: ${escapeHtml(error.message)}</p>
+                <p style="font-size: 0.85em; margin-top: 8px; color: var(--text-secondary);">Check browser console for details.</p>
             </div>
         `;
     }
@@ -128,7 +137,15 @@ async function loadTMASResults() {
 
 // Render TMAS scan results
 function renderTMASResults(scans) {
-    tmasResultsList.innerHTML = scans.map(scan => `
+    if (!Array.isArray(scans)) {
+        console.error('TMAS: renderTMASResults received non-array:', typeof scans);
+        return;
+    }
+
+    console.log('TMAS: Rendering', scans.length, 'scan results');
+
+    try {
+        tmasResultsList.innerHTML = scans.map(scan => `
         <div class="tmas-result-item" data-id="${scan.id}">
             <div class="tmas-result-header">
                 <div class="tmas-result-info">
@@ -234,6 +251,15 @@ function renderTMASResults(scans) {
             </div>
         </div>
     `).join('');
+        console.log('TMAS: Successfully rendered', scans.length, 'scan result items');
+    } catch (error) {
+        console.error('TMAS: Error rendering scan results:', error);
+        tmasResultsList.innerHTML = `
+            <div class="tmas-empty-results">
+                <p>Error rendering scan results. Check console for details.</p>
+            </div>
+        `;
+    }
 }
 
 // Get risk class for styling

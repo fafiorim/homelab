@@ -713,8 +713,13 @@ function generateUUID() {
 function loadScanResults() {
   try {
     if (fs.existsSync(TMAS_SCANS_FILE)) {
+      console.log('TMAS: Loading scan results from:', TMAS_SCANS_FILE);
       const data = fs.readFileSync(TMAS_SCANS_FILE, 'utf8');
-      return JSON.parse(data);
+      const results = JSON.parse(data);
+      console.log('TMAS: Successfully loaded', results.scans ? results.scans.length : 0, 'scan results');
+      return results;
+    } else {
+      console.log('TMAS: Scan results file does not exist yet:', TMAS_SCANS_FILE);
     }
   } catch (error) {
     console.error('Error loading scan results:', error);
@@ -729,7 +734,14 @@ function saveScanResults(results) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    fs.writeFileSync(TMAS_SCANS_FILE, JSON.stringify(results, null, 2));
+    fs.writeFileSync(TMAS_SCANS_FILE, JSON.stringify(results, null, 2), { mode: 0o666 });
+    // Explicitly set permissions to work around NFS permission issues
+    try {
+      fs.chmodSync(TMAS_SCANS_FILE, 0o666);
+    } catch (e) {
+      console.warn('Could not set file permissions:', e.message);
+    }
+    console.log('TMAS: Successfully saved scan results to', TMAS_SCANS_FILE);
     return true;
   } catch (error) {
     console.error('Error saving scan results:', error);
@@ -1375,7 +1387,9 @@ app.post('/api/tmas/scan', async (req, res) => {
 // GET /api/tmas/results - List all scan results
 app.get('/api/tmas/results', (req, res) => {
   try {
+    console.log('TMAS API: Loading scan results from', TMAS_SCANS_FILE);
     const results = loadScanResults();
+    console.log('TMAS API: Loaded', results.scans ? results.scans.length : 0, 'scan results');
 
     // Re-extract vulnerabilities for scans that don't have attack details
     let updated = false;
@@ -1398,10 +1412,11 @@ app.get('/api/tmas/results', (req, res) => {
       saveScanResults(results);
     }
 
+    console.log('TMAS API: Sending response with', results.scans.length, 'scans');
     res.json(results);
   } catch (error) {
     console.error('Error loading TMAS results:', error);
-    res.status(500).json({ error: 'Failed to load scan results' });
+    res.status(500).json({ error: 'Failed to load scan results', details: error.message });
   }
 });
 
@@ -1445,6 +1460,50 @@ app.delete('/api/tmas/result/:id', (req, res) => {
     res.status(500).json({ error: 'Failed to delete scan result' });
   }
 });
+
+// Startup checks
+function performStartupChecks() {
+  console.log('=== Chat Hub Startup Checks ===');
+
+  // Check data directory
+  const dataDir = path.dirname(TMAS_SCANS_FILE);
+  console.log('Data directory:', dataDir);
+
+  try {
+    if (!fs.existsSync(dataDir)) {
+      console.log('Creating data directory...');
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    // Test write permissions
+    const testFile = path.join(dataDir, '.write-test');
+    fs.writeFileSync(testFile, 'test');
+    fs.unlinkSync(testFile);
+    console.log('✓ Data directory is writable');
+  } catch (error) {
+    console.error('✗ Data directory is NOT writable:', error.message);
+    console.error('  This may cause issues saving TMAS scan results');
+  }
+
+  // Check TMAS scans file
+  if (fs.existsSync(TMAS_SCANS_FILE)) {
+    const results = loadScanResults();
+    console.log('✓ TMAS scans file exists with', results.scans.length, 'scan(s)');
+  } else {
+    console.log('○ TMAS scans file does not exist yet (will be created on first scan)');
+  }
+
+  // Check Ollama models directory
+  if (fs.existsSync(OLLAMA_MODELS_PATH)) {
+    console.log('✓ Ollama models directory is accessible');
+  } else {
+    console.log('✗ Ollama models directory is NOT accessible:', OLLAMA_MODELS_PATH);
+  }
+
+  console.log('=== Startup Checks Complete ===\n');
+}
+
+performStartupChecks();
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Chat Hub server running on port ${PORT}`);
