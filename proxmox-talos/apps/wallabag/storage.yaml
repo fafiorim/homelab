@@ -8,9 +8,9 @@ spec:
   capacity:
     storage: 10Gi
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: nfs-csi
+  storageClassName: nfs
   nfs:
     path: /volume4/VM/containers/wallabag/data
     server: 10.10.21.11
@@ -22,8 +22,8 @@ metadata:
   namespace: wallabag
 spec:
   accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-csi
+    - ReadWriteMany
+  storageClassName: nfs
   resources:
     requests:
       storage: 10Gi
@@ -38,9 +38,9 @@ spec:
   capacity:
     storage: 5Gi
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: nfs-csi
+  storageClassName: nfs
   nfs:
     path: /volume4/VM/containers/wallabag/images
     server: 10.10.21.11
@@ -52,8 +52,8 @@ metadata:
   namespace: wallabag
 spec:
   accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-csi
+    - ReadWriteMany
+  storageClassName: nfs
   resources:
     requests:
       storage: 5Gi

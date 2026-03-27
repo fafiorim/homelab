@@ -8,9 +8,9 @@ spec:
   capacity:
     storage: 5Gi
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: nfs-csi
+  storageClassName: nfs
   nfs:
     path: /volume4/VM/containers/uptime-kuma/data
     server: 10.10.21.11
@@ -22,8 +22,8 @@ metadata:
   namespace: uptime-kuma
 spec:
   accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-csi
+    - ReadWriteMany
+  storageClassName: nfs
   resources:
     requests:
       storage: 5Gi
