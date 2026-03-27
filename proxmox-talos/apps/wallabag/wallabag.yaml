@@ -66,14 +66,14 @@ spec:
             cpu: "1000m"
         livenessProbe:
           httpGet:
-            path: /
+            path: /login
             port: 80
           initialDelaySeconds: 90
           periodSeconds: 30
           timeoutSeconds: 10
         readinessProbe:
           httpGet:
-            path: /
+            path: /login
             port: 80
           initialDelaySeconds: 60
           periodSeconds: 10
