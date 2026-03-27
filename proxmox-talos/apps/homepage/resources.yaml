@@ -242,6 +242,18 @@ spec:
                       href: https://immich.botocudo.net/
                       description: Photo and Video Backup
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/immich.svg
+                  - Uptime Kuma:
+                      href: https://uptime-kuma.botocudo.net/
+                      description: Uptime Monitoring
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/uptime-kuma.svg
+                  - Wallabag:
+                      href: https://wallabag.botocudo.net/
+                      description: Read-it-later Service
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/wallabag.svg
+                  - Linkding:
+                      href: https://linkding.botocudo.net/
+                      description: Bookmark Manager
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/linkding.svg
               EOF
               
               # Create bookmarks for search functionality

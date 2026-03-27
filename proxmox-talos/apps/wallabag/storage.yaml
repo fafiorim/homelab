@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wallabag-data-pv
+  labels:
+    app: wallabag
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi
+  nfs:
+    path: /volume4/VM/containers/wallabag/data
+    server: 10.10.21.11
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wallabag-data-pvc
+  namespace: wallabag
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wallabag-images-pv
+  labels:
+    app: wallabag
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi
+  nfs:
+    path: /volume4/VM/containers/wallabag/images
+    server: 10.10.21.11
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wallabag-images-pvc
+  namespace: wallabag
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkding
+  namespace: linkding
+  labels:
+    app: linkding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkding
+  template:
+    metadata:
+      labels:
+        app: linkding
+    spec:
+      containers:
+      - name: linkding
+        image: sissbruecker/linkding:latest
+        ports:
+        - containerPort: 9090
+        env:
+        - name: LD_SERVER_PORT
+          value: "9090"
+        - name: LD_DB_ENGINE
+          value: "sqlite"
+        - name: LD_SUPERUSER_NAME
+          value: "admin"
+        - name: LD_SUPERUSER_PASSWORD
+          value: "admin123"
+        - name: LD_CSRF_TRUSTED_ORIGINS
+          value: "https://linkding.botocudo.net"
+        - name: LD_ENABLE_AUTH_PROXY
+          value: "False"
+        volumeMounts:
+        - name: data
+          mountPath: /etc/linkding/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9090
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: linkding-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: linkding
+  namespace: linkding
+  labels:
+    app: linkding
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: http
+  selector:
+    app: linkding
