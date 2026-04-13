@@ -132,17 +132,35 @@ cleanup_existing_vms() {
                 "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id?destroy-unreferenced-disks=1&purge=1" 2>/dev/null)
             
             if echo "$delete_result" | jq -e '.data' > /dev/null 2>&1; then
-                log_success "VM $vm_id deleted successfully"
+                local task_id=$(echo "$delete_result" | jq -r '.data // empty')
+                log_info "VM $vm_id deletion task started: $task_id"
             else
                 # Try one more time with skiplock
                 log_warning "Retrying VM $vm_id deletion with skiplock..."
-                curl -k -s -X DELETE \
+                local retry_result=$(curl -k -s -X DELETE \
                     -H "Authorization: PVEAPIToken=$proxmox_api_token_id=$proxmox_api_token_secret" \
-                    "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id?destroy-unreferenced-disks=1&purge=1&skiplock=1" > /dev/null 2>&1
-                log_success "VM $vm_id force deleted"
+                    "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id?destroy-unreferenced-disks=1&purge=1&skiplock=1" 2>/dev/null)
+                local task_id=$(echo "$retry_result" | jq -r '.data // empty')
             fi
-            
-            sleep 3
+
+            # Wait for VM to actually be gone from Proxmox
+            log_info "Waiting for VM $vm_id to be fully removed..."
+            local wait_count=0
+            local max_wait=30
+            while [ $wait_count -lt $max_wait ]; do
+                local check_response=$(curl -k -s -H "Authorization: PVEAPIToken=$proxmox_api_token_id=$proxmox_api_token_secret" \
+                    "$proxmox_api_url/nodes/$proxmox_node/qemu/$vm_id/status/current" 2>/dev/null)
+                if ! echo "$check_response" | jq -e '.data.status' > /dev/null 2>&1; then
+                    log_success "VM $vm_id deleted successfully"
+                    break
+                fi
+                sleep 2
+                wait_count=$((wait_count + 1))
+            done
+            if [ $wait_count -ge $max_wait ]; then
+                log_error "Timeout waiting for VM $vm_id to be deleted"
+                return 1
+            fi
         else
             log_info "VM $vm_id does not exist, skipping"
         fi

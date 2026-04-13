@@ -27,7 +27,7 @@ export ADMIN_EMAIL="admin@your-domain.com"
 export CLOUDFLARE_API_TOKEN="your_actual_api_token"
 
 # Network Configuration (adjust if needed)
-export TRAEFIK_LOADBALANCER_IP="10.10.21.201"
+export TRAEFIK_LOADBALANCER_IP="10.10.21.202"
 ```
 
 ## 🚀 Deployment
@@ -57,18 +57,18 @@ export TRAEFIK_LOADBALANCER_IP="10.10.21.201"
 ## 🌐 Network Configuration
 
 ### Fixed IP Assignment
-- **LoadBalancer IP**: `10.10.21.201` (fixed via MetalLB annotation)
+- **LoadBalancer IP**: `10.10.21.202` (fixed via MetalLB annotation)
 - **IP Pool**: `10.10.21.200-10.10.21.210`
 - **All services** route through Traefik on ports 80/443
 
 ### DNS Requirements
-Point these domains to `10.10.21.201`:
+Point these domains to `10.10.21.202`:
 ```
-homepage.botocudo.net    → 10.10.21.201
-argocd.botocudo.net      → 10.10.21.201
-grafana.botocudo.net     → 10.10.21.201
-prometheus.botocudo.net  → 10.10.21.201
-npm.botocudo.net         → 10.10.21.201
+homepage.botocudo.net    → 10.10.21.202
+argocd.botocudo.net      → 10.10.21.202
+grafana.botocudo.net     → 10.10.21.202
+prometheus.botocudo.net  → 10.10.21.202
+npm.botocudo.net         → 10.10.21.202
 ```
 
 ## 🔐 SSL Certificates
@@ -105,7 +105,7 @@ proxmox-talos/
 ## 🔄 Reproducible Deployment
 
 ### What's Guaranteed
-✅ **LoadBalancer IP**: Always `10.10.21.201` (MetalLB annotation)  
+✅ **LoadBalancer IP**: Always `10.10.21.202` (MetalLB annotation)  
 ✅ **Service Ports**: Always 80/443 (Traefik handles routing)  
 ✅ **SSL Certificates**: Automatic Let's Encrypt renewal  
 ✅ **Configuration**: Template-based deployment  
@@ -127,7 +127,7 @@ curl -k https://grafana.botocudo.net
 echo | openssl s_client -servername homepage.botocudo.net -connect homepage.botocudo.net:443 2>/dev/null | openssl x509 -noout -dates
 
 # Check Traefik routes
-curl -s http://10.10.21.201:8080/api/http/routers
+curl -s http://10.10.21.202:8080/api/http/routers
 ```
 
 ## 🔒 Security Notes
