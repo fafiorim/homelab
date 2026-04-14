@@ -25,6 +25,21 @@ Photo/video backup with ML: https://immich.botocudo.net
 Workflow automation (8gears Helm chart): https://n8n.botocudo.net  
 Requires secret `n8n-secrets` in namespace `n8n` (see `n8n/README.md`).
 
+### 🛡️ FinGuard (`finguard/`)
+Malware file scanner powered by TrendAI File Security: https://finguard.botocudo.net
+Scans uploaded files for malware, active content, and threats using the Vision One File Security SDK.
+
+- **Image**: `ghcr.io/fafiorim/finguard:latest` (auto-built via GitHub Actions)
+- **Port**: 3000 (HTTP)
+- **Storage**: NFS-backed PVC at `/app/uploads`
+- **Secret**: `finguard-secret` in namespace `finguard` (created manually, not in Git)
+  ```bash
+  kubectl create secret generic finguard-secret \
+    --namespace finguard \
+    --from-literal=FSS_API_KEY='<your-vision-one-api-key>'
+  ```
+- **Test script**: `finguard/test-scan.sh` — spins up a Docker container, downloads EICAR + sample files, and uploads them to FinGuard to verify scanning works.
+
 ### 🧪 Test Applications
 - **simple-test/** - Simple test application for cluster validation
 - **test-app/** - Additional test applications
