@@ -257,7 +257,7 @@ spec:
                   - FinGuard:
                       href: https://finguard.botocudo.net/
                       description: Malware File Scanner
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/trend-micro.svg
+                      icon: mdi-shield-search
               EOF
               
               # Create bookmarks for search functionality
