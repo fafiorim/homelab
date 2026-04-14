@@ -254,6 +254,10 @@ spec:
                       href: https://linkding.botocudo.net/
                       description: Bookmark Manager
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/linkding.svg
+                  - FinGuard:
+                      href: https://finguard.botocudo.net/
+                      description: Malware File Scanner
+                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/trend-micro.svg
               EOF
               
               # Create bookmarks for search functionality

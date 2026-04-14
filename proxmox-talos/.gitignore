@@ -2,6 +2,7 @@
 cluster.conf
 homelab.conf
 apps/traefik/cloudflare-secret.yaml
+apps/finguard/secret.yaml
 
 # Sensitive files
 *.pem

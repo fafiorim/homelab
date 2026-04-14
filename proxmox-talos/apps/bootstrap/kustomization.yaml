@@ -18,3 +18,4 @@ resources:
   - ../uptime-kuma/uptime-kuma-app.yaml
   - ../wallabag/wallabag-app.yaml
   - ../linkding/linkding-app.yaml
+  - ../finguard/finguard-app.yaml

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finguard
+  namespace: finguard
+  labels:
+    app: finguard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finguard
+  template:
+    metadata:
+      labels:
+        app: finguard
+    spec:
+      containers:
+      - name: finguard
+        image: ghcr.io/fafiorim/finguard:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: FSS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: finguard-secret
+              key: FSS_API_KEY
+        - name: SECURITY_MODE
+          value: "logOnly"
+        - name: SCAN_METHOD
+          value: "buffer"
+        - name: ENABLE_PML
+          value: "true"
+        - name: ENABLE_FEEDBACK
+          value: "true"
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: finguard-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finguard
+  namespace: finguard
+  labels:
+    app: finguard
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: finguard
