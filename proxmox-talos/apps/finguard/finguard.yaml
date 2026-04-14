@@ -37,7 +37,7 @@ spec:
           value: "true"
         volumeMounts:
         - name: data
-          mountPath: /app/data
+          mountPath: /app/uploads
         resources:
           requests:
             memory: "256Mi"
