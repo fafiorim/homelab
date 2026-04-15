@@ -31,9 +31,13 @@ spec:
           value: "logOnly"
         - name: SCAN_METHOD
           value: "buffer"
-        - name: ENABLE_PML
+        - name: PML_ENABLED
           value: "true"
-        - name: ENABLE_FEEDBACK
+        - name: SPN_FEEDBACK_ENABLED
+          value: "true"
+        - name: VERBOSE_ENABLED
+          value: "true"
+        - name: ACTIVE_CONTENT_ENABLED
           value: "true"
         volumeMounts:
         - name: data
