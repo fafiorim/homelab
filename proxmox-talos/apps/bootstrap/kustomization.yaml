@@ -7,6 +7,9 @@ resources:
   - ../metallb/metallb-app.yaml
   - ../traefik/traefik-app.yaml
   - ../metrics-server/metrics-server-app.yaml
+  - ../github-actions-runners/arc-controller-app.yaml
+  - ../github-actions-runners/arc-runners-app.yaml
+  - ../github-actions-runners/upwind-demo-runners-app.yaml
   - ../monitoring/monitoring-app.yaml
   - ../homepage/homepage-app.yaml
   - ../paperless/paperless-app.yaml

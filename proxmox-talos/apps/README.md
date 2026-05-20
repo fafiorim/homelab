@@ -25,6 +25,17 @@ Photo/video backup with ML: https://immich.botocudo.net
 Workflow automation (8gears Helm chart): https://n8n.botocudo.net  
 Requires secret `n8n-secrets` in namespace `n8n` (see `n8n/README.md`).
 
+### GitHub Actions Runners (`github-actions-runners/`)
+Actions Runner Controller scale set for faster parallel GitHub Actions workflows.
+
+- **Runner scale set**: `homelab-arc-runners`
+- **Upwind demo scale set**: `upwind-demo-arc-runners`
+- **Controller namespace**: `arc-systems`
+- **Runner namespace**: `arc-runners`
+- **Secret**: `arc-github-auth` in namespace `arc-runners` (created manually, not in Git)
+- **Capacity**: keeps 1 idle runner and scales up to 6 total runners
+- **Workflow targets**: `runs-on: homelab-arc-runners` for this repo, `runs-on: upwind-demo-arc-runners` for `fafiorim/upwind-demo`
+
 ### 🛡️ FinGuard (`finguard/`)
 Malware file scanner powered by TrendAI File Security: https://finguard.botocudo.net
 Scans uploaded files for malware, active content, and threats using the Vision One File Security SDK.

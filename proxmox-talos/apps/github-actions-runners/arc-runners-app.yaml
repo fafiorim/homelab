@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homelab-arc-runners
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app.kubernetes.io/name: homelab-arc-runners
+    app.kubernetes.io/part-of: github-actions-runners
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+    path: .
+    targetRevision: "0.14.1"
+    helm:
+      releaseName: homelab-arc-runners
+      valuesObject:
+        githubConfigUrl: https://github.com/fafiorim/homelab
+        githubConfigSecret: arc-github-auth
+        runnerScaleSetName: homelab-arc-runners
+        scaleSetLabels:
+          - homelab
+          - arc
+          - linux
+        maxRunners: 6
+        minRunners: 1
+        containerMode:
+          type: dind
+        controllerServiceAccount:
+          namespace: arc-systems
+          name: arc-gha-rs-controller
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
