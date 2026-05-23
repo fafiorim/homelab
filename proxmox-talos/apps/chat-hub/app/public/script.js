@@ -81,6 +81,10 @@ const providers = {
         endpoint: 'http://10.10.21.6:11434',
         requiresApiKey: false
     },
+    vllm: {
+        endpoint: 'http://10.10.21.6:8000',
+        requiresApiKey: false
+    },
     openai: {
         endpoint: 'https://api.openai.com/v1/chat/completions',
         requiresApiKey: true
@@ -733,6 +737,7 @@ function getEffectiveTMASApiKey() {
 function updateBadges() {
     const providerNames = {
         'ollama': 'Ollama (Local)',
+        'vllm': 'vLLM (Local)',
         'openai': 'OpenAI',
         'anthropic': 'Anthropic'
     };
@@ -1297,6 +1302,7 @@ function renderScans() {
 
         const providerNames = {
             'ollama': 'Ollama (Local)',
+            'vllm': 'vLLM (Local)',
             'openai': 'OpenAI',
             'anthropic': 'Anthropic'
         };

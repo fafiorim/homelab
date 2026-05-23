@@ -308,6 +308,56 @@ app.post('/api/chat', async (req, res) => {
         aiGuardResults
       });
 
+    } else if (provider === 'vllm') {
+      // vLLM (OpenAI-compatible) format
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (apiKey) {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+      }
+
+      const formattedMessages = formatMessagesWithFiles('openai', messages, files);
+
+      const payload = {
+        model: model,
+        messages: formattedMessages
+      };
+
+      response = await axios.post(`${endpoint}/v1/chat/completions`, payload, { headers });
+
+      const content = response.data.choices[0].message.content || '';
+      const modelName = response.data.model;
+
+      // Step 4: Validate LLM output with AI Guard (if enabled)
+      if (aiGuard && aiGuard.enabled) {
+        const outputValidation = await validateWithAIGuard(content, aiGuard);
+
+        aiGuardResults.outputValidation = {
+          action: outputValidation.allowed ? 'Allow' : 'Block',
+          reasons: outputValidation.reasons || [],
+          resultId: outputValidation.resultId,
+          riskScore: outputValidation.riskScore,
+          categories: outputValidation.categories || [],
+          warning: outputValidation.warning
+        };
+
+        if (!outputValidation.allowed) {
+          return res.status(400).json({
+            error: outputValidation.message,
+            aiGuardBlocked: true,
+            reasons: outputValidation.reasons,
+            aiGuardResults
+          });
+        }
+      }
+
+      res.json({
+        message: content,
+        model: modelName,
+        aiGuardResults
+      });
+
     } else if (provider === 'openai' || provider === 'anthropic') {
       // OpenAI/Anthropic format
       const headers = {
@@ -412,6 +462,15 @@ app.post('/api/models', async (req, res) => {
       const models = response.data.data
         .filter(m => m.id.includes('gpt'))
         .map(m => m.id);
+      res.json({ models });
+
+    } else if (provider === 'vllm') {
+      const headers = {};
+      if (apiKey) {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+      }
+      response = await axios.get(`${endpoint}/v1/models`, { headers });
+      const models = response.data.data.map(m => m.id);
       res.json({ models });
 
     } else {
