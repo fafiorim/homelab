@@ -79,11 +79,13 @@ const currentProvider = document.getElementById('currentProvider');
 const providers = {
     ollama: {
         endpoint: 'http://10.10.21.6:11434',
-        requiresApiKey: false
+        requiresApiKey: false,
+        defaultModel: 'qwen3.5:9b'
     },
     vllm: {
         endpoint: 'http://10.10.21.6:8000',
-        requiresApiKey: false
+        requiresApiKey: false,
+        defaultModel: 'qwen3.6:35b'
     },
     openai: {
         endpoint: 'https://api.openai.com/v1/chat/completions',
@@ -842,7 +844,10 @@ async function loadModels() {
                 modelSelect.value = config.model;
                 modelSelectChat.value = config.model;
             } else {
-                config.model = data.models[0];
+                const providerDefault = providers[config.provider]?.defaultModel;
+                config.model = (providerDefault && data.models.includes(providerDefault))
+                    ? providerDefault
+                    : data.models[0];
                 modelSelect.value = config.model;
                 modelSelectChat.value = config.model;
             }
