@@ -166,6 +166,9 @@ configure_argocd() {
     
     # Set ArgoCD server URL
     kubectl patch configmap argocd-cm -n argocd --patch="{\"data\":{\"url\":\"https://argocd.$DOMAIN\"}}"
+
+    # Allow the app-of-apps kustomization (apps/bootstrap) to reference ../<app>/*-app.yaml
+    kubectl patch configmap argocd-cm -n argocd --patch='{"data":{"kustomize.buildOptions":"--load-restrictor LoadRestrictionsNone"}}'
     
     # Configure ArgoCD for ingress
     kubectl patch configmap argocd-cmd-params-cm -n argocd --patch='{"data":{"server.insecure":"true","server.enable.grpc.web":"true"}}'

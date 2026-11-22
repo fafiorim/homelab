@@ -206,10 +206,6 @@ spec:
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/open-webui.svg
 
               - K8s Cluster:
-                  - Kubernetes Dashboard:
-                      href: http://10.10.21.110:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-                      description: Kubernetes Web UI
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/kubernetes.svg
                   - ArgoCD:
                       href: https://argocd.botocudo.net/
                       description: GitOps Continuous Delivery
@@ -260,7 +256,7 @@ spec:
                         href: https://10.10.21.31:8006/
                   - ArgoCD:
                       - abbr: ARGO
-                        href: http://10.10.21.110:30080/
+                        href: https://argocd.botocudo.net/
               BOOKMARKS_EOF
               
               # Create kubernetes configuration for cluster access
