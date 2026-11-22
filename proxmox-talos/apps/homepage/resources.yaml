@@ -200,10 +200,6 @@ spec:
                       href: https://10.10.21.11:18443/admin/
                       description: DNS Ad Blocker
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/pi-hole.svg
-                  - n8n:
-                      href: https://n8n.botocudo.net/
-                      description: Workflow Automation
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/n8n.svg
                   - Open WebUI:
                       href: https://open-webui.botocudo.net/
                       description: LLM Web Interface
@@ -234,10 +230,6 @@ spec:
                       href: http://10.10.21.11:8899/web/index.html
                       description: Media Server
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/jellyfin.svg
-                  - Paperless:
-                      href: https://paperless.botocudo.net/
-                      description: Document Management
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/paperless-ngx.svg
                   - Immich:
                       href: https://immich.botocudo.net/
                       description: Photo and Video Backup
@@ -246,18 +238,10 @@ spec:
                       href: https://uptime-kuma.botocudo.net/
                       description: Uptime Monitoring
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/uptime-kuma.svg
-                  - Wallabag:
-                      href: https://wallabag.botocudo.net/
-                      description: Read-it-later Service
-                      icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/wallabag.svg
                   - Linkding:
                       href: https://linkding.botocudo.net/
                       description: Bookmark Manager
                       icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/linkding.svg
-                  - FinGuard:
-                      href: https://finguard.botocudo.net/
-                      description: Malware File Scanner
-                      icon: mdi-shield-search
               EOF
               
               # Create bookmarks for search functionality

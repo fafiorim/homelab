@@ -1,6 +1,6 @@
 # Bootstrap: apply this once (e.g. kubectl apply -f apps/bootstrap/app-of-apps.yaml)
 # or run deploy-homelab.sh 05-applications. ArgoCD then syncs from Git and
-# creates/updates all child Applications (paperless, immich, n8n, etc.).
+# creates/updates all child Applications (immich, open-webui, etc.).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

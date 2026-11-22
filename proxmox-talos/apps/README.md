@@ -15,15 +15,8 @@ Complete observability solution with:
 ### 🏠 Homepage (`homepage/`)
 Dashboard application providing service overview and links.
 
-### 📄 Paperless-NGX (`paperless/`)
-Document management: https://paperless.botocudo.net
-
 ### 📷 Immich (`immich/`)
 Photo/video backup with ML: https://immich.botocudo.net
-
-### 🔀 n8n (`n8n/`)
-Workflow automation (8gears Helm chart): https://n8n.botocudo.net  
-Requires secret `n8n-secrets` in namespace `n8n` (see `n8n/README.md`).
 
 ### GitHub Actions Runners (`github-actions-runners/`)
 Actions Runner Controller scale set for faster parallel GitHub Actions workflows.
@@ -36,28 +29,13 @@ Actions Runner Controller scale set for faster parallel GitHub Actions workflows
 - **Capacity**: keeps 1 idle runner and scales up to 6 total runners
 - **Workflow targets**: `runs-on: homelab-arc-runners` for this repo, `runs-on: upwind-demo-arc-runners` for `fafiorim/upwind-demo`
 
-### 🛡️ FinGuard (`finguard/`)
-Malware file scanner powered by TrendAI File Security: https://finguard.botocudo.net
-Scans uploaded files for malware, active content, and threats using the Vision One File Security SDK.
-
-- **Image**: `ghcr.io/fafiorim/finguard:latest` (auto-built via GitHub Actions)
-- **Port**: 3000 (HTTP)
-- **Storage**: NFS-backed PVC at `/app/uploads`
-- **Secret**: `finguard-secret` in namespace `finguard` (created manually, not in Git)
-  ```bash
-  kubectl create secret generic finguard-secret \
-    --namespace finguard \
-    --from-literal=FSS_API_KEY='<your-vision-one-api-key>'
-  ```
-- **Test script**: `finguard/test-scan.sh` — spins up a Docker container, downloads EICAR + sample files, and uploads them to FinGuard to verify scanning works.
-
 ### 🧪 Test Applications
 - **simple-test/** - Simple test application for cluster validation
 - **test-app/** - Additional test applications
 
 ## Deployment
 
-**ArgoCD syncs everything from Git** (app-of-apps). You only need to register the bootstrap Application once; ArgoCD then syncs from the repo and creates/updates all child Applications (paperless, immich, n8n, etc.).
+**ArgoCD syncs everything from Git** (app-of-apps). You only need to register the bootstrap Application once; ArgoCD then syncs from the repo and creates/updates all child Applications (immich, open-webui, etc.).
 
 Deploy the bootstrap (once):
 ```bash
@@ -84,7 +62,7 @@ All applications sync from the Git repository configured in `config.conf`:
 ## Application Structure
 
 - **`apps/bootstrap/`** – App-of-apps: `app-of-apps.yaml` is the single Application applied once; `kustomization.yaml` lists all child Applications. ArgoCD syncs this from Git and creates/updates paperless, immich, n8n, etc.
-- Each app directory (e.g. `paperless/`, `n8n/`) contains:
+- Each app directory (e.g. `immich/`, `linkding/`) contains:
   - `*-app.yaml` – ArgoCD Application definition (referenced by bootstrap)
   - Kubernetes manifests or Kustomize configuration
 
